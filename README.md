@@ -73,6 +73,13 @@ git push
 
 ## 📖 Documentation
 
+Detailed guides and documentation to support your book writing process:
+
+- [How to Write a Book: Step-by-Step Guide](how-to-write.md)
+- [Full Export Documentation](full-export-documentation.md)
+
+---
+
 Detailed documentation for exporting your book is available here:
 
 - [Full Export Documentation](full-export-documentation.md)
