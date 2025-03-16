@@ -44,7 +44,6 @@ touch "$PROJECT_NAME/manuscript/references.bib"
 touch "$PROJECT_NAME/config/amazon-kdp-info.md"
 touch "$PROJECT_NAME/config/book-description.md"
 touch "$PROJECT_NAME/config/keywords.md"
-touch "$PROJECT_NAME/config/metadata.yaml"
 touch "$PROJECT_NAME/config/styles.css"
 touch "$PROJECT_NAME/README.md"
 touch "$PROJECT_NAME/LICENSE"
@@ -53,4 +52,24 @@ touch "$PROJECT_NAME/LICENSE"
 echo "# Book Project" > "$PROJECT_NAME/README.md"
 echo "This is the book project structure." >> "$PROJECT_NAME/README.md"
 
+# Fill metadata.yaml with placeholders for user input
+cat > "$PROJECT_NAME/config/metadata.yaml" <<EOL
+title: "Your Book Title Here"
+subtitle: "A short description of your book"
+author: "Your Name"
+isbn: "Your ISBN Number"
+edition: "Your Edition (e.g., 1st Edition)"
+publisher: "Your Publisher Name"
+date: "$(date +'%Y-%m-%d')"
+language: "Your Language (e.g., en, de, fr)"
+description: "A detailed description of your book."
+keywords:
+  - "Keyword 1"
+  - "Keyword 2"
+  - "Keyword 3"
+  - "Keyword 4"
+  - "Keyword 5"
+EOL
+
 echo "✅ Book project structure created successfully!"
+echo "ℹ️  Please fill in the metadata.yaml file with your book details."
