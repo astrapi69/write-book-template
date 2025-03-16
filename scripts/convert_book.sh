@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Move to project root directory
+cd "$(dirname "$0")/.."
+
 # Define variables
-BOOK_NAME="book"
+BOOK_NAME="book"  # TODO change to your specific book name and delete this comment
 INPUT_DIR="manuscript"
 OUTPUT_DIR="output"
 METADATA="config/metadata.yaml"

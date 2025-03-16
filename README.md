@@ -109,7 +109,10 @@ write-book-template/
 ├── assets/               # Images and figures
 ├── config/               # Book configurations (metadata, styles)
 ├── output/               # Generated book formats
-├── tools/                # Automation scripts
+└── scripts/              # Automation scripts
+    └── convert_book.sh   # 
+    └── create_project_structure.sh  # 
+    └── full-export-book.py  # 
 ├── README.md
 ├── LICENSE
 ```

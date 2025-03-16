@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Move to project root directory
+cd "$(dirname "$0")/.."
+
 # Set project name
 PROJECT_NAME="."
 
@@ -15,7 +18,6 @@ DIRECTORIES=(
     "$PROJECT_NAME/assets/figures/infographics"
     "$PROJECT_NAME/config"
     "$PROJECT_NAME/output"
-    "$PROJECT_NAME/tools"
 )
 
 # Create directories
