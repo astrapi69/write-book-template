@@ -7,7 +7,7 @@ book-project/
 │── manuscript/
 │   ├── chapters/
 │   │   ├── 01-introduction.md
-│   │   ├── 02-chapter-title.md
+│   │   ├── 02-chapter.md
 │   │   ├── ...
 │   ├── front-matter/
 │   │   ├── toc.md
@@ -44,9 +44,10 @@ book-project/
 │   ├── book.pdf
 │   ├── book.epub
 │   ├── book.mobi
-│── tools/              # Scripts and tools
-│   ├── build.sh        # Script to compile book
-│   ├── convert.py      # Conversion scripts
+│── scripts/              # Scripts and tools
+│   ├── convert_book.sh        # Script to compile book
+│   ├── convert_book.sh      # Conversion scripts
+│   ├── full-export-book.py        # Script to fully export the book to the formats to publish
 │── README.md           # Project description
 │── LICENSE             # If open-source
 ```
@@ -66,7 +67,7 @@ book-project/
 4. **`output/`**
 
     * Contains exported book versions like **PDF, EPUB, MOBI**.
-5. **`tools/`**
+5. **`scripts/`**
 
     * Holds scripts for building and converting the book to different formats.
 6. **`README.md` & `LICENSE`**
@@ -78,8 +79,8 @@ book-project/
 Here are two scripts:
 
 1. **`create_project_structure.sh`** – This script initializes the book project structure.
-2. 
 2. **`convert_book.sh`** – This script converts the book from Markdown to multiple formats (PDF, EPUB, MOBI) using Pandoc.
+3. **`full-export-book.py`** – This script converts the book from Markdown to multiple formats (PDF, EPUB, MOBI) using Pandoc with a backup functionality.
 
 * * *
 
@@ -90,8 +91,11 @@ This script sets up the book project directory.
 ```bash
 #!/bin/bash
 
+# Move to project root directory
+cd "$(dirname "$0")/.."
+
 # Set project name
-PROJECT_NAME="book-project"
+PROJECT_NAME="."
 
 # Define directories
 DIRECTORIES=(
@@ -105,7 +109,6 @@ DIRECTORIES=(
     "$PROJECT_NAME/assets/figures/infographics"
     "$PROJECT_NAME/config"
     "$PROJECT_NAME/output"
-    "$PROJECT_NAME/tools"
 )
 
 # Create directories
@@ -114,16 +117,30 @@ for dir in "${DIRECTORIES[@]}"; do
 done
 
 # Create sample files
-touch "$PROJECT_NAME/manuscript/chapters/01-introduction.md"
-touch "$PROJECT_NAME/manuscript/chapters/02-chapter-title.md"
+touch "$PROJECT_NAME/manuscript/chapters/01-chapter.md"
+touch "$PROJECT_NAME/manuscript/chapters/02-chapter.md"
+touch "$PROJECT_NAME/manuscript/front-matter/book-title.md"
+touch "$PROJECT_NAME/manuscript/front-matter/foreword.md"
 touch "$PROJECT_NAME/manuscript/front-matter/preface.md"
+touch "$PROJECT_NAME/manuscript/front-matter/toc.md"
+touch "$PROJECT_NAME/manuscript/back-matter/about-the-author.md"
+touch "$PROJECT_NAME/manuscript/back-matter/acknowledgments.md"
 touch "$PROJECT_NAME/manuscript/back-matter/appendix.md"
+touch "$PROJECT_NAME/manuscript/back-matter/bibliography.md"
+touch "$PROJECT_NAME/manuscript/back-matter/epilogue.md"
+touch "$PROJECT_NAME/manuscript/back-matter/faq.md"
+touch "$PROJECT_NAME/manuscript/back-matter/glossary.md"
+touch "$PROJECT_NAME/manuscript/back-matter/index.md"
 touch "$PROJECT_NAME/manuscript/references.bib"
+touch "$PROJECT_NAME/config/amazon-kdp-info.md"
+touch "$PROJECT_NAME/config/book-description.md"
+touch "$PROJECT_NAME/config/keywords.md"
 touch "$PROJECT_NAME/config/metadata.yaml"
 touch "$PROJECT_NAME/config/styles.css"
 touch "$PROJECT_NAME/README.md"
 touch "$PROJECT_NAME/LICENSE"
 
+# Add basic content to README
 echo "# Book Project" > "$PROJECT_NAME/README.md"
 echo "This is the book project structure." >> "$PROJECT_NAME/README.md"
 
@@ -133,8 +150,8 @@ echo "✅ Book project structure created successfully!"
 📌 **Usage:** Save the script as `create_project_structure.sh`, then run:
 
 ```bash
-chmod +x create_project_structure.sh
-./create_project_structure.sh
+chmod +x scripts/create_project_structure.sh
+./scripts/create_project_structure.sh
 ```
 
 * * *
@@ -184,8 +201,8 @@ echo "✅ Book converted successfully! Find the files in the '$OUTPUT_DIR' direc
 📌 **Usage:** Save the script as `convert_book.sh`, then run:
 
 ```bash
-chmod +x convert_book.sh
-./convert_book.sh
+chmod +x scripts/convert_book.sh
+./scripts/convert_book.sh
 ```
 
 * * *

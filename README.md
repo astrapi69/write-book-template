@@ -36,8 +36,8 @@ cd YOUR_BOOK_REPO
 Run the setup script to initialize your new book project:
 
 ```bash
-chmod +x create_project_structure.sh
-./create_project_structure.sh
+chmod +x scripts/create_project_structure.sh
+./scripts/create_project_structure.sh
 ```
 
 This generates all necessary folders and files.
@@ -53,8 +53,8 @@ This generates all necessary folders and files.
 Generate multiple book formats with the provided script:
 
 ```bash
-chmod +x convert_book.sh
-./convert_book.sh
+chmod +x scripts/convert_book.sh
+./scripts/convert_book.sh
 ```
 
 Converted files will be available in the `output/` directory.
@@ -77,6 +77,7 @@ Detailed guides and documentation to support your book writing process:
 
 - [How to Write a Book: Step-by-Step Guide](how-to-write.md)
 - [Full Export Documentation](full-export-documentation.md)
+- [Create Project Structure Documentation](create-project-documentation.md)
 
 ---
 
@@ -132,6 +133,13 @@ write-book-template/
 - [Pandoc](https://pandoc.org/installing.html) for manuscript conversion.
 - [Calibre](https://calibre-ebook.com/download) specifically for MOBI conversions.
 - [GitHub CLI (`gh`)](https://cli.github.com/) for managing repositories (optional but recommended).
+- Python 3.x (for advanced automation with `full-export-book.py`)
+
+---
+
+## ⚠️ Troubleshooting
+
+Refer to [Full Export Documentation](full-export-documentation.md#troubleshooting) for detailed error handling and solutions regarding export scripts.
 
 ---
 
