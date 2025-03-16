@@ -52,24 +52,20 @@ touch "$PROJECT_NAME/LICENSE"
 echo "# Book Project" > "$PROJECT_NAME/README.md"
 echo "This is the book project structure." >> "$PROJECT_NAME/README.md"
 
-# Fill metadata.yaml with placeholders for user input
+# Fill metadata.yaml with AI-friendly placeholders
 cat > "$PROJECT_NAME/config/metadata.yaml" <<EOL
-title: "Your Book Title Here"
-subtitle: "A short description of your book"
-author: "Your Name"
-isbn: "Your ISBN Number"
-edition: "Your Edition (e.g., 1st Edition)"
-publisher: "Your Publisher Name"
-date: "$(date +'%Y-%m-%d')"
-language: "Your Language (e.g., en, de, fr)"
-description: "A detailed description of your book."
+title: "{{BOOK_TITLE}}"
+subtitle: "{{BOOK_SUBTITLE}}"
+author: "{{AUTHOR_NAME}}"
+isbn: "{{ISBN_NUMBER}}"
+edition: "{{BOOK_EDITION}}"
+publisher: "{{PUBLISHER_NAME}}"
+date: "{{PUBLICATION_DATE}}"
+language: "{{LANGUAGE}}"
+description: "{{BOOK_DESCRIPTION}}"
 keywords:
-  - "Keyword 1"
-  - "Keyword 2"
-  - "Keyword 3"
-  - "Keyword 4"
-  - "Keyword 5"
+  - "{{KEYWORDS}}"  # Add keywords separated by commas (e.g., AI, machine learning, automation)
 EOL
 
 echo "✅ Book project structure created successfully!"
-echo "ℹ️  Please fill in the metadata.yaml file with your book details."
+echo "ℹ️  Please fill in the metadata.yaml file or use an AI tool to replace placeholders with actual values."

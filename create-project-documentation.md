@@ -29,197 +29,91 @@ book-project/
 │   │   ├── table1.csv
 │   │   ├── table2.csv
 │   │   ├── ...
-│   ├── references.bib  # If using citations
-│── assets/             # Images, media, illustrations
+│   ├── references.bib  # If using citations (e.g., BibTeX, APA, MLA formats supported)
+│── assets/             # Images, media, illustrations (for book content, cover design, and figures)
 │   ├── covers/
 │   │   ├── cover-design.png
 │   ├── figures/
 │   │   ├── diagrams/
 │   │   ├── infographics/
-│── config/             # Project configuration
-│   ├── metadata.yaml   # Title, author, ISBN, etc.
+│── config/             # Project configuration (metadata, styling, and optional Pandoc settings)
+│   ├── metadata.yaml   # Title, author, ISBN, etc. (used for all formats: PDF, EPUB, MOBI)
 │   ├── styles.css      # Custom styles for PDF/eBook
 │   ├── template.tex    # LaTeX template (if needed)
 │── output/             # Compiled book formats
 │   ├── book.pdf
 │   ├── book.epub
 │   ├── book.mobi
-│── scripts/              # Scripts and tools
-│   ├── convert_book.sh        # Script to compile book
-│   ├── convert_book.sh      # Conversion scripts
-│   ├── full-export-book.py        # Script to fully export the book to the formats to publish
+│── scripts/                        # Scripts and tools (initialize project, convert book, update metadata, and export formats)
+│   ├── create_project_structure.sh # Initializes project structure
+│   ├── convert_book.sh             # Converts Markdown to multiple formats
+│   ├── full-export-book.py         # Exports book to all publishing formats with backup
+│   ├── update-metadata-values.py   # Automates metadata population
 │── README.md           # Project description
 │── LICENSE             # If open-source
 ```
 
-### Explanation:
+---
+
+## 📜 Explanation
 
 1. **`manuscript/`**
-
-    * Holds the core book content, organized into subdirectories: `chapters/`, `front-matter/`, and `back-matter/`.
-    * Use **Markdown (`.md`)** or **LaTeX (`.tex`)** for easy formatting and portability.
+   * Holds the core book content, organized into subdirectories: `chapters/`, `front-matter/`, and `back-matter/`.
+   * Use **Markdown (`.md`)** or **LaTeX (`.tex`)** for easy formatting and portability.
 2. **`assets/`**
-
-    * Stores images, figures, tables, and any media files.
+   * Stores images, figures, tables, and any media files.
 3. **`config/`**
-
-    * Includes metadata and styling details for formatting the book.
+   * Includes metadata (`metadata.yaml`) and styling details for formatting the book.
 4. **`output/`**
-
-    * Contains exported book versions like **PDF, EPUB, MOBI**.
+   * Contains exported book versions like **PDF, EPUB, MOBI**.
 5. **`scripts/`**
-
-    * Holds scripts for building and converting the book to different formats.
+   * Holds scripts for:
+      - **Creating the project structure (`create_project_structure.sh`)**
+      - **Converting Markdown to book formats (`convert_book.sh`)**
+      - **Automating metadata population (`update-metadata-values.py`)**
+      - **Full book export with backup (`full-export-book.py`)**
 6. **`README.md` & `LICENSE`**
+   * Provide information about the project and licensing details.
 
-    * Provide information about the project and licensing details.
+---
 
-# create an automated script to convert Markdown to different book formats (PDF, EPUB, MOBI)
+## 📖 Automating Book Metadata Population
 
-Here are two scripts:
+The `update-metadata-values.py` script ensures that placeholders in `metadata.yaml` are replaced with actual values.
 
-1. **`create_project_structure.sh`** – This script initializes the book project structure.
-2. **`convert_book.sh`** – This script converts the book from Markdown to multiple formats (PDF, EPUB, MOBI) using Pandoc.
-3. **`full-export-book.py`** – This script converts the book from Markdown to multiple formats (PDF, EPUB, MOBI) using Pandoc with a backup functionality.
-
-* * *
-
-### 1️⃣ **Script to Create the Project Structure (`create_project_structure.sh`)**
-
-This script sets up the book project directory.
-
+### 🔹 **Run the script:**
 ```bash
-#!/bin/bash
-
-# Move to project root directory
-cd "$(dirname "$0")/.."
-
-# Set project name
-PROJECT_NAME="."
-
-# Define directories
-DIRECTORIES=(
-    "$PROJECT_NAME/manuscript/chapters"
-    "$PROJECT_NAME/manuscript/front-matter"
-    "$PROJECT_NAME/manuscript/back-matter"
-    "$PROJECT_NAME/manuscript/figures"
-    "$PROJECT_NAME/manuscript/tables"
-    "$PROJECT_NAME/assets/covers"
-    "$PROJECT_NAME/assets/figures/diagrams"
-    "$PROJECT_NAME/assets/figures/infographics"
-    "$PROJECT_NAME/config"
-    "$PROJECT_NAME/output"
-)
-
-# Create directories
-for dir in "${DIRECTORIES[@]}"; do
-    mkdir -p "$dir"
-done
-
-# Create sample files
-touch "$PROJECT_NAME/manuscript/chapters/01-chapter.md"
-touch "$PROJECT_NAME/manuscript/chapters/02-chapter.md"
-touch "$PROJECT_NAME/manuscript/front-matter/book-title.md"
-touch "$PROJECT_NAME/manuscript/front-matter/foreword.md"
-touch "$PROJECT_NAME/manuscript/front-matter/preface.md"
-touch "$PROJECT_NAME/manuscript/front-matter/toc.md"
-touch "$PROJECT_NAME/manuscript/back-matter/about-the-author.md"
-touch "$PROJECT_NAME/manuscript/back-matter/acknowledgments.md"
-touch "$PROJECT_NAME/manuscript/back-matter/appendix.md"
-touch "$PROJECT_NAME/manuscript/back-matter/bibliography.md"
-touch "$PROJECT_NAME/manuscript/back-matter/epilogue.md"
-touch "$PROJECT_NAME/manuscript/back-matter/faq.md"
-touch "$PROJECT_NAME/manuscript/back-matter/glossary.md"
-touch "$PROJECT_NAME/manuscript/back-matter/index.md"
-touch "$PROJECT_NAME/manuscript/references.bib"
-touch "$PROJECT_NAME/config/amazon-kdp-info.md"
-touch "$PROJECT_NAME/config/book-description.md"
-touch "$PROJECT_NAME/config/keywords.md"
-touch "$PROJECT_NAME/config/metadata.yaml"
-touch "$PROJECT_NAME/config/styles.css"
-touch "$PROJECT_NAME/README.md"
-touch "$PROJECT_NAME/LICENSE"
-
-# Add basic content to README
-echo "# Book Project" > "$PROJECT_NAME/README.md"
-echo "This is the book project structure." >> "$PROJECT_NAME/README.md"
-
-echo "✅ Book project structure created successfully!"
+python scripts/update-metadata-values.py
 ```
+This will:
+- Fill in `metadata.yaml` with structured data.
+- Ensure proper formatting for the **keywords array** in YAML.
 
-📌 **Usage:** Save the script as `create_project_structure.sh`, then run:
+---
 
+## 📚 Converting Markdown to Different Book Formats
+
+To convert the book from Markdown to **PDF, EPUB, and MOBI**, use:
 ```bash
-chmod +x scripts/create_project_structure.sh
-./scripts/create_project_structure.sh
+bash scripts/convert_book.sh
 ```
+This script will:
+- Merge all chapters into a single document.
+- Convert the manuscript to various formats using **Pandoc**.
+- Ensure metadata is applied correctly from `metadata.yaml`.
 
-* * *
+### 🔹 **Requirements:**
+- **Pandoc** (for conversion):
+  ```bash
+  sudo apt install pandoc
+  ```
+- **Calibre** (for MOBI conversion):
+  ```bash
+  sudo apt install calibre
+  ```
 
-### 2️⃣ **Script to Convert the Book (`convert_book.sh`)**
+---
 
-This script converts the book's Markdown files into **PDF, EPUB, and MOBI** formats using **Pandoc**.
+## 🎯 Conclusion
+This setup provides a **structured workflow** for book projects, supporting **manual input** and **AI automation**. 🚀
 
-```bash
-#!/bin/bash
-
-# Define variables
-BOOK_NAME="book"
-INPUT_DIR="manuscript/chapters"
-OUTPUT_DIR="output"
-METADATA="config/metadata.yaml"
-STYLE="config/styles.css"
-
-# Ensure Pandoc is installed
-if ! command -v pandoc &> /dev/null; then
-    echo "❌ Pandoc is not installed. Install it using: sudo apt install pandoc"
-    exit 1
-fi
-
-# Ensure output directory exists
-mkdir -p "$OUTPUT_DIR"
-
-# Merge all markdown chapters into a single file
-cat $INPUT_DIR/*.md > "$OUTPUT_DIR/$BOOK_NAME.md"
-
-# Convert to PDF
-pandoc "$OUTPUT_DIR/$BOOK_NAME.md" --metadata-file=$METADATA -o "$OUTPUT_DIR/$BOOK_NAME.pdf" --css=$STYLE
-
-# Convert to EPUB
-pandoc "$OUTPUT_DIR/$BOOK_NAME.md" --metadata-file=$METADATA -o "$OUTPUT_DIR/$BOOK_NAME.epub"
-
-# Convert to MOBI (requires kindlegen or Calibre's ebook-convert)
-if command -v ebook-convert &> /dev/null; then
-    ebook-convert "$OUTPUT_DIR/$BOOK_NAME.epub" "$OUTPUT_DIR/$BOOK_NAME.mobi"
-else
-    echo "⚠️ MOBI conversion skipped. Install Calibre and use: sudo apt install calibre"
-fi
-
-echo "✅ Book converted successfully! Find the files in the '$OUTPUT_DIR' directory."
-```
-
-📌 **Usage:** Save the script as `convert_book.sh`, then run:
-
-```bash
-chmod +x scripts/convert_book.sh
-./scripts/convert_book.sh
-```
-
-* * *
-
-### **Requirements for Conversion Script**
-
-* Install **Pandoc**:
-
-    ```bash
-    sudo apt install pandoc
-    ```
-
-* Install **Calibre (optional, for MOBI conversion)**:
-
-    ```bash
-    sudo apt install calibre
-    ```
-
-
-Would you like any modifications or additions to the scripts? 🚀

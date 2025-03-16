@@ -31,24 +31,59 @@ git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
 ```
 
-### 2️⃣ Set Up Your Book Repository
+### 2️⃣ Initialize Your Book Project
 
-Run the setup script to initialize your new book project:
-
+Run the Bash script to set up the required directory structure:
 ```bash
-chmod +x scripts/create_project_structure.sh
-./scripts/create_project_structure.sh
+bash scripts/create_project_structure.sh
+```
+This will:
+- Create the necessary folders for chapters, metadata, assets, and configuration.
+- Generate `metadata.yaml` with placeholders.
+
+After execution, update `metadata.yaml` manually or use automation.
+
+### 3️⃣ Updating Metadata Automatically
+To replace placeholders in `metadata.yaml`, use the Python script:
+```bash
+python scripts/update-metadata-values.py
+```
+This script:
+- Fills in `metadata.yaml` with structured data with the values in the script.
+- Ensures correct formatting for the **keywords array**.
+
+### 4️⃣ Example Metadata Structure
+After running the Python script, `metadata.yaml` will look like this:
+```yaml
+title: "Enter the title of your book"
+subtitle: "Enter a short subtitle describing your book"
+author: "Enter the author's full name"
+isbn: "Enter the ISBN number (if available)"
+edition: "Enter the edition of the book (e.g., 1st Edition, 2nd Edition)"
+publisher: "Enter the publisher's name"
+date: "Enter the publication date in YYYY-MM-DD format"
+language: "Enter the book's language code (e.g., en, de, fr)"
+description: "Provide a detailed description of your book"
+keywords:
+  - "AI"
+  - "machine learning"
+  - "automation"
 ```
 
-This generates all necessary folders and files.
+### 5️⃣ Convert the Book to PDF/EPUB/MOBI
+Once the manuscript is ready, use the conversion script:
+```bash
+bash scripts/convert_book.sh
+```
+This will generate output files in the `output/` directory.
 
-### 3️⃣ Start Writing
+### 6️⃣ Start Writing
 
 - Navigate to `manuscript/chapters/` and start writing your chapters in Markdown.
 - Update `manuscript/front-matter/toc.md` to reflect your chapters and content.
 - Store your images and figures in the `assets/` folder.
 
-### 4️⃣ Convert to PDF, EPUB, and MOBI
+### 7️⃣ Convert to PDF, EPUB, and MOBI
 
 Generate multiple book formats with the provided script:
 
@@ -59,7 +94,7 @@ chmod +x scripts/convert_book.sh
 
 Converted files will be available in the `output/` directory.
 
-### 5️⃣ Push to GitHub
+### 8️⃣ Push to GitHub
 
 Commit and push your changes manually to GitHub:
 
