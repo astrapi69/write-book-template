@@ -27,65 +27,77 @@ PAGE_BREAKS = {
 }
 
 def prepare_output_folder():
-    if os.path.exists("output"):
-        if os.path.exists("output_backup"):
-            shutil.rmtree("output_backup")
-        shutil.move("output", "output_backup")
-    os.makedirs("output", exist_ok=True)
+    """Prepare output folder by backing up the existing output directory."""
+    if os.path.exists(OUTPUT_DIR):
+        if os.path.exists(BACKUP_DIR):
+            shutil.rmtree(BACKUP_DIR)
+        shutil.move(OUTPUT_DIR, BACKUP_DIR)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def compile_book(format):
-    output_file = f"{OUTPUT_FILE}.{FORMATS[format]}"
-    output_path = os.path.join(OUTPUT_DIR, output_file)
-
+    """Compile the book into the specified format using Pandoc."""
+    output_path = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{FORMATS[format]}")
     page_break = PAGE_BREAKS.get(format, "\n\n")
-    temp_markdown = os.path.join(OUTPUT_DIR, "combined_temp.md")
 
-    # Sort chapter files
-    chapters_dir = os.path.join(BOOK_DIR, "chapters")
-    chapters = sorted(
-        [f for f in os.listdir(chapters_dir) if f.endswith(".md")]
-    )
+    temp_markdown_file = os.path.join(OUTPUT_DIR, "temp_book.md")
+    metadata_file = os.path.join("config", "metadata.yaml")  # Metadata file path
 
-    # Compile content into one markdown file
-    with open(temp_markdown, "w", encoding="utf-8") as combined:
-        for section in [
+    # Gather chapters sorted
+    chapter_files = sorted([
+        os.path.join(BOOK_DIR, "chapters", f)
+        for f in os.listdir(os.path.join(BOOK_DIR, "chapters"))
+        if f.endswith(".md")
+    ])
+
+    with open(temp_markdown_file, "w", encoding="utf-8") as combined:
+        # Front matter
+        front_matter_files = [
             "front-matter/book-title.md",
             "front-matter/toc.md",
             "front-matter/introduction.md",
             "front-matter/foreword.md",
             "front-matter/preface.md",
-        ]:
-            section_path = os.path.join(BOOK_DIR, section)
-            if os.path.exists(section_path):
-                with open(section_path, encoding="utf-8") as f:
+        ]
+        for file in front_matter_files:
+            path = os.path.join(BOOK_DIR, file)
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as f:
                     combined.write(f.read() + page_break)
 
-        for chapter in chapters_sorted():
-            with open(chapter, encoding="utf-8") as ch:
-                combined.write(ch.read() + page_break)
+        # Chapters
+        for chapter_file in chapter_files:
+            with open(chapter_file, encoding="utf-8") as f:
+                combined.write(f.read() + page_break)
 
-        for back_matter in [
+        # Back matter
+        back_matter_files = [
             "back-matter/epilogue.md",
             "back-matter/glossary.md",
-            "back-matter/about-the-author.md",
-            "back-matter/acknowledgments.md",
             "back-matter/appendix.md",
-            "back-matter/bibliography.md",
+            "back-matter/acknowledgments.md",
+            "back-matter/about-the-author.md",
             "back-matter/faq.md",
+            "back-matter/bibliography.md",
             "back-matter/index.md",
-        ]:
-            back_matter_path = os.path.join(BOOK_DIR, back_matter)
-            if os.path.exists(back_matter):
-                with open(back_matter, "r", encoding="utf-8") as bm:
-                    combined.write(bm.read() + page_break)
+        ]
+        for file in back_matter_files:
+            path = os.path.join(BOOK_DIR, file)
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as f:
+                    combined.write(f.read() + page_break)
 
+    # Construct Pandoc command
     pandoc_cmd = [
         "pandoc",
+        temp_markdown_file,
         "--from=markdown",
         f"--to={FORMATS[format]}",
         f"--output={output_path}",
-        temp_markdown,
+        f"--metadata-file={metadata_file}",  # Include metadata file
     ]
+
+    if format == "pdf":
+        pandoc_cmd.append("--pdf-engine=pdflatex")
 
     try:
         subprocess.run(pandoc_cmd, check=True)
@@ -93,34 +105,13 @@ def compile_book(format):
     except subprocess.CalledProcessError as e:
         print(f"❌ Error compiling {format}: {e}")
 
-    # Clean temporary file
-    os.remove(temp_markdown)
-
-def chapters_sorted():
-    chapters_dir = os.path.join(BOOK_DIR, "chapters")
-    return [
-        os.path.join(chapters_dir, f)
-        for f in sorted(os.listdir(chapters_dir))
-        if f.endswith(".md")
-    ]
+    # Uncomment the following line if you want to clean the temporary markdown file
+    # os.remove(temp_markdown_file)
 
 if __name__ == "__main__":
-    # Variables
-    BOOK_DIR = "./manuscript"
-    OUTPUT_DIR = "./output"
-    BACKUP_DIR = "./output_backup"
-    OUTPUT_FILE = "book"  # Change as needed
-
-    FORMATS = {
-        "markdown": "gfm",
-        "pdf": "pdf",
-        "epub": "epub",
-        "docx": "docx",
-    }
-
     prepare_output_folder()
 
     for fmt in FORMATS.keys():
         compile_book(fmt)
 
-    print("✅ All formats generated successfully!")
+    print("🎉 All formats generated successfully!")
