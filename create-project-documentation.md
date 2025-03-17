@@ -77,6 +77,33 @@ book-project/
 
 ---
 
+### 📂 Customizing Project Structure
+You can modify `create_project_structure.sh` to **add custom directories**. Example:
+
+💡 **To add an "exercises" folder:**  
+Edit `scripts/create_project_structure.sh` and add:
+```bash
+
+# Define directories
+DIRECTORIES=(
+    "$PROJECT_NAME/manuscript/exercises" # <= new added directory
+    "$PROJECT_NAME/manuscript/chapters"
+    "$PROJECT_NAME/manuscript/front-matter"
+    "$PROJECT_NAME/manuscript/back-matter"
+    "$PROJECT_NAME/manuscript/figures"
+    "$PROJECT_NAME/manuscript/tables"
+    "$PROJECT_NAME/assets/covers"
+    "$PROJECT_NAME/assets/figures/diagrams"
+    "$PROJECT_NAME/assets/figures/infographics"
+    "$PROJECT_NAME/config"
+    "$PROJECT_NAME/output"
+)
+```
+
+📌 This will create a new **`exercises/` directory** inside the manuscript folder.
+
+---
+
 ## 📖 Automating Book Metadata Population
 
 The `update-metadata-values.py` script ensures that placeholders in `metadata.yaml` are replaced with actual values.
@@ -195,6 +222,7 @@ output_formats:
   - "pdf"
   - "epub"
   - "mobi"
+  - "docx"
 kdp_enabled: true
 print_ready: false
 ```
@@ -230,6 +258,21 @@ python scripts/update-metadata-values.py
 - Load `metadata_values.json` and **replace placeholders** in `metadata.yaml`.
 - Format **lists correctly** (e.g., `keywords` and `output_formats`).
 - Ensure **boolean values** are converted to `true` or `false` as needed.
+
+---
+
+## **🛠 Error Handling in Scripts**
+
+While running these scripts, some **errors may occur**:
+
+### **Common Errors & Solutions**
+| **Error** | **Cause** | **Solution** |
+|-----------|----------|--------------|
+| `FileNotFoundError` | Missing `metadata_values.json` | Ensure the file exists in `config/` |
+| `Invalid JSON format` | Incorrectly formatted JSON file | Validate JSON using an online checker |
+| `Pandoc not found` | Pandoc is not installed | Install using `sudo apt install pandoc` |
+
+✅ **Basic error handling is implemented** in `update-metadata-values.py`, which warns users about missing or invalid files.
 
 ---
 
