@@ -114,6 +114,132 @@ This script will:
 
 ---
 
+# 📖 **Metadata Configuration (`metadata.yaml`)**
+
+The `metadata.yaml` file contains essential information about your book, including **title, author, publishing details, styling options, and export settings**. This file is crucial for **automating book generation**, ensuring consistency across formats (PDF, EPUB, MOBI), and preparing metadata for publishing platforms.
+
+## **📌 Available Metadata Keys**
+Below is a breakdown of the **supported metadata keys** in `metadata.yaml`:
+
+### **1️⃣ Essential Book Information**
+| **Key**       | **Type**   | **Description** |
+|--------------|-----------|----------------|
+| `title`      | `string`  | The book’s title. |
+| `subtitle`   | `string`  | A short subtitle providing additional context. |
+| `author`     | `string`  | The author's name. Multiple authors can be separated by commas. |
+| `isbn`       | `string`  | The book’s ISBN number (if applicable). |
+| `edition`    | `string`  | The edition of the book (e.g., `"1st Edition"`). |
+| `publisher`  | `string`  | The name of the publisher or `"Self-Published"`. |
+| `date`       | `string`  | Publication date in `YYYY-MM-DD` format. |
+| `language`   | `string`  | The book's language code (`en`, `de`, `fr`, etc.). |
+| `description` | `string` | A short summary of the book (used for publishing metadata). |
+| `keywords`   | `list`    | A list of keywords for categorization (e.g., `["AI", "Machine Learning", "No-Code"]`). |
+
+### **2️⃣ Formatting & Styling Options**
+| **Key**         | **Type**   | **Description** |
+|----------------|-----------|----------------|
+| `cover_image`  | `string`  | Path to the cover image (e.g., `"assets/covers/cover.jpg"`). |
+| `styles`       | `string`  | Path to a custom stylesheet (`config/styles.css`). |
+| `template`     | `string`  | Path to a custom Pandoc/LaTeX template (`config/template.tex`). |
+| `font`         | `string`  | Preferred font (used for PDF export). |
+| `page_size`    | `string`  | Page format for PDFs (`A4`, `Letter`, etc.). |
+| `margin`       | `string`  | Margin settings for print layout (e.g., `"1in"`). |
+
+### **3️⃣ Content Structure Options**
+| **Key**        | **Type**   | **Description** |
+|--------------|-----------|----------------|
+| `toc`        | `boolean` | `true` to generate a Table of Contents. |
+| `bibliography` | `string` | Path to the bibliography file (`"manuscript/references.bib"`). |
+| `appendix`   | `boolean` | `true` if an appendix is included. |
+| `glossary`   | `boolean` | `true` to include a glossary section. |
+| `index`      | `boolean` | `true` to generate an index at the end. |
+
+### **4️⃣ Export & Publishing Options**
+| **Key**          | **Type**   | **Description** |
+|-----------------|-----------|----------------|
+| `output_formats` | `list`    | Supported export formats (`["pdf", "epub", "mobi"]`). |
+| `kdp_enabled`    | `boolean` | `true` if publishing on Amazon KDP. |
+| `print_ready`    | `boolean` | `true` if the book is formatted for print. |
+
+---
+
+## **📂 Example `metadata.yaml`**
+```yaml
+title: "AI for Everyone: Crafting Prompts Without Coding Skills"
+subtitle: "A beginner-friendly guide to AI prompt engineering"
+author: "Asterios Raptis"
+isbn: "979-8309899173"
+edition: "2nd Edition"
+publisher: "Asterios Raptis"
+date: "2025-03-17"
+language: "en"
+description: "A comprehensive guide to using AI prompts effectively, designed for non-coders to enhance their productivity and creativity."
+keywords:
+  - "AI"
+  - "artificial intelligence"
+  - "prompt engineering"
+  - "no-code AI"
+  - "creative AI"
+cover_image: "assets/covers/cover.jpg"
+styles: "config/styles.css"
+template: "config/template.tex"
+font: "Times New Roman"
+page_size: "A4"
+margin: "1in"
+toc: true
+bibliography: "manuscript/references.bib"
+appendix: true
+glossary: false
+index: true
+output_formats:
+  - "pdf"
+  - "epub"
+  - "mobi"
+kdp_enabled: true
+print_ready: false
+```
+
+---
+
+## **⚙️ Automating Metadata Population**
+To **automatically populate `metadata.yaml`**, use the **`update-metadata-values.py`** script. This script loads values from `config/metadata_values.json` and updates placeholders in `metadata.yaml`.
+
+### **🔹 1. Setup `metadata_values.json`**
+Create a JSON file (`config/metadata_values.json`) with your book’s metadata:
+```json
+{
+    "BOOK_TITLE": "AI for Everyone: Crafting Prompts Without Coding Skills",
+    "BOOK_SUBTITLE": "A beginner-friendly guide to AI prompt engineering",
+    "AUTHOR_NAME": "Asterios Raptis",
+    "ISBN_NUMBER": "979-8309899173",
+    "BOOK_EDITION": "2nd Edition",
+    "PUBLISHER_NAME": "Asterios Raptis",
+    "PUBLICATION_DATE": "2025-03-17",
+    "LANGUAGE": "en",
+    "BOOK_DESCRIPTION": "A comprehensive guide to using AI prompts effectively, designed for non-coders to enhance their productivity and creativity.",
+    "KEYWORDS": ["AI", "artificial intelligence", "prompt engineering", "no-code AI", "creative AI"]
+}
+```
+
+### **🔹 2. Run the Metadata Update Script**
+```bash
+python scripts/update-metadata-values.py
+```
+
+✅ This will:
+- Load `metadata_values.json` and **replace placeholders** in `metadata.yaml`.
+- Format **lists correctly** (e.g., `keywords` and `output_formats`).
+- Ensure **boolean values** are converted to `true` or `false` as needed.
+
+---
+
+## 🎯 **Final Thoughts**
+- ✅ **Metadata is fully customizable** via `metadata_values.json`.
+- ✅ **Scripts ensure proper formatting** for metadata fields.
+- ✅ **Supports AI automation**, making it easy to generate structured metadata dynamically.
+
+This documentation update provides **full metadata flexibility** for book projects. 🚀
+
 ## 🎯 Conclusion
 This setup provides a **structured workflow** for book projects, supporting **manual input** and **AI automation**. 🚀
 
