@@ -1,4 +1,3 @@
-
 # 📚 Write-Book-Template
 
 This repository is a convenient template for efficiently writing and organizing books. It features structured directories, automation scripts, and clear guidelines to help authors easily create, format, and publish their books in popular formats such as PDF, EPUB, and MOBI.
@@ -39,35 +38,42 @@ bash scripts/create_project_structure.sh
 ```
 This will:
 - Create the necessary folders for chapters, metadata, assets, and configuration.
-- Generate `metadata.yaml` with placeholders.
+- Generate `metadata.yaml` with placeholders for customization.
 
 After execution, update `metadata.yaml` manually or use automation.
 
-### 3️⃣ Updating Metadata Automatically
+### 3️⃣ Automate Metadata Population
 To replace placeholders in `metadata.yaml`, use the Python script:
 ```bash
 python scripts/update-metadata-values.py
 ```
 This script:
-- Fills in `metadata.yaml` with structured data with the values in the script.
-- Ensures correct formatting for the **keywords array**.
+- Loads metadata values from `config/metadata_values.json`.
+- Replaces placeholders in `metadata.yaml` with structured values.
+- Ensures correct formatting for **lists** like `keywords` and `output_formats`.
 
 ### 4️⃣ Example Metadata Structure
 After running the Python script, `metadata.yaml` will look like this:
 ```yaml
-title: "Enter the title of your book"
-subtitle: "Enter a short subtitle describing your book"
-author: "Enter the author's full name"
-isbn: "Enter the ISBN number (if available)"
-edition: "Enter the edition of the book (e.g., 1st Edition, 2nd Edition)"
-publisher: "Enter the publisher's name"
-date: "Enter the publication date in YYYY-MM-DD format"
-language: "Enter the book's language code (e.g., en, de, fr)"
-description: "Provide a detailed description of your book"
+title: "Your Book Title"
+subtitle: "A short subtitle describing your book"
+author: "Your Name"
+isbn: "Your ISBN Number"
+edition: "Your Edition (e.g., 1st Edition, 2nd Edition)"
+publisher: "Your Publisher Name"
+date: "YYYY-MM-DD"
+language: "en"
+description: "Provide a detailed description of your book."
 keywords:
   - "AI"
   - "machine learning"
   - "automation"
+cover_image: "assets/covers/cover.jpg"
+output_formats:
+  - "pdf"
+  - "epub"
+  - "mobi"
+kdp_enabled: true
 ```
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
@@ -110,6 +116,7 @@ git push
 
 Detailed guides and documentation to support your book writing process:
 
+- [wiki](https://github.com/astrapi69/write-book-template/wiki)
 - [How to Write a Book: Step-by-Step Guide](how-to-write.md)
 - [Full Export Documentation](full-export-documentation.md)
 - [Create Project Structure Documentation](create-project-documentation.md)
@@ -146,9 +153,10 @@ write-book-template/
 ├── config/               # Book configurations (metadata, styles)
 ├── output/               # Generated book formats
 └── scripts/              # Automation scripts
-    └── convert_book.sh   # 
-    └── create_project_structure.sh  # 
-    └── full-export-book.py  # 
+    ├── convert_book.sh   # Converts Markdown to PDF, EPUB, MOBI
+    ├── create_project_structure.sh  # Sets up project structure
+    ├── full-export-book.py  # Exports book with backup
+    ├── update-metadata-values.py  # Automates metadata updates
 ├── README.md
 ├── LICENSE
 ```
