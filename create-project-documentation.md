@@ -30,13 +30,13 @@ book-project/
 │   │   ├── table2.csv
 │   │   ├── ...
 │   ├── references.bib  # If using citations (e.g., BibTeX, APA, MLA formats supported)
-│── assets/             # Images, media, illustrations (for book content, cover design, and figures)
+│── assets/ # Images, media, illustrations (for book content, cover design, and figures)
 │   ├── covers/
 │   │   ├── cover-design.png
 │   ├── figures/
 │   │   ├── diagrams/
 │   │   ├── infographics/
-│── config/             # Project configuration (metadata, styling, and optional Pandoc settings)
+│── config/ # Project configuration (metadata, styling, and optional Pandoc settings)
 │   ├── metadata.yaml   # Title, author, ISBN, etc. (used for all formats: PDF, EPUB, MOBI)
 │   ├── styles.css      # Custom styles for PDF/eBook
 │   ├── template.tex    # LaTeX template (if needed)
@@ -44,13 +44,22 @@ book-project/
 │   ├── book.pdf
 │   ├── book.epub
 │   ├── book.mobi
-│── scripts/                        # Scripts and tools (initialize project, convert book, update metadata, and export formats)
-│   ├── create_project_structure.sh # Initializes project structure
-│   ├── convert_book.sh             # Converts Markdown to multiple formats
-│   ├── full-export-book.py         # Exports book to all publishing formats with backup
-│   ├── update-metadata-values.py   # Automates metadata population
-│── README.md           # Project description
-│── LICENSE             # If open-source
+│   ├── book.docx
+│── scripts/ # Scripts and tools (initialize project, convert book, update metadata, and export formats)
+│   ├── convert_book.sh                # Converts Markdown to multiple formats
+│   ├── convert_img_tags.sh            # Converts the paths of the img tags
+│   ├── convert_to_absolute.sh         # Converts the relative paths to absolute paths of the md images
+│   ├── convert_to_relative.sh         # Converts back the absolute paths to relative paths of the md images
+│   ├── create_project_structure.sh    # Initializes project structure
+│   ├── full_export_book.py            # Exports book to all publishing formats with backup
+│   ├── metadata_values_example.json   # example metadata values json file
+│   ├── update_metadata_values.py      # Automates metadata population
+│── create-project-documentation.md           # Documentation for generate the project structure
+│── full-export-documentation.md              # Documentation the export
+│── how-to-write.md                           # Documentation how to use the project structure and save the files
+│── LICENSE                                   # If open-source
+│── pyproject.toml                            # Configuration file for poetry
+│── README.md                                 # Project description
 ```
 
 ---
@@ -70,8 +79,8 @@ book-project/
    * Holds scripts for:
       - **Creating the project structure (`create_project_structure.sh`)**
       - **Converting Markdown to book formats (`convert_book.sh`)**
-      - **Automating metadata population (`update-metadata-values.py`)**
-      - **Full book export with backup (`full-export-book.py`)**
+      - **Automating metadata population (`update_metadata_values.py`)**
+      - **Full book export with backup (`full_export_book.py`)**
 6. **`README.md` & `LICENSE`**
    * Provide information about the project and licensing details.
 
@@ -106,11 +115,11 @@ DIRECTORIES=(
 
 ## 📖 Automating Book Metadata Population
 
-The `update-metadata-values.py` script ensures that placeholders in `metadata.yaml` are replaced with actual values.
+The `update_metadata_values.py` script ensures that placeholders in `metadata.yaml` are replaced with actual values.
 
 ### 🔹 **Run the script:**
 ```bash
-python scripts/update-metadata-values.py
+python scripts/update_metadata_values.py
 ```
 This will:
 - Fill in `metadata.yaml` with structured data.
@@ -230,7 +239,7 @@ print_ready: false
 ---
 
 ## **⚙️ Automating Metadata Population**
-To **automatically populate `metadata.yaml`**, use the **`update-metadata-values.py`** script. This script loads values from `config/metadata_values.json` and updates placeholders in `metadata.yaml`.
+To **automatically populate `metadata.yaml`**, use the **`update_metadata_values.py`** script. This script loads values from `config/metadata_values.json` and updates placeholders in `metadata.yaml`.
 
 ### **🔹 1. Setup `metadata_values.json`**
 Create a JSON file (`config/metadata_values.json`) with your book’s metadata:
@@ -251,7 +260,7 @@ Create a JSON file (`config/metadata_values.json`) with your book’s metadata:
 
 ### **🔹 2. Run the Metadata Update Script**
 ```bash
-python scripts/update-metadata-values.py
+python scripts/update_metadata_values.py
 ```
 
 ✅ This will:
@@ -272,7 +281,7 @@ While running these scripts, some **errors may occur**:
 | `Invalid JSON format` | Incorrectly formatted JSON file | Validate JSON using an online checker |
 | `Pandoc not found` | Pandoc is not installed | Install using `sudo apt install pandoc` |
 
-✅ **Basic error handling is implemented** in `update-metadata-values.py`, which warns users about missing or invalid files.
+✅ **Basic error handling is implemented** in `update_metadata_values.py`, which warns users about missing or invalid files.
 
 ---
 

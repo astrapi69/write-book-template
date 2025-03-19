@@ -45,7 +45,7 @@ After execution, update `metadata.yaml` manually or use automation.
 ### 3️⃣ Automate Metadata Population
 To replace placeholders in `metadata.yaml`, use the Python script:
 ```bash
-python scripts/update-metadata-values.py
+python scripts/update_metadata_values.py
 ```
 This script:
 - Loads metadata values from `config/metadata_values.json`.
@@ -77,11 +77,15 @@ kdp_enabled: true
 ```
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
-Once the manuscript is ready, use the conversion script:
+
+Once the manuscript is ready, use **Pandoc** for conversion:
+
 ```bash
-bash scripts/convert_book.sh
+pandoc output/merged_book.md -o output/book.pdf --metadata-file=config/metadata.yaml
+pandoc output/merged_book.md -o output/book.epub --metadata-file=config/metadata.yaml
 ```
-This will generate output files in the `output/` directory.
+
+Converted files will be available in the `output/` directory.
 
 ### 6️⃣ Start Writing
 
@@ -89,18 +93,7 @@ This will generate output files in the `output/` directory.
 - Update `manuscript/front-matter/toc.md` to reflect your chapters and content.
 - Store your images and figures in the `assets/` folder.
 
-### 7️⃣ Convert to PDF, EPUB, and MOBI
-
-Generate multiple book formats with the provided script:
-
-```bash
-chmod +x scripts/convert_book.sh
-./scripts/convert_book.sh
-```
-
-Converted files will be available in the `output/` directory.
-
-### 8️⃣ Push to GitHub
+### 7️⃣ Push to GitHub
 
 Commit and push your changes manually to GitHub:
 
@@ -123,42 +116,66 @@ Detailed guides and documentation to support your book writing process:
 
 ---
 
-Detailed documentation for exporting your book is available here:
-
-- [Full Export Documentation](full-export-documentation.md)
-
----
-
 ## 📁 Directory Structure
 
 ```
 write-book-template/
-├── manuscript/
+│── manuscript/
 │   ├── chapters/
 │   │   ├── 01-introduction.md
-│   │   ├── 02-chapter-title.md
+│   │   ├── 02-chapter.md
+│   │   ├── ...
 │   ├── front-matter/
 │   │   ├── toc.md
 │   │   ├── preface.md
-│   │   ├── acknowledgments.md
 │   │   ├── foreword.md
+│   │   ├── acknowledgments.md
 │   ├── back-matter/
-│   │   ├── appendix.md
-│   │   ├── glossary.md
-│   │   ├── faq.md
-│   │   ├── bibliography.md
-│   │   ├── index.md
 │   │   ├── about-the-author.md
-├── assets/               # Images and figures
-├── config/               # Book configurations (metadata, styles)
-├── output/               # Generated book formats
-└── scripts/              # Automation scripts
-    ├── convert_book.sh   # Converts Markdown to PDF, EPUB, MOBI
-    ├── create_project_structure.sh  # Sets up project structure
-    ├── full-export-book.py  # Exports book with backup
-    ├── update-metadata-values.py  # Automates metadata updates
-├── README.md
-├── LICENSE
+│   │   ├── appendix.md
+│   │   ├── bibliography.md
+│   │   ├── faq.md
+│   │   ├── glossary.md
+│   │   ├── index.md
+│   ├── figures/
+│   │   ├── fig1.png
+│   │   ├── fig2.svg
+│   │   ├── ...
+│   ├── tables/
+│   │   ├── table1.csv
+│   │   ├── table2.csv
+│   │   ├── ...
+│   ├── references.bib  # If using citations (e.g., BibTeX, APA, MLA formats supported)
+│── assets/ # Images, media, illustrations (for book content, cover design, and figures)
+│   ├── covers/
+│   │   ├── cover-design.png
+│   ├── figures/
+│   │   ├── diagrams/
+│   │   ├── infographics/
+│── config/ # Project configuration (metadata, styling, and optional Pandoc settings)
+│   ├── metadata.yaml   # Title, author, ISBN, etc. (used for all formats: PDF, EPUB, MOBI)
+│   ├── styles.css      # Custom styles for PDF/eBook
+│   ├── template.tex    # LaTeX template (if needed)
+│── output/             # Compiled book formats
+│   ├── book.pdf
+│   ├── book.epub
+│   ├── book.mobi
+│   ├── book.docx
+│── scripts/ # Scripts and tools (initialize project, convert book, update metadata, and export formats)
+│   ├── convert_book.sh                # Converts Markdown to multiple formats
+│   ├── convert_img_tags.sh            # Converts the paths of the img tags
+│   ├── convert_to_absolute.sh         # Converts the relative paths to absolute paths of the md images
+│   ├── convert_to_relative.sh         # Converts back the absolute paths to relative paths of the md images
+│   ├── create_project_structure.sh    # Initializes project structure
+│   ├── full_export_book.py            # Exports book to all publishing formats with backup
+│   ├── metadata_values_example.json   # example metadata values json file
+│   ├── update_metadata_values.py      # Automates metadata population
+│── create-project-documentation.md           # Documentation for generate the project structure
+│── full-export-documentation.md              # Documentation the export
+│── how-to-write.md                           # Documentation how to use the project structure and save the files
+│── LICENSE                                   # If open-source
+│── pyproject.toml                            # Configuration file for poetry
+│── README.md                                 # Project description
 ```
 
 ---
@@ -167,7 +184,7 @@ write-book-template/
 
 - **Metadata:** Modify `config/metadata.yaml` to personalize your book details (title, author, etc.)
 - **Styles:** Edit `config/styles.css` to tailor your book’s appearance and formatting.
-- **Scripts:** Customize `convert_book.sh` to adjust conversion settings and output options.
+- **Scripts:** Customize conversion settings and output options as needed.
 
 ---
 
@@ -176,7 +193,7 @@ write-book-template/
 - [Pandoc](https://pandoc.org/installing.html) for manuscript conversion.
 - [Calibre](https://calibre-ebook.com/download) specifically for MOBI conversions.
 - [GitHub CLI (`gh`)](https://cli.github.com/) for managing repositories (optional but recommended).
-- Python 3.x (for advanced automation with `full-export-book.py`)
+- Python 3.x (for advanced automation with `full_export_book.py`)
 
 ---
 

@@ -1,7 +1,7 @@
 # Full Export Book Script Documentation
 
 ## 📚 Overview
-The `full-export-book.py` script automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**.
+The `full_export_book.py` script automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**.
 
 ### ✨ Features
 👉 Converts **relative image paths** to **absolute paths** before export  
@@ -132,18 +132,49 @@ book-project/
 │   ├── back-matter/
 │   │   ├── about-the-author.md
 │   │   ├── appendix.md
+│   │   ├── bibliography.md
+│   │   ├── faq.md
 │   │   ├── glossary.md
 │   │   ├── index.md
-│── assets/
-│── config/
-│   ├── metadata.yaml
-│── output/
+│   ├── figures/
+│   │   ├── fig1.png
+│   │   ├── fig2.svg
+│   │   ├── ...
+│   ├── tables/
+│   │   ├── table1.csv
+│   │   ├── table2.csv
+│   │   ├── ...
+│   ├── references.bib  # If using citations (e.g., BibTeX, APA, MLA formats supported)
+│── assets/ # Images, media, illustrations (for book content, cover design, and figures)
+│   ├── covers/
+│   │   ├── cover-design.png
+│   ├── figures/
+│   │   ├── diagrams/
+│   │   ├── infographics/
+│── config/ # Project configuration (metadata, styling, and optional Pandoc settings)
+│   ├── metadata.yaml   # Title, author, ISBN, etc. (used for all formats: PDF, EPUB, MOBI)
+│   ├── styles.css      # Custom styles for PDF/eBook
+│   ├── template.tex    # LaTeX template (if needed)
+│── output/             # Compiled book formats
 │   ├── book.pdf
 │   ├── book.epub
-│── scripts/
-│   ├── full-export-book.py
-│── README.md
-│── LICENSE
+│   ├── book.mobi
+│   ├── book.docx
+│── scripts/ # Scripts and tools (initialize project, convert book, update metadata, and export formats)
+│   ├── convert_book.sh                # Converts Markdown to multiple formats
+│   ├── convert_img_tags.sh            # Converts the paths of the img tags
+│   ├── convert_to_absolute.sh         # Converts the relative paths to absolute paths of the md images
+│   ├── convert_to_relative.sh         # Converts back the absolute paths to relative paths of the md images
+│   ├── create_project_structure.sh    # Initializes project structure
+│   ├── full_export_book.py            # Exports book to all publishing formats with backup
+│   ├── metadata_values_example.json   # example metadata values json file
+│   ├── update_metadata_values.py      # Automates metadata population
+│── create-project-documentation.md           # Documentation for generate the project structure
+│── full-export-documentation.md              # Documentation the export
+│── how-to-write.md                           # Documentation how to use the project structure and save the files
+│── LICENSE                                   # If open-source
+│── pyproject.toml                            # Configuration file for poetry
+│── README.md                                 # Project description
 ```
 
 ---

@@ -59,7 +59,6 @@ book-project/
 │── assets/
 │── config/
 │── output/
-│── tools/
 │── README.md
 │── LICENSE
 ```
@@ -97,12 +96,12 @@ isbn: "123-4567890123"
 
 Use the preferred script:
 
-- Recommended (robust and flexible): [`full-export-book.py`](#documentation-for-full-export-bookpy)
+- Recommended (robust and flexible): [`full_export_book.py`](#documentation-for-full-export-bookpy)
 
 Run the script:
 
 ```bash
-python full-export-book.py
+python full_export_book.py
 ```
 
 Outputs will be in the `output/` directory:
@@ -136,7 +135,7 @@ Enhance your book readability by adding:
 
 ---
 
-For detailed usage of the export script, see the [documentation for `full-export-book.py`](full-export-documentation.md).
+For detailed usage of the export script, see the [documentation for `full_export_book.py`](full-export-documentation.md).
 
 ---
 
