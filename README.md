@@ -78,12 +78,7 @@ kdp_enabled: true
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
 
-Once the manuscript is ready, use **Pandoc** for conversion:
-
-```bash
-pandoc output/merged_book.md -o output/book.pdf --metadata-file=config/metadata.yaml
-pandoc output/merged_book.md -o output/book.epub --metadata-file=config/metadata.yaml
-```
+Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see the [Full Export Documentation](full-export-documentation.md)
 
 Converted files will be available in the `output/` directory.
 
