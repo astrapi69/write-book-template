@@ -1,88 +1,196 @@
-## Documentation for `full-export-book.py`
+# Full Export Book Script Documentation
 
-### Overview
+## 📚 Overview
+The `full-export-book.py` script automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**.
 
-`full-export-book.py` automates the process of converting markdown files into multiple e-book formats suitable for Kindle Direct Publishing (KDP). It supports PDF, EPUB, DOCX, and Markdown compilation through Pandoc.
-
-### Features:
-
-- **Automatic Backup:**
-    - Checks if the output directory exists, and if it does, creates a backup of the previous compilation to prevent data loss.
-
-- **Structured File Handling:**
-    - Collects markdown files from predefined directories:
-        - Front Matter (title, table of contents, foreword, preface)
-        - Chapters (sorted automatically)
-        - Back Matter (epilogue, glossary, etc.)
-
-- **Multi-Format Support:**
-    - Supports compiling markdown files to:
-        - PDF (using pdflatex)
-        - EPUB
-        - DOCX
-        - Markdown
-
-- **Flexible Formatting:**
-    - Inserts appropriate page breaks and formatting based on the target file format.
+### ✨ Features
+👉 Converts **relative image paths** to **absolute paths** before export  
+👉 Handles **both Markdown images (`![alt](path)`) and HTML `<img>` tags**  
+👉 Exports book content into multiple formats using **Pandoc**  
+👉 Converts **absolute paths back to relative paths** after export  
+👉 Supports **custom arguments** for flexible execution  
+👉 **Poetry integration**: Run via `poetry run full-export`
 
 ---
 
-### Required Directory Structure:
+## ❓ Why Convert Paths to Absolute?
+### 🔍 **The Problem**
+Pandoc **does not always resolve relative paths correctly**, especially when exporting to:
+- **PDF (via LaTeX)**
+- **EPUB (due to internal resource handling)**
+- **DOCX (for embedded images)**
+
+Example **problematic image reference**:
+```markdown
+![Figure 1](../../assets/figures/diagram.png)
 ```
-project-root/
-├── BOOK_DIR/
-│   ├── front-matter/
-│   │   ├── book-title.md
-│   │   ├── toc.md
-│   │   ├── foreword.md
-│   │   └── preface.md
-│   ├── chapters/
-│   │   ├── chapter-1.md
-│   │   ├── chapter-2.md
-│   │   └── ...
-│   └── back-matter/
-│       ├── epilogue.md
-│       ├── glossary.md
-│       ├── bibliography.md
-│       └── ...
-├── OUTPUT_DIR/ (auto-generated)
-└── BACKUP_DIR/ (created automatically during backup)
+This may result in **broken references or missing images**.
+
+### ✅ **The Solution**
+Before export, the script **automatically converts** all image paths to **absolute paths**:
+```markdown
+![Figure 1](/absolute/path/to/assets/figures/diagram.png)
 ```
+This ensures:
+- **No missing images** in **PDF, EPUB, and DOCX**
+- **Platform-independent behavior** (Windows, macOS, Linux)
+- **Correct image embedding across formats**
+
+After export, the script **restores relative paths** to keep the Markdown clean.
 
 ---
 
-### How to Use:
-
-Run the script from the command line:
+## 🚀 Installation & Requirements
+### **1️⃣ Install Pandoc**
+Ensure **Pandoc** is installed:  
+🔗 [https://pandoc.org/installing.html](https://pandoc.org/installing.html)
 ```bash
-python full-export-book.py
+pandoc --version
 ```
 
-### Prerequisites:
-- Python 3.x
-- Pandoc installed and accessible from command line
-    - For PDF generation, LaTeX engine (like pdflatex) is required.
+### **2️⃣ Install Python & Poetry**
+Ensure **Python 3.13+** and **Poetry** are installed:
+```bash
+python3 --version
+poetry --version
+```
+If Poetry is not installed:
+```bash
+pip install poetry
+```
 
-### Variables to configure within the script:
-
-- `BOOK_DIR`: Source directory containing markdown files.
-- `OUTPUT_DIR`: Directory for compiled book outputs.
-- `BACKUP_DIR`: Directory to store backups.
-
-### Output:
-Upon successful execution, compiled book files are available in the specified `OUTPUT_DIR`.
-
----
-
-### Troubleshooting:
-
-- **Missing Files:**
-    - Ensure all markdown sections exist in their directories as outlined.
-- **Pandoc Errors:**
-    - Verify Pandoc and LaTeX installations, if needed.
+### **3️⃣ Install Dependencies**
+Run:
+```bash
+poetry install
+```
 
 ---
 
-**Recommended Usage:**
-This script is ideal for automating and maintaining consistent exports of manuscripts, especially for repeated or iterative publishing processes, such as Kindle Direct Publishing.
+## 🛠 How to Use
+### **1️⃣ Default Export (All Formats)**
+```bash
+poetry run full-export
+```
+This will:
+- Convert images to **absolute paths**
+- Compile the book into **Markdown, PDF, EPUB, and DOCX**
+- Restore **relative paths** after export
+
+---
+
+### **2️⃣ Export Specific Formats**
+Specify formats using `--format` (comma-separated):
+```bash
+poetry run full-export --format pdf,epub
+```
+**Available formats:**
+- `markdown` (GitHub Flavored Markdown)
+- `pdf`
+- `epub`
+- `docx`
+
+Example: **Export only PDF and EPUB**
+```bash
+poetry run full-export --format pdf,epub
+```
+
+---
+
+### **3️⃣ Skip Image Processing**
+If images are already correctly linked, you can **skip image conversion**:
+```bash
+poetry run full-export --skip-images
+```
+🚀 **Use case:** Faster builds when testing content changes.
+
+---
+
+## 📃 Logs
+All logs are saved in `export.log`.  
+To view logs in real-time:
+```bash
+tail -f export.log
+```
+If errors occur, check `export.log` for debugging.
+
+---
+
+## 📂 Project Structure
+```plaintext
+book-project/
+│── manuscript/
+│   ├── chapters/
+│   │   ├── 01-introduction.md
+│   │   ├── 02-chapter.md
+│   │   ├── ...
+│   ├── front-matter/
+│   │   ├── toc.md
+│   │   ├── preface.md
+│   │   ├── foreword.md
+│   │   ├── acknowledgments.md
+│   ├── back-matter/
+│   │   ├── about-the-author.md
+│   │   ├── appendix.md
+│   │   ├── glossary.md
+│   │   ├── index.md
+│── assets/
+│── config/
+│   ├── metadata.yaml
+│── output/
+│   ├── book.pdf
+│   ├── book.epub
+│── scripts/
+│   ├── full-export-book.py
+│── README.md
+│── LICENSE
+```
+
+---
+
+## ⚠️ Troubleshooting
+### **1️⃣ Pandoc Not Found**
+If you see:
+```bash
+Command 'pandoc' not found
+```
+Install Pandoc:
+```bash
+sudo apt install pandoc  # Ubuntu/Debian
+brew install pandoc  # macOS
+choco install pandoc  # Windows
+```
+
+### **2️⃣ Images Not Found in PDF/EPUB**
+- Ensure images exist in `assets/`
+- Try running with **absolute paths enabled**:
+  ```bash
+  poetry run full-export
+  ```
+- Verify image paths inside your Markdown files.
+
+### **3️⃣ Pandoc Metadata Warning**
+If you see:
+```
+[WARNING] This document format requires a nonempty <title> element.
+```
+Ensure `config/metadata.yaml` exists.  
+If missing, the script will **automatically generate** a default one.
+
+---
+
+## 🎉 Final Notes
+This script **automates the entire export process**, making it easy for any user to generate a **professional-quality book**! 📚🌟
+
+For any issues, check `export.log` or open an issue in the repository.
+
+---
+
+### ✅ **This version:**
+✔ **Includes all recent improvements**  
+✔ **Optimized for flexibility**  
+✔ **Fully compatible with `write-book-template`**  
+✔ **Works seamlessly with Poetry**
+
+🚀 **Now ready for use in any book project!** 🚀  
 

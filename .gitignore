@@ -11,10 +11,25 @@
 .idea/shelf
 .idea/*.*
 
-# Book build output
+#####################
+# Book build output #
+#####################
 output
+output_backup
 
-# eBook build output
+######################
+# eBook build output #
+######################
 *.epub
 *.mobi
 *.pdf
+
+##############
+# .venv #
+##############
+.venv/
+
+##############
+# Logs files #
+##############
+*.log
