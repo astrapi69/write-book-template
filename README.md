@@ -78,7 +78,7 @@ kdp_enabled: true
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
 
-Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see the [Full Export Documentation](full-export-documentation.md)
+Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see the [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#troubleshooting)
 
 Converted files will be available in the `output/` directory.
 
@@ -105,9 +105,9 @@ git push
 Detailed guides and documentation to support your book writing process:
 
 - [wiki](https://github.com/astrapi69/write-book-template/wiki)
-- [How to Write a Book: Step-by-Step Guide](how-to-write.md)
-- [Full Export Documentation](full-export-documentation.md)
-- [Create Project Structure Documentation](create-project-documentation.md)
+- [How to Write a Book: Step-by-Step Guide](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
+- [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
+- [Create Project Structure Documentation](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
 
 ---
 
@@ -165,9 +165,6 @@ write-book-template/
 │   ├── full_export_book.py            # Exports book to all publishing formats with backup
 │   ├── metadata_values_example.json   # example metadata values json file
 │   ├── update_metadata_values.py      # Automates metadata population
-│── create-project-documentation.md           # Documentation for generate the project structure
-│── full-export-documentation.md              # Documentation the export
-│── how-to-write.md                           # Documentation how to use the project structure and save the files
 │── LICENSE                                   # If open-source
 │── pyproject.toml                            # Configuration file for poetry
 │── README.md                                 # Project description
@@ -194,7 +191,7 @@ write-book-template/
 
 ## ⚠️ Troubleshooting
 
-Refer to [Full Export Documentation](full-export-documentation.md#troubleshooting) for detailed error handling and solutions regarding export scripts.
+Refer to [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#%EF%B8%8F-troubleshooting) for detailed error handling and solutions regarding export scripts.
 
 ---
 

@@ -11,7 +11,7 @@ os.chdir("..")
 BOOK_DIR = "./manuscript"
 OUTPUT_DIR = "./output"
 BACKUP_DIR = "./output_backup"
-OUTPUT_FILE = "ai_for_everyone_book"
+OUTPUT_FILE = "book" # TODO change to your specific book name and delete this comment
 METADATA_FILE = "config/metadata.yaml"
 
 SCRIPT_DIR = "./scripts"
