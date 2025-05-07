@@ -63,8 +63,10 @@ publisher: "{{PUBLISHER_NAME}}"
 date: "{{PUBLICATION_DATE}}"
 language: "{{LANGUAGE}}"
 description: "{{BOOK_DESCRIPTION}}"
-keywords:
-  - "{{KEYWORDS}}"  # Add keywords separated by commas (e.g., AI, machine learning, automation)
+keywords: {{KEYWORDS}}
+cover_image: "{{COVER_IMAGE}}"
+output_formats: {{OUTPUT_FORMATS}}
+kdp_enabled: {{KDP_ENABLED}}
 EOL
 
 # Create default metadata_values.json with empty placeholders
