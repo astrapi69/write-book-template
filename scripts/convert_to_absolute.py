@@ -18,6 +18,7 @@ DEFAULT_DIRECTORIES = [
 # Regex pattern for Markdown image syntax
 md_image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
 
+
 def convert_to_absolute(directories):
     """ Convert relative Markdown image paths to absolute paths. """
     for md_dir in directories:
@@ -47,6 +48,7 @@ def convert_to_absolute(directories):
                 file.write(updated_content)
 
     print("✅ All Markdown files updated with absolute paths for images.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert relative image paths in Markdown files to absolute paths.")

@@ -9,6 +9,7 @@ from scripts.full_export_book import prepare_output_folder, run_script, compile_
 TEST_OUTPUT_DIR = "test_output"
 TEST_BACKUP_DIR = "test_output_backup"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def setup_teardown():
     """ Setup and cleanup test directories before and after tests """
@@ -23,6 +24,7 @@ def setup_teardown():
     if os.path.exists(TEST_BACKUP_DIR):
         shutil.rmtree(TEST_BACKUP_DIR)
 
+
 @patch("subprocess.run")
 def test_run_script_success(mock_run):
     """Test running a script without errors"""
@@ -30,11 +32,13 @@ def test_run_script_success(mock_run):
     run_script("scripts/convert_to_absolute.py")
     mock_run.assert_called_with(["python3", "scripts/convert_to_absolute.py"], check=True, stdout=ANY, stderr=ANY)
 
+
 @patch("subprocess.run", side_effect=subprocess.CalledProcessError(1, "cmd"))
 def test_run_script_failure(mock_run):
     """Test handling errors when running a script"""
     with pytest.raises(subprocess.CalledProcessError):
         run_script("scripts/convert_to_absolute.py")
+
 
 @patch("scripts.full_export_book.OUTPUT_DIR", TEST_OUTPUT_DIR)
 @patch("scripts.full_export_book.BACKUP_DIR", TEST_BACKUP_DIR)
@@ -51,6 +55,7 @@ def test_prepare_output_folder():
     assert not os.path.exists(TEST_OUTPUT_DIR)
     assert os.path.exists(TEST_BACKUP_DIR)
     assert os.path.exists(os.path.join(TEST_BACKUP_DIR, "dummy.md"))
+
 
 @patch("subprocess.run")
 @patch("scripts.full_export_book.BOOK_DIR", "tests/fixtures/manuscript")  # Assumes you have fixture .md files

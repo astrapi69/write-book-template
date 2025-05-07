@@ -13,7 +13,7 @@ MD_DIRECTORIES = [
     MANUSCRIPT_DIR / "chapters",
     MANUSCRIPT_DIR / "front-matter",
     MANUSCRIPT_DIR / "back-matter",
-    ]
+]
 
 # Regular expression to find image references with absolute paths
 image_pattern = re.compile(r"!\[(.*?)\]\((/.*?\.(png|jpg|jpeg|svg|gif))\)")

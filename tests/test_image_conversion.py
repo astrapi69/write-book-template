@@ -7,6 +7,7 @@ from scripts.convert_to_absolute import convert_to_absolute
 TEST_MANUSCRIPT_DIR = "test_manuscript"
 TEST_ASSETS_DIR = "test_assets"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def setup_teardown():
     """ Setup test environment and clean up afterward """
@@ -26,6 +27,7 @@ def setup_teardown():
 
     shutil.rmtree(TEST_MANUSCRIPT_DIR)
     shutil.rmtree(TEST_ASSETS_DIR)
+
 
 def test_convert_markdown_images_to_absolute():
     """ Test conversion of relative paths to absolute paths """

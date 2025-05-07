@@ -2,6 +2,7 @@ import json
 import re
 import os
 
+
 def main():
     # Define the path to the metadata values file
     metadata_file = "config/metadata_values.json"
