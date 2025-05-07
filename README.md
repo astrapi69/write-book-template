@@ -61,6 +61,8 @@ This script:
 - Replaces placeholders in `metadata.yaml` with structured values.
 - Ensures correct formatting for **lists** like `keywords` and `output_formats`.
 
+> 📘 Learn how this works in detail in the [Medium article](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
+
 ### 4️⃣ Example Metadata Structure
 
 After running the Python script, `metadata.yaml` will look like this:
@@ -121,6 +123,7 @@ Detailed guides and documentation to support your book writing process:
 - [How to Write a Book: Step-by-Step Guide](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
 - [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
 - [Create Project Structure Documentation](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
+- [Medium article](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
 
 ---
 
