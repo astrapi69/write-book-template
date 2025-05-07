@@ -67,5 +67,24 @@ keywords:
   - "{{KEYWORDS}}"  # Add keywords separated by commas (e.g., AI, machine learning, automation)
 EOL
 
+# Create default metadata_values.json with empty placeholders
+cat > "$PROJECT_NAME/config/metadata_values.json" <<EOL
+{
+  "BOOK_TITLE": "",
+  "BOOK_SUBTITLE": "",
+  "AUTHOR_NAME": "",
+  "ISBN_NUMBER": "",
+  "BOOK_EDITION": "",
+  "PUBLISHER_NAME": "",
+  "PUBLICATION_DATE": "",
+  "LANGUAGE": "",
+  "BOOK_DESCRIPTION": "",
+  "KEYWORDS": [],
+  "COVER_IMAGE": "",
+  "OUTPUT_FORMATS": ["pdf", "epub", "mobi", "docx"],
+  "KDP_ENABLED": false
+}
+EOL
+
 echo "✅ Book project structure created successfully!"
-echo "ℹ️  Please fill in the metadata.yaml file or use an AI tool to replace placeholders with actual values."
+echo "ℹ️  You can edit config/metadata_values.json and run the metadata script to populate metadata.yaml automatically."
