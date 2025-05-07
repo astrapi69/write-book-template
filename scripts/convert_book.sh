@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# !!! Note: this script is obsolete and will be removed in the next minor version. !!!
+# !!! Use instead the full_export_book.py script. !!!
 # Move to project root directory
 cd "$(dirname "$0")/.."
 
