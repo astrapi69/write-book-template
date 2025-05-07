@@ -1,6 +1,8 @@
 # 📚 Write-Book-Template
 
-This repository is a convenient template for efficiently writing and organizing books. It features structured directories, automation scripts, and clear guidelines to help authors easily create, format, and publish their books in popular formats such as PDF, EPUB, and MOBI.
+This repository is a convenient template for efficiently writing and organizing books. It features structured
+directories, automation scripts, and clear guidelines to help authors easily create, format, and publish their books in
+popular formats such as PDF, EPUB, and MOBI.
 
 ---
 
@@ -33,27 +35,36 @@ cd YOUR_BOOK_REPO
 ### 2️⃣ Initialize Your Book Project
 
 Run the Bash script to set up the required directory structure:
+
 ```bash
 bash scripts/create_project_structure.sh
 ```
+
 This will:
+
 - Create the necessary folders for chapters, metadata, assets, and configuration.
 - Generate `metadata.yaml` with placeholders for customization.
 
 After execution, update `metadata.yaml` manually or use automation.
 
 ### 3️⃣ Automate Metadata Population
+
 To replace placeholders in `metadata.yaml`, use the Python script:
+
 ```bash
 python scripts/update_metadata_values.py
 ```
+
 This script:
+
 - Loads metadata values from `config/metadata_values.json`.
 - Replaces placeholders in `metadata.yaml` with structured values.
 - Ensures correct formatting for **lists** like `keywords` and `output_formats`.
 
 ### 4️⃣ Example Metadata Structure
+
 After running the Python script, `metadata.yaml` will look like this:
+
 ```yaml
 title: "Your Book Title"
 subtitle: "A short subtitle describing your book"
@@ -78,7 +89,9 @@ kdp_enabled: true
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
 
-Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see the [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#troubleshooting)
+Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple
+formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see
+the [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#troubleshooting)
 
 Converted files will be available in the `output/` directory.
 
@@ -191,13 +204,16 @@ write-book-template/
 
 ## ⚠️ Troubleshooting
 
-Refer to [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#%EF%B8%8F-troubleshooting) for detailed error handling and solutions regarding export scripts.
+Refer
+to [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#%EF%B8%8F-troubleshooting)
+for detailed error handling and solutions regarding export scripts.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are warmly welcomed! Feel free to submit issues, suggestions, or pull requests to help improve this template.
+Contributions are warmly welcomed! Feel free to submit issues, suggestions, or pull requests to help improve this
+template.
 
 ---
 

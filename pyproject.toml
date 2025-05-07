@@ -1,13 +1,13 @@
 [project]
 name = "write-book-template" # TODO replace this with the specific project name
 version = "0.1.0"
-description = "change with your description"  # TODO replace this with the specific description
+description = "change with your description"  # TODO replace this with the specific information
 authors = [
-    { name = "Asterios Raptis", email = "asteri.raptis@gmail.com" }
+    { name = "Asterios Raptis", email = "asteri.raptis@gmail.com" }   # TODO replace this with the specific information
 ]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["pandas (>=2.2.3,<3.0.0)"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -26,4 +26,6 @@ packages = [
 ]
 
 [tool.poetry.scripts]
+print-version-build = "scripts.print_version_build:main"
+update-metadata-values = "scripts.update_metadata_values:main"
 full-export = "scripts.full_export_book:main"
