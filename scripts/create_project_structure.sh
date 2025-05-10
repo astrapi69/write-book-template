@@ -89,4 +89,4 @@ cat > "$PROJECT_NAME/config/metadata_values.json" <<EOL
 EOL
 
 echo "✅ Book project structure created successfully!"
-echo "ℹ️  You can edit config/metadata_values.json and run the metadata script to populate metadata.yaml automatically."
+echo "ℹ️  You can edit config/metadata_values.json and run the metadata script(scripts/update_metadata_values.py) to populate metadata.yaml automatically."
