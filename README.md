@@ -49,17 +49,33 @@ After execution, update `metadata.yaml` manually or use automation.
 
 ### 3️⃣ Automate Metadata Population
 
-To replace placeholders in `metadata.yaml`, use the Python script:
+To replace placeholders in `config/metadata.yaml` with actual metadata values, use the automation script provided.
+
+#### ✅ Option 1: Run directly with Python
 
 ```bash
 python scripts/update_metadata_values.py
 ```
 
-This script:
+#### ✅ Option 2: Use the Poetry script shortcut
 
-- Loads metadata values from `config/metadata_values.json`.
-- Replaces placeholders in `metadata.yaml` with structured values.
-- Ensures correct formatting for **lists** like `keywords` and `output_formats`.
+If you're using [Poetry](https://python-poetry.org/), you can run the script like this:
+
+```bash
+poetry run update-metadata-values
+```
+
+> This method ensures your virtual environment is used correctly and dependencies are managed by Poetry.
+
+---
+
+#### What the script does:
+
+- Loads metadata values from `config/metadata_values.json`
+- Replaces all placeholders like `{{BOOK_TITLE}}` in `metadata.yaml` with actual content
+- Properly formats lists such as `KEYWORDS` and `OUTPUT_FORMATS` to YAML list syntax
+- Automatically deletes the `metadata_values.json` file after successful population
+- Logs success and error messages to the console
 
 > 📘 Learn how this works in detail in the [Medium article](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
 
