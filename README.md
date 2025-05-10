@@ -1,19 +1,22 @@
 # 📚 Write-Book-Template
 
-This repository is a convenient template for efficiently writing and organizing books. It features structured
-directories, automation scripts, and clear guidelines to help authors easily create, format, and publish their books in
-popular formats such as PDF, EPUB, and MOBI.
+This repository is a ready-to-use template for efficiently writing, organizing, and publishing books with modern
+tooling. It includes a structured directory layout, powerful automation scripts, and full integration
+with [Poetry](https://python-poetry.org/) via a `pyproject.toml` configuration.
+
+Authors can easily create, format, and export books in multiple formats like PDF, EPUB, MOBI, and DOCX.
 
 ---
 
 ## ✨ Features
 
-- 📂 **Structured Directory:** Clearly organized folders for chapters, front matter, and back matter
-- 📝 **Markdown-Based Writing:** Write your content using Markdown for straightforward formatting and conversion
-- 🔄 **Automated Conversion:** Convert your manuscript to PDF, EPUB, and MOBI formats effortlessly with Pandoc
-- 📜 **Dynamic Table of Contents:** Maintain an up-to-date TOC for structured navigation
-- 📑 **Additional Sections:** Built-in support for glossary, index, bibliography, appendix, and FAQ
-- 🚀 **Git Integration:** Seamlessly manage updates, collaborate, and share your work via GitHub
+- 📂 **Structured Directory:** Predefined folders for chapters, front matter, back matter, and assets
+- 📝 **Markdown-Based Writing:** Compose in Markdown for clarity and compatibility
+- 🔄 **Automated Conversion:** Generate multiple output formats via Pandoc
+- 📜 **Dynamic Table of Contents:** Keep your structure organized and current
+- 📑 **Metadata Automation:** Easily inject book metadata with a script
+- 🚀 **Git Integration:** Seamless GitHub usage for versioning and collaboration
+- 🧰 **Poetry Integration:** Dependency and script management powered by Poetry
 
 ---
 
@@ -22,19 +25,17 @@ popular formats such as PDF, EPUB, and MOBI.
 ### 1️⃣ Create Your Book Repository from this Template
 
 - Click on the green **`Use this template`** button at the top of this repository page.
-- Choose **`Create a new repository`**.
-- Enter a name for your new book repository and complete the setup.
-
-Then, clone your newly created repository to your local machine:
+- Choose **`Create a new repository`** and name your book project.
+- Clone it locally:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
 ```
 
-### 2️⃣ Initialize Your Book Project
+### 2️⃣ Initialize Project Structure
 
-Run the Bash script to set up the required directory structure:
+Run the setup script to create the required folder layout and base config:
 
 ```bash
 bash scripts/create_project_structure.sh
@@ -42,29 +43,34 @@ bash scripts/create_project_structure.sh
 
 This will:
 
-- Create the necessary folders for chapters, metadata, assets, and configuration.
-- Generate `metadata.yaml` with placeholders for customization.
+- Create necessary folders (`manuscript/`, `config/`, `assets/`, etc.)
+- Generate a `metadata.yaml` file with placeholders
 
-After execution, update `metadata.yaml` manually or use automation.
+---
+
+## ⚙️ Poetry-Based Setup
+
+This project is configured with **Poetry**. To install dependencies and use the automation scripts:
+
+```bash
+poetry install
+```
+
+Available scripts (defined in `pyproject.toml`):
+
+- `poetry run update-metadata-values` – injects structured metadata into your YAML file
+- `poetry run full-export` – exports your book to multiple formats
+- `poetry run print-version-build` – prints current version/build info
+
+---
 
 ### 3️⃣ Automate Metadata Population
 
-To replace placeholders in `config/metadata.yaml` with actual metadata values, use the automation script provided.
-
-#### ✅ Option 1: Run directly with Python
-
-```bash
-python scripts/update_metadata_values.py
-```
-
-#### ✅ Option 2: Use the Poetry script shortcut
-
-If you're using [Poetry](https://python-poetry.org/), you can run the script like this:
+Replace placeholders in `config/metadata.yaml` using this command:
 
 ```bash
 poetry run update-metadata-values
 ```
-
 > This method ensures your virtual environment is used correctly and dependencies are managed by Poetry.
 
 ---
@@ -107,17 +113,15 @@ kdp_enabled: true
 
 ### 5️⃣ Convert the Book to PDF/EPUB/MOBI
 
-Once the manuscript is ready, use the `full_export_book.py` script that automates the export of a book into multiple
-formats (**Markdown, PDF, EPUB, DOCX**) using **Pandoc**. For more information see
-the [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book#troubleshooting)
+Once your book is written, export it:
 
-Converted files will be available in the `output/` directory.
+```bash
+poetry run full-export
+```
 
-### 6️⃣ Start Writing
+The generated files will be available in the `output/` folder.
 
-- Navigate to `manuscript/chapters/` and start writing your chapters in Markdown.
-- Update `manuscript/front-matter/toc.md` to reflect your chapters and content.
-- Store your images and figures in the `assets/` folder.
+---
 
 ### 7️⃣ Push to GitHub
 
@@ -130,6 +134,11 @@ git push
 ```
 
 ---
+## ✍️ Start Writing
+
+- Add chapters in `manuscript/chapters/`
+- Edit `manuscript/front-matter/toc.md` for your table of contents
+- Add illustrations or diagrams under `assets/`
 
 ## 📖 Documentation
 
@@ -214,10 +223,11 @@ write-book-template/
 
 ## 🛠 Requirements
 
+- [Poetry](https://python-poetry.org/) (for managing this Python project)
+- Python 3.x (for advanced automation with `full_export_book.py`)
 - [Pandoc](https://pandoc.org/installing.html) for manuscript conversion.
 - [Calibre](https://calibre-ebook.com/download) specifically for MOBI conversions.
 - [GitHub CLI (`gh`)](https://cli.github.com/) for managing repositories (optional but recommended).
-- Python 3.x (for advanced automation with `full_export_book.py`)
 
 ---
 
@@ -231,8 +241,7 @@ for detailed error handling and solutions regarding export scripts.
 
 ## 🤝 Contributing
 
-Contributions are warmly welcomed! Feel free to submit issues, suggestions, or pull requests to help improve this
-template.
+Found a bug or want to contribute? Pull requests and suggestions are welcome!
 
 ---
 
