@@ -2,6 +2,11 @@ import json
 import re
 import os
 
+# Change the current working directory to the root directory of the project
+# (Assumes the script is located one level inside the project root)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+
 
 def main():
     metadata_file = "config/metadata_values.json"
