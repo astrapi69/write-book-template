@@ -95,7 +95,7 @@ def ensure_metadata_file():
             f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\n") #TODO replace with your data
 
 
-def compile_book(format, section_order):
+def compile_book(format, section_order, cover_path=None):
     """
     Compiles the book into a specific format using Pandoc.
 
@@ -137,6 +137,8 @@ def compile_book(format, section_order):
         pandoc_cmd.extend([
             "--metadata", "lang=en"
         ])
+        if cover_path:
+            pandoc_cmd.append(f"--epub-cover-image={cover_path}")
 
     # For PDF output, specify the PDF engine and font options
     if format == "pdf":
@@ -166,6 +168,8 @@ def main():
     parser.add_argument("--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub).")
     parser.add_argument("--order", type=str, default=",".join(DEFAULT_SECTION_ORDER),
                         help="Specify document order (comma-separated).")
+    parser.add_argument("--cover", type=str, help="Optional path to cover image (for EPUB export).")
+
 
     args = parser.parse_args()
     section_order = args.order.split(",")
@@ -187,7 +191,7 @@ def main():
     # Compile the book for each format
     for fmt in selected_formats:
         if fmt in FORMATS:
-            compile_book(fmt, section_order)
+            compile_book(fmt, section_order, args.cover)
         else:
             print(f"⚠️ Skipping unknown format: {fmt}")
 
