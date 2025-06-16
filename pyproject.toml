@@ -29,3 +29,6 @@ packages = [
 print-version-build = "scripts.print_version_build:main"
 update-metadata-values = "scripts.update_metadata_values:main"
 full-export = "scripts.full_export_book:main"
+replace-emojis = "scripts.replace_emojis:main"
+export-epub = "scripts.shortcuts:epub_only"
+export-epub-with-cover = "scripts.shortcuts:epub_with_cover"
