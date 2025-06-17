@@ -11,7 +11,7 @@ Or run it directly via CLI:
 
 import sys
 from scripts.full_export_book import main as export_main
-from print_version_build import main as export_print_version_main
+from scripts.print_version_build import main as export_print_version_main
 
 
 def export(format: str, cover: str = None):
