@@ -1,38 +1,40 @@
-[project]
-name = "write-book-template" # TODO replace this with the specific project name
-version = "0.1.0"
-description = "change with your description"  # TODO replace this with the specific information
-authors = [
-    { name = "Asterios Raptis", email = "asteri.raptis@gmail.com" }   # TODO replace this with the specific information
-]
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = ["pandas (>=2.2.3,<3.0.0)"]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-pytest = "^8.0.0"
-pytest-mock = "^3.10.0"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-
 [tool.poetry]
+name = "write-book-template"  # TODO: replace with your actual project name
+version = "0.1.0"
+description = "Template project for writing and publishing books using markdown and automation tools"  # TODO: customize
+authors = ["Asterios Raptis <asteri.raptis@gmail.com>"]
+readme = "README.md"
 packages = [
     { include = "scripts" }
 ]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+pandas = "^2.2.3"
+python-dotenv = "^1.1.0"
+requests = "^2.31.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-mock = "^3.10.0"
 
 [tool.poetry.scripts]
 print-version-build = "scripts.print_version_build:main"
 update-metadata-values = "scripts.update_metadata_values:main"
 full-export = "scripts.full_export_book:main"
 replace-emojis = "scripts.replace_emojis:main"
-# 🏁 Shortcuts
+translate-book-deepl = "scripts.translate_book_deepl:main"
+
+# 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts:export_epub"
 export-markdown = "scripts.shortcuts:export_markdown"
 export-epub-with-cover = "scripts.shortcuts:export_epub_with_cover"
 export-print-version-epub = "scripts.shortcuts:export_print_version_epub"
 export-all-with-cover = "scripts.shortcuts:all_formats_with_cover"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
