@@ -28,8 +28,11 @@ output_backup
 # .venv #
 ##############
 .venv/
+.env
 
 ##############
 # Logs files #
 ##############
 *.log
+.skiplist
+logs/
