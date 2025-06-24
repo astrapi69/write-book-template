@@ -12,6 +12,15 @@ Or run it directly via CLI:
 import sys
 from scripts.full_export_book import main as export_main
 from scripts.print_version_build import main as export_print_version_main
+from scripts.translate_book_deepl import main as export_translate_book_deepl_main
+
+
+def translate_manuscript_to_german():
+    """
+    Shortcut: Translate the directory manuscript that should be default in english to german
+    """
+    sys.argv = ["translate-book-deepl", "--base-dir", "manuscript", "--target-lang", "DE"]
+    export_translate_book_deepl_main()
 
 
 def export(format: str, cover: str = None):
@@ -25,6 +34,16 @@ def export(format: str, cover: str = None):
     if cover:
         sys.argv.append(f"--cover={cover}")
     export_main()
+
+
+def export_pdf():
+    """Shortcut: Export only the PDF version of the book"""
+    export("pdf")
+
+
+def export_docx():
+    """Shortcut: Export only the DOCX version of the book"""
+    export("docx")
 
 
 def export_epub():
@@ -74,10 +93,13 @@ if __name__ == "__main__":
 
     available_shortcuts = {
         "export_epub": export_epub,
-        "export_markdown": export_markdown,
         "export_epub_with_cover": export_epub_with_cover,
+        "export_markdown": export_markdown,
+        "export_pdf": export_pdf,
+        "export_docx": export_docx,
         "export_print_version_epub": export_print_version_epub,
         "all_formats_with_cover": all_formats_with_cover,
+        "translate_manuscript_to_german": translate_manuscript_to_german,
     }
 
     parser = argparse.ArgumentParser(description="Run export shortcuts.")

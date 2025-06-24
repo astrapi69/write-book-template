@@ -27,10 +27,13 @@ translate-book-deepl = "scripts.translate_book_deepl:main"
 
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts:export_epub"
-export-markdown = "scripts.shortcuts:export_markdown"
 export-epub-with-cover = "scripts.shortcuts:export_epub_with_cover"
+export-markdown = "scripts.shortcuts:export_markdown"
+export-pdf = "scripts.shortcuts:export_pdf"
+export-docx = "scripts.shortcuts:export_docx"
 export-print-version-epub = "scripts.shortcuts:export_print_version_epub"
 export-all-with-cover = "scripts.shortcuts:all_formats_with_cover"
+export-translate-from-en-to-de = "scripts.shortcuts:translate_manuscript_to_german"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
