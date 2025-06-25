@@ -25,6 +25,7 @@ full-export = "scripts.full_export_book:main"
 replace-emojis = "scripts.replace_emojis:main"
 translate-book-deepl = "scripts.translate_book_deepl:main"
 translate-book-lmstudio = "scripts.translate_book_lmstudio:main"
+create-chapters = "scripts.create_chapters:main"
 
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts:export_epub"
