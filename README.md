@@ -142,13 +142,16 @@ git push
 
 ## 📖 Documentation
 
-Detailed guides and documentation to support your book writing process:
+Helpful wiki pages to support every step of your book writing workflow:
 
-- [wiki](https://github.com/astrapi69/write-book-template/wiki)
-- [How to Write a Book: Step-by-Step Guide](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
-- [Full Export Documentation](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
-- [Create Project Structure Documentation](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
-- [Medium article](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
+- [📚 Home (Wiki Overview)](https://github.com/astrapi69/write-book-template/wiki)
+- [✍️ How to Write a Book](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
+- [🛠 Generate Project Structure](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
+- [📦 Automatically Export Book](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
+- [🧠 Translate Markdown with DeepL](https://github.com/astrapi69/write-book-template/wiki/Translate-Markdown-with-DeepL)
+- [💡 Translate with LM‐Studio](https://github.com/astrapi69/write-book-template/wiki/Translate-with-LM%E2%80%90Studio)
+- [⚡ Shortcuts (Common Commands)](https://github.com/astrapi69/write-book-template/wiki/Shortcuts)
+- [📘 Medium article: Automate Book Metadata](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
 
 ---
 
