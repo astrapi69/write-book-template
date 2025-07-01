@@ -1,5 +1,12 @@
+import os
 import argparse
 from pathlib import Path
+
+# Change the current working directory to the root directory of the project
+# (Assumes the script is located one level inside the project root)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+
 
 def create_chapter_files(project_dir: str, total: int, start: int = None):
     # Default to current dir + manuscript/chapters if project_dir is empty
