@@ -12,6 +12,7 @@ DIRECTORIES=(
     "$PROJECT_NAME/manuscript/front-matter"
     "$PROJECT_NAME/manuscript/back-matter"
     "$PROJECT_NAME/assets/covers"
+    "$PROJECT_NAME/assets/author"
     "$PROJECT_NAME/assets/figures/diagrams"
     "$PROJECT_NAME/assets/figures/infographics"
     "$PROJECT_NAME/config"
