@@ -29,11 +29,17 @@ create-chapters = "scripts.create_chapters:main"
 
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts:export_epub"
+export-e = "scripts.shortcuts:export_epub"
 export-epub-with-cover = "scripts.shortcuts:export_epub_with_cover"
+export-ewc = "scripts.shortcuts:export_epub_with_cover"
 export-markdown = "scripts.shortcuts:export_markdown"
+export-md = "scripts.shortcuts:export_markdown"
 export-pdf = "scripts.shortcuts:export_pdf"
+export-p = "scripts.shortcuts:export_pdf"
 export-docx = "scripts.shortcuts:export_docx"
+export-d = "scripts.shortcuts:export_docx"
 export-print-version-epub = "scripts.shortcuts:export_print_version_epub"
+export-pve = "scripts.shortcuts:export_print_version_epub"
 export-all-with-cover = "scripts.shortcuts:all_formats_with_cover"
 translate_manuscript_to_german = "scripts.shortcuts:translate_manuscript_to_german"
 
