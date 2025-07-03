@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import argparse
+import yaml
 
 # Change the current working directory to the root directory of the project
 # (Assumes the script is located one level inside the project root)
@@ -46,6 +47,18 @@ DEFAULT_SECTION_ORDER = [
     "back-matter/bibliography.md",
     "back-matter/index.md",
 ]
+
+def get_metadata_language():
+    """Read and return the 'lang' field from metadata.yaml if present, else return None"""
+    if not os.path.exists(METADATA_FILE):
+        return None
+    with open(METADATA_FILE, "r", encoding="utf-8") as f:
+        try:
+            metadata = yaml.safe_load(f)
+            return metadata.get("lang")
+        except yaml.YAMLError as e:
+            print(f"⚠️ Failed to parse {METADATA_FILE}: {e}")
+            return None
 
 
 def run_script(script_path, arg=None):
@@ -92,10 +105,10 @@ def ensure_metadata_file():
         print(f"⚠️ Metadata file missing! Creating default {METADATA_FILE}.")
         os.makedirs(os.path.dirname(METADATA_FILE), exist_ok=True)
         with open(METADATA_FILE, "w", encoding="utf-8") as f:
-            f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\n") #TODO replace with your data
+            f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\nlang: 'en'\n") #TODO replace with your data
 
 
-def compile_book(format, section_order, cover_path=None, force_epub2=False):
+def compile_book(format, section_order, cover_path=None, force_epub2=False, lang="en"):
     """
     Compiles the book into a specific format using Pandoc.
 
@@ -135,7 +148,7 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False):
 
     if format == "epub":
         pandoc_cmd.extend([
-            "--metadata", "lang=en"
+            "--metadata", f"lang={lang}"
         ])
         if force_epub2:
             pandoc_cmd.extend([
@@ -174,10 +187,27 @@ def main():
                         help="Specify document order (comma-separated).")
     parser.add_argument("--cover", type=str, help="Optional path to cover image (for EPUB export).")
     parser.add_argument("--epub2", action="store_true", help="Force EPUB 2 export (for epubli compatibility).")
-
+    parser.add_argument("--lang", type=str, help="Language code for metadata (e.g. en, de, fr)")
 
     args = parser.parse_args()
     section_order = args.order.split(",")
+
+    # Determine language: CLI > metadata.yaml > fallback
+    metadata_lang = get_metadata_language()
+    cli_lang = args.lang
+
+    if cli_lang:
+        if metadata_lang and cli_lang != metadata_lang:
+            print("\n⚠️⚠️⚠️ LANGUAGE MISMATCH DETECTED ⚠️⚠️⚠️")
+            print(f"Metadata file says: '{metadata_lang}' but CLI argument is: '{cli_lang}'")
+            print("Using CLI argument value.\n")
+        lang = cli_lang
+    elif metadata_lang:
+        lang = metadata_lang
+        print(f"🌐 Using language from metadata.yaml: '{lang}'")
+    else:
+        lang = "en"
+        print("⚠️ No language set in CLI or metadata.yaml. Defaulting to 'en'")
 
     # Step 1: Convert image paths to absolute
     # Run pre-processing scripts unless user opts out
@@ -196,7 +226,7 @@ def main():
     # Compile the book for each format
     for fmt in selected_formats:
         if fmt in FORMATS:
-            compile_book(fmt, section_order, args.cover)
+            compile_book(fmt, section_order, args.cover, args.epub2, lang)
         else:
             print(f"⚠️ Skipping unknown format: {fmt}")
 
