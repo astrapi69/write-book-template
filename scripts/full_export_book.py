@@ -95,7 +95,7 @@ def ensure_metadata_file():
             f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\n") #TODO replace with your data
 
 
-def compile_book(format, section_order, cover_path=None):
+def compile_book(format, section_order, cover_path=None, force_epub2=False):
     """
     Compiles the book into a specific format using Pandoc.
 
@@ -137,6 +137,10 @@ def compile_book(format, section_order, cover_path=None):
         pandoc_cmd.extend([
             "--metadata", "lang=en"
         ])
+        if force_epub2:
+            pandoc_cmd.extend([
+                "--metadata", "epub.version=2"
+            ])
         if cover_path:
             pandoc_cmd.append(f"--epub-cover-image={cover_path}")
 
@@ -169,6 +173,7 @@ def main():
     parser.add_argument("--order", type=str, default=",".join(DEFAULT_SECTION_ORDER),
                         help="Specify document order (comma-separated).")
     parser.add_argument("--cover", type=str, help="Optional path to cover image (for EPUB export).")
+    parser.add_argument("--epub2", action="store_true", help="Force EPUB 2 export (for epubli compatibility).")
 
 
     args = parser.parse_args()
