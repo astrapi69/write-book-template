@@ -33,18 +33,38 @@ git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
 ```
 
+**ChatGPT:**
+
+Here’s the **updated section** for your `README.md`, replacing the old shell-based initialization instructions with the new Python script and linking to the new wiki page:
+
+* * *
+
 ### 2️⃣ Initialize Project Structure
 
-Run the setup script to create the required folder layout and base config:
+> ⚠️ **Note:** The shell script `scripts/create_project_structure.sh` is now **deprecated** and will be removed in the future.  
+> ✅ Please use the **Python script with Poetry integration** instead.
+
+Run the following command to create the complete folder structure and all required files:
 
 ```bash
-bash scripts/create_project_structure.sh
+poetry run init-book-project
 ```
 
 This will:
 
-- Create necessary folders (`manuscript/`, `config/`, `assets/`, etc.)
-- Generate a `metadata.yaml` file with placeholders
+* Create all necessary folders (`manuscript/`, `config/`, `assets/`, `output/`, etc.)
+    
+* Generate chapter and front/back matter files
+    
+* Create `metadata.yaml` and `metadata_values.json` with placeholders
+    
+* Add a template for image generation prompts (`scripts/data/image_project_config.json`)
+    
+* Prepare the project for exporting and translation
+    
+
+📘 **Full guide available here:**  
+👉 [📦 Project Initialization – Wiki](https://github.com/astrapi69/write-book-template/wiki/Project-Initialization)
 
 ---
 
