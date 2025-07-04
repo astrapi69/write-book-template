@@ -29,6 +29,7 @@ translate-book-deepl = "scripts.translate_book_deepl:main"
 translate-book-lmstudio = "scripts.translate_book_lmstudio:main"
 create-chapters = "scripts.create_chapters:main"
 generate-images = "scripts.generate_images:main"
+inject-images = "scripts.inject_images:main"
 
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts:export_epub"
