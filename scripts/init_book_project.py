@@ -2,6 +2,11 @@ import os
 import json
 from pathlib import Path
 
+# Change the current working directory to the root directory of the project
+# (Assumes the script is located one level inside the project root)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+
 def create_directories(base_path: Path, directories: list[str]):
     for dir_path in directories:
         full_path = base_path / dir_path
@@ -51,23 +56,23 @@ def write_metadata_json(json_path: Path):
     }
     json_path.write_text(json.dumps(json_content, indent=2), encoding="utf-8")
 
-def write_image_config_json(json_path: Path):
+def write_image_prompt_generation_template(json_path: Path):
     json_content = {
-        "project_name": "das_erwachen_der_waechter",
-        "description": "Science-Fiction-Romanprojekt, zweiter Band der Serie 'Die Jäger und die Gejagten'. Das Projekt nutzt Markdown, Bild-Prompts, EPUB-Erstellung und KI-Unterstützung zum Schreiben und Publizieren.",
+        "project_name": "your_project_name",
+        "description": "Your description",
         "author": "Asterios Raptis",
-        "language": "de",
+        "language": "en",
         "structure": {
             "source_format": "Markdown",
             "chapter_path": "manuscript/chapters/",
             "assets_path": "assets/figures/",
-            "cover_file": "assets/covers/cover_das_erwachen_der_waechter.png",
-            "image_prompt_file": "scripts/data/image_prompts_band2.json"
+            "cover_file": "assets/covers/cover.png",
+            "image_prompt_file": "scripts/data/image_prompts.json"
         },
         "output_formats": ["epub", "epub2", "pdf", "docx", "md"],
         "image_generation": {
             "engine": "Stable Diffusion / DALL·E / Midjourney",
-            "prompt_file": "scripts/data/image_prompts_band2.json",
+            "prompt_file": "scripts/data/image_prompts.json",
             "target_path": "assets/figures/",
             "style": "cinematic, sci-fi realism, moody lighting"
         },
@@ -139,10 +144,10 @@ def main():
     write_readme(base / "README.md")
     write_metadata_yaml(base / "config/metadata.yaml")
     write_metadata_json(base / "config/metadata_values.json")
-    write_image_config_json(base / "scripts/data/image_project_config.json")
+    write_image_prompt_generation_template(base / "scripts/data/image_prompt_generation_template.json")
 
     print("✅ Book project structure created successfully!")
-    print("📁 Image config saved at scripts/data/image_project_config.json")
+    print("📁 Image generation template saved at scripts/data/image_prompt_generation_template.json")
     print("ℹ️  You can edit config/metadata_values.json and run the metadata script (scripts/update_metadata_values.py) to populate metadata.yaml automatically.")
 
 if __name__ == "__main__":
