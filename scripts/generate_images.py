@@ -1,97 +1,72 @@
 import os
 import json
-import requests
 import argparse
+import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Set working directory to project root
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-os.chdir("..")
-
 # Load environment variables
 load_dotenv()
-API_KEY = os.getenv("DEEPAI_API_KEY")
-DEEPAI_URL = "https://api.deepai.org/api/text2img"
 
-# Paths
-OUTPUT_DIR = Path("assets")
-PROMPT_FILE = Path("assets/prompts/image_prompts.json")
-
-def generate_image(prompt, filename, style=None, dry_run=False):
+def generate_image(prompt, filename, output_dir, api_key, style=None):
     full_prompt = f"{prompt}, in {style}" if style else prompt
-    output_path = OUTPUT_DIR / filename
+    print(f"Generating: {filename}")
 
-    if output_path.exists():
-        print(f"⏭️  Skipping (already exists): {filename}")
-        return "skipped"
+    response = requests.post(
+        "https://api.deepai.org/api/text2img",
+        data={'text': full_prompt},
+        headers={'api-key': api_key}
+    )
 
-    if dry_run:
-        print(f"🔍 Dry-run: would generate '{filename}' with prompt: {full_prompt}")
-        return "dry-run"
+    if response.status_code != 200:
+        print(f"❌ DeepAI error {response.status_code}: {response.text}")
+        return
 
-    print(f"⚙️ Generating: {filename}")
     try:
-        response = requests.post(
-            DEEPAI_URL,
-            data={"text": full_prompt},
-            headers={"api-key": API_KEY}
-        )
-
-        if response.status_code != 200:
-            print(f"❌ DeepAI error {response.status_code}: {response.text}")
-            return "error"
-
-        image_url = response.json()["output_url"]
+        image_url = response.json()['output_url']
         img_data = requests.get(image_url).content
-
-        with open(output_path, "wb") as f:
+        output_path = Path(output_dir) / filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'wb') as f:
             f.write(img_data)
-
-        print(f"✅ Saved: {filename}")
-        return "generated"
+        print(f"✅ Saved: {output_path}")
     except Exception as e:
-        print(f"❌ Failed to generate '{filename}': {e}")
-        return "error"
+        print(f"❌ Failed to save image for prompt: {full_prompt}\n{e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate images using DeepAI Text2Image API")
-    parser.add_argument("--dry-run", action="store_true", help="Simulate image generation without API calls")
+    parser = argparse.ArgumentParser(description="Generate images from prompts using DeepAI text2img")
+    parser.add_argument("--prompt-file", required=True, help="Path to the prompt JSON file")
+    parser.add_argument("--output-dir", required=True, help="Directory to save generated images")
+    parser.add_argument("--api-key", required=False, help="DeepAI API key (optional, overrides .env)")
+
     args = parser.parse_args()
 
-    with open(PROMPT_FILE, encoding="utf-8") as f:
+    prompt_file = Path(args.prompt_file)
+    output_dir = Path(args.output_dir)
+    api_key = args.api_key or os.getenv("DEEPAI_API_KEY")
+
+    if not api_key:
+        print("❌ No API key provided. Set --api-key or define DEEPAI_API_KEY in .env")
+        return
+
+    if not prompt_file.exists():
+        print(f"❌ Prompt file does not exist: {prompt_file}")
+        return
+
+    with open(prompt_file, encoding="utf-8") as f:
         data = json.load(f)
 
     prompts = data.get("prompts", [])
     style = data.get("settings", {}).get("style", None)
 
-    stats = {"total": 0, "generated": 0, "skipped": 0, "errors": 0, "dry_run": 0}
-
     for item in prompts:
-        stats["total"] += 1
-        result = generate_image(
+        generate_image(
             prompt=item.get("text", ""),
             filename=item.get("filename", "output.png"),
-            style=style,
-            dry_run=args.dry_run
+            output_dir=output_dir,
+            api_key=api_key,
+            style=style
         )
-        if result == "generated":
-            stats["generated"] += 1
-        elif result == "skipped":
-            stats["skipped"] += 1
-        elif result == "error":
-            stats["errors"] += 1
-        elif result == "dry-run":
-            stats["dry_run"] += 1
-
-    # Summary
-    print("\n📊 Summary")
-    print("----------")
-    print(f"📄 Prompts processed:   {stats['total']}")
-    print(f"✅ Images generated:    {stats['generated']}")
-    print(f"⏭️  Skipped (existing):  {stats['skipped']}")
-    print(f"🔍 Dry-run entries:     {stats['dry_run']}")
-    print(f"❌ Errors:              {stats['errors']}")
 
 if __name__ == "__main__":
     main()
