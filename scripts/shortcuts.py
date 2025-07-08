@@ -13,7 +13,11 @@ import sys
 from scripts.full_export_book import main as export_main
 from scripts.print_version_build import main as export_print_version_main
 from scripts.translate_book_deepl import main as export_translate_book_deepl_main
+from scripts.update_metadata_values import main as update_metadata_values_main
 
+
+def run_update_metadata_values():
+    update_metadata_values_main()
 
 def translate_manuscript_to_german():
     """
