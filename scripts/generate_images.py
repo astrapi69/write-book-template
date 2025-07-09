@@ -5,6 +5,11 @@ import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Change the current working directory to the root directory of the project
+# (Assumes the script is located one level inside the project root)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+
 # Load environment variables
 load_dotenv()
 
