@@ -52,6 +52,7 @@ export-pve = "scripts.shortcuts:export_print_version_epub"
 export-all-with-cover = "scripts.shortcuts:all_formats_with_cover"
 translate_manuscript_to_german = "scripts.shortcuts:translate_manuscript_to_german"
 update-mdv = "scripts.shortcuts:run_update_metadata_values"
+init-bp = "scripts.shortcuts:run_init_book_project"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
