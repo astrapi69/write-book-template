@@ -3,9 +3,12 @@ Shortcut utility for common book export operations.
 
 📚 Usage (import in scripts or run via CLI):
 
-    from shortcuts import export_epub, export_pdf, ...
+    from shortcuts import export_epub, export_pdf, main
 
-    # Or via CLI:
+    # Run a shortcut directly
+    export_pdf()
+
+    # Or use CLI interface
     $ python shortcuts.py export_epub
 
 🎯 Available shortcuts:
@@ -106,7 +109,7 @@ def all_formats_with_cover():
     export_main()
 
 
-# --- CLI Interface ---
+# --- CLI Dispatcher ---
 
 available_shortcuts = {
     "export_epub": export_epub,
@@ -121,10 +124,31 @@ available_shortcuts = {
     "run_init_book_project": run_init_book_project,
 }
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run book project export/utility shortcuts")
-    parser.add_argument("task", choices=available_shortcuts.keys(), help="Shortcut name to run")
+def main():
+    """Main CLI dispatcher for shortcuts"""
+    parser = argparse.ArgumentParser(
+        description="📚 Book Project Shortcut Runner",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="\nRun a shortcut like: poetry run shortcuts export_pdf"
+    )
+
+    shortcut_names = sorted(available_shortcuts.keys())
+    shortcut_help = "\n".join([f"  {name}" for name in shortcut_names])
+
+    parser.add_argument(
+        "task",
+        nargs="?",
+        choices=shortcut_names,
+        help=f"Available shortcuts:\n{shortcut_help}"
+    )
+
     args = parser.parse_args()
 
-    # Execute the selected shortcut
-    available_shortcuts[args.task]()
+    if args.task:
+        available_shortcuts[args.task]()
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()
