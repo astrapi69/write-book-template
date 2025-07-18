@@ -9,7 +9,7 @@ Shortcut utility for common book export operations.
     export_pdf()
 
     # Or use CLI interface
-    $ python shortcuts.py export_epub
+    $ python shortcuts_export.py export_epub
 
 🎯 Available shortcuts:
     - export_epub()
@@ -19,39 +19,12 @@ Shortcut utility for common book export operations.
     - export_markdown()
     - export_print_version_epub()
     - all_formats_with_cover()
-    - translate_manuscript_to_german()
-    - run_update_metadata_values()
-    - run_init_book_project()
 """
 
 import sys
 import argparse
 from scripts.full_export_book import main as export_main
 from scripts.print_version_build import main as export_print_version_main
-from scripts.translate_book_deepl import main as export_translate_book_deepl_main
-from scripts.update_metadata_values import main as update_metadata_values_main
-from scripts.init_book_project import main as init_book_project_main
-
-
-# --- Initialization Shortcuts ---
-
-def run_init_book_project():
-    """Initialize a new book project structure"""
-    init_book_project_main()
-
-
-def run_update_metadata_values():
-    """Update metadata.yaml using preset values"""
-    update_metadata_values_main()
-
-
-# --- Translation Shortcuts ---
-
-def translate_manuscript_to_german():
-    """Translate the default English manuscript to German"""
-    sys.argv = ["translate-book-deepl", "--base-dir", "manuscript", "--target-lang", "DE"]
-    export_translate_book_deepl_main()
-
 
 # --- Export Shortcuts ---
 
@@ -119,9 +92,6 @@ available_shortcuts = {
     "export_markdown": export_markdown,
     "export_print_version_epub": export_print_version_epub,
     "all_formats_with_cover": all_formats_with_cover,
-    "translate_manuscript_to_german": translate_manuscript_to_german,
-    "run_update_metadata_values": run_update_metadata_values,
-    "run_init_book_project": run_init_book_project,
 }
 
 def main():
