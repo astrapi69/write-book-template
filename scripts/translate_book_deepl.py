@@ -113,6 +113,7 @@ def translate_markdown_file(file_path: str, source_lang: str, target_lang: str, 
         print(f"🧪 Dry-run complete: {norm_path} not written.")
 
     translated_files.add(norm_path)
+    print(f"📌 Added to translated_files: {norm_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Translate markdown files using DeepL Free API.")
@@ -126,32 +127,34 @@ def main():
     skiplist = load_skiplist()
     translated_files = set()
 
-    if args.file:
-        translate_markdown_file(args.file, args.source_lang, args.target_lang, skiplist, translated_files, args.dry_run)
-    elif args.base_dir:
-        translate_markdown_files(args.base_dir, args.source_lang, args.target_lang, skiplist, translated_files, args.dry_run)
-    else:
-        parser.error("You must specify either --file or --base-dir.")
-
-
-    if not args.dry_run:
-        # Normalisiere die neu übersetzten Pfade
-        normalized_translated = {normalize_path(path) for path in translated_files}
-
-        # Lade bestehende skiplist erneut (als Sicherheit gegen race conditions)
-        current_skiplist = load_skiplist()
-
-        # Berechne neue Einträge, die noch nicht enthalten sind
-        new_entries = sorted(normalized_translated - current_skiplist)
-
-        if new_entries:
-            combined_entries = sorted(current_skiplist.union(new_entries))
-            with open(SKIPLIST_PATH, "w", encoding="utf-8") as f:
-                for path in combined_entries:
-                    f.write(path + "\n")
-            print(f"📝 Skiplist updated with {len(new_entries)} new entries (total {len(combined_entries)} lines).")
+    try:
+        if args.file:
+            translate_markdown_file(args.file, args.source_lang, args.target_lang, skiplist, translated_files, args.dry_run)
+        elif args.base_dir:
+            translate_markdown_files(args.base_dir, args.source_lang, args.target_lang, skiplist, translated_files, args.dry_run)
         else:
-            print("ℹ️ No new entries to add to skiplist.")
+            parser.error("You must specify either --file or --base-dir.")
+    except KeyboardInterrupt:
+        print("\n🛑 Translation interrupted by user (Ctrl+C)")
+    finally:
+        if not args.dry_run and translated_files:
+            print(f"📊 Total files marked as translated: {len(translated_files)}")
+
+            normalized_translated = {normalize_path(path) for path in translated_files}
+            current_skiplist = load_skiplist()
+            new_entries = sorted(normalized_translated - current_skiplist)
+            combined_entries = sorted(current_skiplist.union(normalized_translated))
+
+            if new_entries:
+                os.makedirs(os.path.dirname(SKIPLIST_PATH) or ".", exist_ok=True)
+                with open(SKIPLIST_PATH, "w", encoding="utf-8") as f:
+                    for path in combined_entries:
+                        print(f"📄 Writing to .skiplist: {path}")
+                        f.write(path + "\n")
+                print(f"📝 Skiplist updated with {len(new_entries)} new entries (total {len(combined_entries)}).")
+            else:
+                print("ℹ️ No new entries to add to skiplist.")
+
 
 if __name__ == "__main__":
     main()
