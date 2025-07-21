@@ -33,10 +33,6 @@ git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
 ```
 
-**ChatGPT:**
-
-Here’s the **updated section** for your `README.md`, replacing the old shell-based initialization instructions with the new Python script and linking to the new wiki page:
-
 * * *
 
 ### 2️⃣ Initialize Project Structure
