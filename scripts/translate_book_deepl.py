@@ -11,7 +11,8 @@ import argparse
 from time import sleep
 from dotenv import load_dotenv
 
-load_dotenv()  # Load .env from project root
+# Load environment variables
+load_dotenv()
 DEEPL_AUTH_KEY = os.getenv("DEEPL_AUTH_KEY")
 
 DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
@@ -26,19 +27,20 @@ script_path = os.path.realpath(__file__)
 project_root = os.path.abspath(os.path.join(os.path.dirname(script_path), ".."))
 os.chdir(project_root)
 
+def normalize_path(path: str) -> str:
+    """Normalize paths relative to project root to ensure consistent skiplist behavior"""
+    return os.path.normpath(os.path.relpath(path, start=project_root))
 
 def load_skiplist(path: str = SKIPLIST_PATH) -> set:
     if not os.path.exists(path):
         return set()
     with open(path, "r", encoding="utf-8") as f:
-        return set(os.path.normpath(line.strip()) for line in f if line.strip())
-
+        return set(normalize_path(line.strip()) for line in f if line.strip())
 
 def log_skipped(reason: str, file_path: str):
     os.makedirs(os.path.dirname(SKIPPED_LOG_PATH), exist_ok=True)
     with open(SKIPPED_LOG_PATH, "a", encoding="utf-8") as f:
         f.write(f"{reason}: {file_path}\n")
-
 
 def translate_text(text: str, source_lang: str, target_lang: str) -> str:
     if not DEEPL_AUTH_KEY:
@@ -55,17 +57,15 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
     response.raise_for_status()
     return response.json()["translations"][0]["text"]
 
-
 def translate_markdown_files(base_dir: str, source_lang: str, target_lang: str, skiplist: set, translated_files: set, dry_run: bool):
     for root, _, files in os.walk(base_dir):
         for file in files:
             if file.endswith(".md"):
-                file_path = os.path.normpath(os.path.join(root, file))
+                file_path = os.path.join(root, file)
                 translate_markdown_file(file_path, source_lang, target_lang, skiplist, translated_files, dry_run)
 
-
 def translate_markdown_file(file_path: str, source_lang: str, target_lang: str, skiplist: set, translated_files: set, dry_run: bool):
-    norm_path = os.path.normpath(file_path)
+    norm_path = normalize_path(file_path)
 
     if norm_path in skiplist:
         print(f"⏭️ Skipped via .skiplist: {norm_path}")
@@ -75,7 +75,7 @@ def translate_markdown_file(file_path: str, source_lang: str, target_lang: str, 
     print(f"🌍 Translating: {norm_path} [{source_lang} → {target_lang}]")
 
     try:
-        with open(norm_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             original_text = f.read()
     except FileNotFoundError:
         print(f"❌ File not found: {norm_path}")
@@ -106,14 +106,13 @@ def translate_markdown_file(file_path: str, source_lang: str, target_lang: str, 
     translated_text = "\n\n".join(translated_blocks)
 
     if not dry_run:
-        with open(norm_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(translated_text)
         print(f"✅ Overwritten: {norm_path}")
     else:
         print(f"🧪 Dry-run complete: {norm_path} not written.")
 
     translated_files.add(norm_path)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Translate markdown files using DeepL Free API.")
@@ -134,14 +133,25 @@ def main():
     else:
         parser.error("You must specify either --file or --base-dir.")
 
-    if not args.dry_run:
-        new_entries = sorted(set(translated_files) - skiplist)
-        if new_entries:
-            with open(SKIPLIST_PATH, "a", encoding="utf-8") as f:
-                for path in new_entries:
-                    f.write(path + "\n")
-            print(f"📝 Updated .skiplist with {len(new_entries)} new entries.")
 
+    if not args.dry_run:
+        # Normalisiere die neu übersetzten Pfade
+        normalized_translated = {normalize_path(path) for path in translated_files}
+
+        # Lade bestehende skiplist erneut (als Sicherheit gegen race conditions)
+        current_skiplist = load_skiplist()
+
+        # Berechne neue Einträge, die noch nicht enthalten sind
+        new_entries = sorted(normalized_translated - current_skiplist)
+
+        if new_entries:
+            combined_entries = sorted(current_skiplist.union(new_entries))
+            with open(SKIPLIST_PATH, "w", encoding="utf-8") as f:
+                for path in combined_entries:
+                    f.write(path + "\n")
+            print(f"📝 Skiplist updated with {len(new_entries)} new entries (total {len(combined_entries)} lines).")
+        else:
+            print("ℹ️ No new entries to add to skiplist.")
 
 if __name__ == "__main__":
     main()
