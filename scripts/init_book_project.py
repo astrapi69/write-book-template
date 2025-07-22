@@ -1,11 +1,47 @@
+# init_book_project.py
 import os
 import json
 from pathlib import Path
+import toml
 
 # Change the current working directory to the root directory of the project
 # (Assumes the script is located one level inside the project root)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
+
+
+def update_pyproject(project_name: str, description: str):
+    """Update project name and description in pyproject.toml"""
+    pyproject_path = "pyproject.toml"
+    with open(pyproject_path, "r", encoding="utf-8") as f:
+        data = toml.load(f)
+
+    data["tool"]["poetry"]["name"] = project_name
+    data["tool"]["poetry"]["description"] = description
+
+    with open(pyproject_path, "w", encoding="utf-8") as f:
+        toml.dump(data, f)
+    print(f"✅ Updated pyproject.toml with name='{project_name}' and description.")
+
+def update_full_export_script(output_file: str, title: str, author: str, year: str = "2025", lang: str = "en"):
+    """Update constants in full_export_book.py"""
+    path = "scripts/full_export_book.py"
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = content.replace(
+        'OUTPUT_FILE = "book"                            # Base name for the output files #TODO replace with your data',
+        f'OUTPUT_FILE = "{output_file}"                            # Base name for the output files'
+    )
+    content = content.replace(
+        'f.write("title: \'CHANGE TO YOUR TITLE\'\\nauthor: \'YOUR NAME\'\\ndate: \'2025\'\\nlang: \'en\'\\n") #TODO replace with your data',
+        f'f.write("title: \'{title}\'\\nauthor: \'{author}\'\\ndate: \'{year}\'\\nlang: \'{lang}\'\\n")'
+    )
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("✅ Updated full_export_book.py with your metadata.")
+
 
 def create_directories(base_path: Path, directories: list[str]):
     for dir_path in directories:
@@ -101,6 +137,19 @@ def write_image_prompt_generation_template(json_path: Path):
 def main():
     base = Path(__file__).resolve().parent.parent
 
+    # Prompt for user input
+    project_name = input("📘 Enter your project name (e.g., 'ai-for-everyone'): ").strip()
+    project_description = input("📝 Enter a short description of your project: ").strip()
+    book_title = input("📖 Enter your book title: ").strip()
+    author_name = input("👤 Enter the author's name: ").strip()
+    year = "2025"
+    lang = "en"
+
+    # Update pyproject.toml and full_export_book.py
+    update_pyproject(project_name, project_description)
+    update_full_export_script(output_file=project_name, title=book_title, author=author_name, year=year, lang=lang)
+
+    # Create folders and files
     directories = [
         "manuscript/chapters",
         "manuscript/front-matter",
@@ -111,7 +160,7 @@ def main():
         "assets/figures/infographics",
         "config",
         "output",
-        "scripts/data"  # for image config JSON
+        "scripts/data"
     ]
 
     files = [
@@ -142,13 +191,33 @@ def main():
     create_directories(base, directories)
     create_files(base, files)
     write_readme(base / "README.md")
-    write_metadata_yaml(base / "config/metadata.yaml")
     write_metadata_json(base / "config/metadata_values.json")
     write_image_prompt_generation_template(base / "scripts/data/image_prompt_generation_template.json")
 
+    # Generate metadata.yaml with actual input values
+    metadata_path = base / "config/metadata.yaml"
+    metadata_content = f"""\
+title: "{book_title}"
+subtitle: ""
+author: "{author_name}"
+isbn: ""
+edition: "1"
+publisher: ""
+date: "{year}"
+language: "{lang}"
+description: "{project_description}"
+keywords: []
+cover_image: "assets/covers/cover.png"
+output_formats: ["pdf", "epub", "docx"]
+kdp_enabled: false
+"""
+    metadata_path.write_text(metadata_content, encoding="utf-8")
+
     print("✅ Book project structure created successfully!")
+    print("🛠️  pyproject.toml and full_export_book.py updated.")
     print("📁 Image generation template saved at scripts/data/image_prompt_generation_template.json")
-    print("ℹ️  You can edit config/metadata_values.json and run the metadata script (scripts/update_metadata_values.py) to populate metadata.yaml automatically.")
+    print("📄 Metadata saved to config/metadata.yaml")
+
 
 if __name__ == "__main__":
     main()
