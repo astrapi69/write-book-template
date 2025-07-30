@@ -16,7 +16,9 @@ os.chdir("..")
 BOOK_DIR = "./manuscript"                       # Location of markdown files organized by sections
 OUTPUT_DIR = "./output"                         # Output directory for compiled formats
 BACKUP_DIR = "./output_backup"                  # Backup location for previous output
-OUTPUT_FILE = None                              # Will be set dynamically in main()
+# Set to None to derive from pyproject.toml automatically.
+# Set a string to override the output file base name manually.
+OUTPUT_FILE = None
 LOG_FILE = "export.log"                         # Log file for script and Pandoc output/errors
 
 # Supporting script paths
@@ -229,6 +231,7 @@ def main():
         default=BookType.EBOOK,
         help="Specify the book type (ebook, paperback, etc.). Affects output file naming."
     )
+    parser.add_argument("--output-file", type=str, help="Custom output file base name (overrides project name)")
 
     args = parser.parse_args()
     section_order = args.order.split(",")
@@ -238,8 +241,14 @@ def main():
 
     # Set global output filename
     global OUTPUT_FILE
-    project_name = get_project_name_from_pyproject()
-    OUTPUT_FILE = f"{project_name}-{book_type.value}"
+    if args.output_file:
+        OUTPUT_FILE = f"{args.output_file}-{book_type.value}"
+    elif not OUTPUT_FILE:
+        project_name = get_project_name_from_pyproject()
+        OUTPUT_FILE = f"{project_name}-{book_type.value}"
+    else:
+        OUTPUT_FILE = f"{OUTPUT_FILE}-{book_type.value}"
+
     print(f"📘 Output file base name set to: {OUTPUT_FILE}")
 
 
