@@ -228,7 +228,7 @@ def main():
         "--book-type",
         type=str,
         choices=[bt.value for bt in BookType],
-        default=BookType.EBOOK,
+        default=BookType.EBOOK.value,
         help="Specify the book type (ebook, paperback, etc.). Affects output file naming."
     )
     parser.add_argument("--output-file", type=str, help="Custom output file base name (overrides project name)")
