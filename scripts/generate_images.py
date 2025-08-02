@@ -10,12 +10,25 @@ from dotenv import load_dotenv
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
+def load_character_profiles(path="scripts/data/character_profiles.json"):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"⚠️ Failed to load character profiles: {e}")
+        return {}
+
 def generate_image(prompt, filename, output_dir, api_key, style=None):
+    output_path = Path(output_dir) / filename
+    if output_path.exists():
+        print(f"⚠️ Skipped: {filename} already exists")
+        return
+
     full_prompt = f"{prompt}, in {style}" if style else prompt
-    print(f"Generating: {filename}")
+    print(f"🎨 Generating: {filename}")
 
     response = requests.post(
         "https://api.deepai.org/api/text2img",
@@ -30,7 +43,6 @@ def generate_image(prompt, filename, output_dir, api_key, style=None):
     try:
         image_url = response.json()['output_url']
         img_data = requests.get(image_url).content
-        output_path = Path(output_dir) / filename
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'wb') as f:
             f.write(img_data)
@@ -43,6 +55,7 @@ def main():
     parser.add_argument("--prompt-file", required=True, help="Path to the prompt JSON file")
     parser.add_argument("--output-dir", required=True, help="Directory to save generated images")
     parser.add_argument("--api-key", required=False, help="DeepAI API key (optional, overrides .env)")
+    parser.add_argument("--character-profile", default="scripts/data/character_profiles.json", help="Path to character profile JSON file")
 
     args = parser.parse_args()
 
@@ -61,17 +74,32 @@ def main():
     with open(prompt_file, encoding="utf-8") as f:
         data = json.load(f)
 
-    prompts = data.get("prompts", [])
-    style = data.get("settings", {}).get("style", None)
+    global_style = data.get("style", None)
+    character_profiles = load_character_profiles(args.character_profile)
 
-    for item in prompts:
-        generate_image(
-            prompt=item.get("text", ""),
-            filename=item.get("filename", "output.png"),
-            output_dir=output_dir,
-            api_key=api_key,
-            style=style
-        )
+    chapters = data.get("chapters", [])
+    for chapter in chapters:
+        prompts = chapter.get("prompts", [])
+        for item in prompts:
+            base_prompt = item.get("prompt", "")
+            character_key = item.get("character", None)
+
+            # Unterstützt Liste oder Einzelwert
+            if isinstance(character_key, list):
+                character_desc = ", ".join([character_profiles.get(name, "") for name in character_key])
+            else:
+                character_desc = character_profiles.get(character_key, "")
+
+            final_prompt = f"{character_desc}, {base_prompt}" if character_desc else base_prompt
+
+            filename = item.get("filename", "output.png")
+            generate_image(
+                prompt=final_prompt,
+                filename=filename,
+                output_dir=output_dir,
+                api_key=api_key,
+                style=global_style
+            )
 
 if __name__ == "__main__":
     main()
