@@ -33,6 +33,7 @@ create-chapters = "scripts.create_chapters:main"
 generate-images = "scripts.generate_images:main"
 inject-images = "scripts.inject_images:main"
 shortcuts = "scripts.shortcuts:main"
+export-comic = "scripts.full_export_comic:main"
 
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts_export:export_epub"
