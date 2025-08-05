@@ -52,11 +52,21 @@ def generate_image(prompt, filename, output_dir, api_key, style=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate images from prompts using DeepAI text2img")
-    parser.add_argument("--prompt-file", required=True, help="Path to the prompt JSON file")
-    parser.add_argument("--output-dir", required=True, help="Directory to save generated images")
-    parser.add_argument("--api-key", required=False, help="DeepAI API key (optional, overrides .env)")
-    parser.add_argument("--character-profile", default="scripts/data/character_profiles.json", help="Path to character profile JSON file")
-
+    parser.add_argument("--prompt-file",
+                        default="scripts/data/image_prompts.json",
+                        help="Path to the prompt JSON file (default: scripts/data/image_prompts.json)"
+    )
+    parser.add_argument("--output-dir",
+                        type=Path,
+                        default=Path("assets/illustrations"),
+                        help="Directory to save generated images (default: assets/illustrations)"
+    )
+    parser.add_argument("--api-key",
+                        required=False,
+                        help="DeepAI API key (optional, overrides .env)")
+    parser.add_argument("--character-profile",
+                        default="scripts/data/character_profiles.json",
+                        help="Path to character profile JSON file")
     args = parser.parse_args()
 
     prompt_file = Path(args.prompt_file)
