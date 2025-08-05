@@ -14,6 +14,8 @@ Shortcut utility for common book export operations.
 🎯 Available shortcuts:
     - export_epub()
     - export_epub_with_cover()
+    - export_epub2()
+    - export_epub2_with_cover()
     - export_pdf()
     - export_docx()
     - export_markdown()
@@ -81,12 +83,24 @@ def all_formats_with_cover():
     ]
     export_main()
 
+def export_epub2():
+    """Export EPUB in EPUB 2 format"""
+    sys.argv = ["full-export", "--format=epub", "--epub2"]
+    export_main()
+
+def export_epub2_with_cover():
+    """Export EPUB 2 with cover image"""
+    sys.argv = ["full-export", "--format=epub", "--epub2", "--cover=./assets/covers/cover.jpg"]
+    export_main()
+
 
 # --- CLI Dispatcher ---
 
 available_shortcuts = {
     "export_epub": export_epub,
     "export_epub_with_cover": export_epub_with_cover,
+    "export_epub2": export_epub2,
+    "export_epub2_with_cover": export_epub2_with_cover,
     "export_pdf": export_pdf,
     "export_docx": export_docx,
     "export_markdown": export_markdown,
