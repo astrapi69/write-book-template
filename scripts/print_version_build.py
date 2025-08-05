@@ -1,6 +1,11 @@
 import subprocess
 from pathlib import Path
 import os
+import argparse
+
+# Allowed book types
+VALID_BOOK_TYPES = ["paperback", "hardcover"]
+DEFAULT_BOOK_TYPE = "paperback"
 
 # Change working directory to project root (parent directory of scripts/)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -8,21 +13,8 @@ os.chdir("..")
 
 SCRIPTS_DIR = Path("scripts")
 
-EXPORT_FORMAT = "epub"         # You can change this to "pdf", "docx", etc.
-BOOK_TYPE = "paperback"        # This will be passed to full_export_book.py
-
 
 def run_script(script_name, *args):
-    """
-    Run a Python script with optional arguments.
-
-    Parameters:
-    - script_name (str): The name of the script to run (relative to SCRIPTS_DIR)
-    - *args: Optional arguments passed to the script
-
-    Returns:
-    - bool: True if the script ran successfully, False otherwise
-    """
     script_path = SCRIPTS_DIR / script_name
     if not script_path.exists():
         print(f"❌ Script not found: {script_path}")
@@ -36,28 +28,38 @@ def run_script(script_name, *args):
         return False
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Build a print-ready version of the book.")
+    parser.add_argument(
+        "--book-type",
+        default=DEFAULT_BOOK_TYPE,
+        help=f"Specify the book type (default: {DEFAULT_BOOK_TYPE})"
+    )
+    args = parser.parse_args()
+
+    # Validate book type manually
+    book_type = args.book_type.lower()
+    if book_type not in VALID_BOOK_TYPES:
+        print(f"⚠️ Invalid book type '{args.book_type}' provided. Falling back to default: '{DEFAULT_BOOK_TYPE}'")
+        book_type = DEFAULT_BOOK_TYPE
+
+    return book_type
+
+
 def main():
-    """
-    Build the print-ready (paperback) version of the book.
+    book_type = parse_args()
+    export_format = "epub"
 
-    This script automates a series of steps:
-    1. Strips internal links from the manuscript (for clean TOC and plain author pages)
-    2. Converts any markdown links to plain text
-    3. Runs the main export script to generate the EPUB (or other print-ready format)
-    4. Reverts any modified files using `git restore .`
-
-    Adjust the `steps` list if additional processing is needed before/after export.
-    """
-    print("📘 Building PRINT version of the book...\n")
+    print(f"📘 Building PRINT version of the book ({book_type.upper()})...\n")
 
     steps = [
-        ("strip_links.py", []),  # Step 1: Clean TOC
-        ("convert_links_to_plain_text.py", []),  # Step 2: Clean author section
-        ("full_export_book.py", ["--format=" + EXPORT_FORMAT, "--book-type=" + BOOK_TYPE]), # Step 3: Build EPUB. You can change 'epub' to 'pdf', 'docx', etc.
+        ("strip_links.py", []),
+        ("convert_links_to_plain_text.py", []),
+        ("full_export_book.py", [f"--format={export_format}", f"--book-type={book_type}"]),
     ]
 
-    for script, args in steps:
-        success = run_script(script, *args)
+    for script, arguments in steps:
+        success = run_script(script, *arguments)
         if not success:
             print("🛑 Build process aborted.")
             return

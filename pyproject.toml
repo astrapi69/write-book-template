@@ -58,6 +58,10 @@ export-docx = "scripts.shortcuts_export:export_docx"
 export-d = "scripts.shortcuts_export:export_docx"
 export-print-version-epub = "scripts.shortcuts_export:export_print_version_epub"
 export-pve = "scripts.shortcuts_export:export_print_version_epub"
+export-print-version-paperback = "scripts.shortcuts_export:export_print_version_paperback"
+export-pvp = "scripts.shortcuts_export:export_print_version_paperback"
+export-print-version-hardcover = "scripts.shortcuts_export:export_print_version_hardcover"
+export-pvh = "scripts.shortcuts_export:export_print_version_hardcover"
 export-all-with-cover = "scripts.shortcuts_export:all_formats_with_cover"
 
 # Init Shortcuts

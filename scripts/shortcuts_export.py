@@ -20,6 +20,8 @@ Shortcut utility for common book export operations.
     - export_docx()
     - export_markdown()
     - export_print_version_epub()
+    - export_print_version_paperback(),
+    - export_print_version_hardcover(),
     - all_formats_with_cover()
 """
 
@@ -68,12 +70,6 @@ def export_epub_with_cover():
     export("epub", "./assets/covers/cover.jpg")
 
 
-def export_print_version_epub():
-    """Export the print-optimized EPUB version via print_version_build"""
-    sys.argv = ["print-version-build", "--format=epub"]
-    export_print_version_main()
-
-
 def all_formats_with_cover():
     """Export all formats (PDF, EPUB, DOCX) with EPUB cover"""
     sys.argv = [
@@ -94,6 +90,24 @@ def export_epub2_with_cover():
     export_main()
 
 
+def export_print_version_epub():
+    """Export the print-optimized EPUB version via print_version_build"""
+    sys.argv = ["print-version-build", "--format=epub"]
+    export_print_version_main()
+
+
+def export_print_version_paperback():
+    """Export the print-optimized EPUB version for paperback"""
+    sys.argv = ["print-version-build", "--format=epub", "--book-type=paperback"]
+    export_print_version_main()
+
+
+def export_print_version_hardcover():
+    """Export the print-optimized EPUB version for hardcover"""
+    sys.argv = ["print-version-build", "--format=epub", "--book-type=hardcover"]
+    export_print_version_main()
+
+
 # --- CLI Dispatcher ---
 
 available_shortcuts = {
@@ -105,6 +119,8 @@ available_shortcuts = {
     "export_docx": export_docx,
     "export_markdown": export_markdown,
     "export_print_version_epub": export_print_version_epub,
+    "export_print_version_paperback": export_print_version_paperback,
+    "export_print_version_hardcover": export_print_version_hardcover,
     "all_formats_with_cover": all_formats_with_cover,
 }
 
