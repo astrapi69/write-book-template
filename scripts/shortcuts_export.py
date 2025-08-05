@@ -92,19 +92,19 @@ def export_epub2_with_cover():
 
 def export_print_version_epub():
     """Export the print-optimized EPUB version via print_version_build"""
-    sys.argv = ["print-version-build", "--format=epub"]
+    sys.argv = ["print-version-build",]
     export_print_version_main()
 
 
 def export_print_version_paperback():
     """Export the print-optimized EPUB version for paperback"""
-    sys.argv = ["print-version-build", "--format=epub", "--book-type=paperback"]
+    sys.argv = ["print-version-build", "--book-type=paperback"]
     export_print_version_main()
 
 
 def export_print_version_hardcover():
     """Export the print-optimized EPUB version for hardcover"""
-    sys.argv = ["print-version-build", "--format=epub", "--book-type=hardcover"]
+    sys.argv = ["print-version-build", "--book-type=hardcover"]
     export_print_version_main()
 
 
