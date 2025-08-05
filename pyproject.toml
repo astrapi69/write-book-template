@@ -32,9 +32,15 @@ translate-book-lmstudio = "scripts.translate_book_lmstudio:main"
 create-chapters = "scripts.create_chapters:main"
 generate-images = "scripts.generate_images:main"
 inject-images = "scripts.inject_images:main"
-shortcuts = "scripts.shortcuts:main"
 export-comic = "scripts.full_export_comic:main"
+shortcuts-export = "scripts.shortcuts_export:main"
+shortcuts-export-comic = "scripts.shortcuts_export_comic:main"
+shortcuts-init = "scripts.shortcuts_init:main"
+shortcuts-translate = "scripts.shortcuts_translate:main"
 
+# 🏁 Export Comic Shortcuts
+export-comic-html = "scripts.shortcuts_export_comic:export_comic_html"
+export-comic-pdf = "scripts.shortcuts_export_comic:export_comic_pdf"
 # 🏁 Export Shortcuts
 export-epub = "scripts.shortcuts_export:export_epub"
 export-epub2 = "scripts.shortcuts_export:export_epub2"
