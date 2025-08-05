@@ -5,8 +5,7 @@ import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Change the current working directory to the root directory of the project
-# (Assumes the script is located one level inside the project root)
+# Set working directory to project root
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
 
@@ -21,18 +20,17 @@ def load_character_profiles(path="scripts/data/character_profiles.json"):
         print(f"⚠️ Failed to load character profiles: {e}")
         return {}
 
-def generate_image(prompt, filename, output_dir, api_key, style=None):
+def generate_image(prompt, filename, output_dir, api_key):
     output_path = Path(output_dir) / filename
     if output_path.exists():
         print(f"⚠️ Skipped: {filename} already exists")
         return
 
-    full_prompt = f"{prompt}, in {style}" if style else prompt
     print(f"🎨 Generating: {filename}")
 
     response = requests.post(
         "https://api.deepai.org/api/text2img",
-        data={'text': full_prompt},
+        data={'text': prompt},
         headers={'api-key': api_key}
     )
 
@@ -48,7 +46,7 @@ def generate_image(prompt, filename, output_dir, api_key, style=None):
             f.write(img_data)
         print(f"✅ Saved: {output_path}")
     except Exception as e:
-        print(f"❌ Failed to save image for prompt: {full_prompt}\n{e}")
+        print(f"❌ Failed to save image for prompt: {prompt}\n{e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate images from prompts using DeepAI text2img")
@@ -100,15 +98,15 @@ def main():
             else:
                 character_desc = character_profiles.get(character_key, "")
 
-            final_prompt = f"{character_desc}, {base_prompt}" if character_desc else base_prompt
+            combined = f"{character_desc}, {base_prompt}" if character_desc else base_prompt
+            final_prompt = f"{combined}, {global_style}" if global_style else combined
 
             filename = item.get("filename", "output.png")
             generate_image(
                 prompt=final_prompt,
                 filename=filename,
                 output_dir=output_dir,
-                api_key=api_key,
-                style=global_style
+                api_key=api_key
             )
 
 if __name__ == "__main__":
