@@ -22,6 +22,7 @@ pytest = "^8.0.0"
 pytest-mock = "^3.10.0"
 
 [tool.poetry.scripts]
+clean-git-cache = "scripts.clean_git_cache:main"
 init-book-project = "scripts.init_book_project:main"
 print-version-build = "scripts.print_version_build:main"
 update-metadata-values = "scripts.update_metadata_values:main"
