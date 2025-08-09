@@ -16,12 +16,14 @@ requests = "^2.31.0"
 pillow = "^11.2.1"
 pyyaml = "^6.0.2"
 toml = "^0.10.2"
+ftfy = "^6.3.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 pytest-mock = "^3.10.0"
 
 [tool.poetry.scripts]
+sanitize = "scripts.sanitize:main"
 pandoc-batch = "scripts.pandoc_batch:main"
 clean-git-cache = "scripts.clean_git_cache:main"
 init-book-project = "scripts.init_book_project:main"
