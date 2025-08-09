@@ -158,16 +158,34 @@ git push
 
 ## 📖 Documentation
 
-Helpful wiki pages to support every step of your book writing workflow:
+The full documentation is available in the [Wiki](https://github.com/astrapi69/write-book-template/wiki).  
+Here are the main sections to get you started:
 
-- [📚 Home (Wiki Overview)](https://github.com/astrapi69/write-book-template/wiki)
-- [✍️ How to Write a Book](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
-- [🛠 Generate Project Structure](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
-- [📦 Automatically Export Book](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
-- [🧠 Translate Markdown with DeepL](https://github.com/astrapi69/write-book-template/wiki/Translate-Markdown-with-DeepL)
-- [💡 Translate with LM‐Studio](https://github.com/astrapi69/write-book-template/wiki/Translate-with-LM%E2%80%90Studio)
-- [⚡ Shortcuts (Common Commands)](https://github.com/astrapi69/write-book-template/wiki/Shortcuts)
-- [📘 Medium article: Automate Book Metadata](https://asterios-raptis.medium.com/automate-book-metadata-with-markdown-pandoc-ab78c03f58db)
+### 🏁 Getting Started
+- [Home](https://github.com/astrapi69/write-book-template/wiki)
+- [Project Initialization](https://github.com/astrapi69/write-book-template/wiki/Project-Initialization)
+- [How to Write a Book](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
+- [Generate Project Structure](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
+
+### ✏️ Writing Tools
+- [Chapter File Generator](https://github.com/astrapi69/write-book-template/wiki/Chapter-File-Generator)
+- [Generate Images](https://github.com/astrapi69/write-book-template/wiki/Generate-Images)
+
+### 🌐 Translation
+- [Translate Markdown with DeepL](https://github.com/astrapi69/write-book-template/wiki/Translate-Markdown-with-DeepL)
+- [Translate with LM Studio](https://github.com/astrapi69/write-book-template/wiki/Translate-with-LM‐Studio)
+- [Translation CLI Commands & Shortcuts](https://github.com/astrapi69/write-book-template/wiki/Translation-CLI-Commands-Shortcuts)
+- [Shortcuts for Translation](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Translation)
+
+### 📤 Exporting Your Book
+- [Automatically Export Book](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
+- [Shortcuts for Export](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Export)
+- [Export HTML Chapters from Your Comic](https://github.com/astrapi69/write-book-template/wiki/Export-HTML-Chapters-from-your-comic)
+- [Export to EPUB 2](https://github.com/astrapi69/write-book-template/wiki/Export-to-EPUB-2)
+- [Exporting HTML Books to PDF with Puppeteer (KDP Ready)](https://github.com/astrapi69/write-book-template/wiki/Exporting-HTML-Books-to-PDF-with-Puppeteer-(KDP-Ready))
+
+### ⚡ Project Shortcuts
+- [Shortcuts for Initialization](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Initialization)
 
 ---
 
