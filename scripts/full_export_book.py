@@ -266,6 +266,7 @@ def main():
         lang = metadata_lang
         print(f"🌐 Using language from metadata.yaml: '{lang}'")
     else:
+        print(f"cli_lang: '{cli_lang}'")
         lang = "en"
         print("⚠️ No language set in CLI or metadata.yaml. Defaulting to 'en'")
 
