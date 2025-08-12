@@ -19,8 +19,9 @@ toml = "^0.10.2"
 ftfy = "^6.3.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
+pytest = "^8.2"
 pytest-mock = "^3.10.0"
+pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
 sanitize = "scripts.sanitize:main"
@@ -88,6 +89,7 @@ translate-de-en = "scripts.shortcuts_translate:translate_manuscript_from_german_
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--cov=scripts --cov-report=term-missing"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
