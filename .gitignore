@@ -36,3 +36,8 @@ output_backup
 *.log
 .skiplist
 logs/
+
+###############################
+# Ignore Hypothesis test data #
+###############################
+.hypothesis/
