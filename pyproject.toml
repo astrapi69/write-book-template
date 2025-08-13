@@ -25,6 +25,7 @@ pytest-mock = "^3.10.0"
 pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
+generate-images-deepai = "scripts.generate_images_deepai:main"
 sanitize = "scripts.sanitize:main"
 pandoc-batch = "scripts.pandoc_batch:main"
 clean-git-cache = "scripts.clean_git_cache:main"

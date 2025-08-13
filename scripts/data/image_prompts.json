@@ -1,0 +1,20 @@
+{
+  "style": "cinematic, sci-fi realism, moody lighting",
+  "chapters": [
+    {
+      "name": "01 – Einleitung",
+      "prompts": [
+        {
+          "filename": "01-intro.png",
+          "character": "Timmy",
+          "prompt": "standing at the village gate, sunrise on the horizon"
+        },
+        {
+          "filename": "01-mentor.png",
+          "character": ["Timmy", "Boronius"],
+          "prompt": "quiet conversation under an old tree"
+        }
+      ]
+    }
+  ]
+}
