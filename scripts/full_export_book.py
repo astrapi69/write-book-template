@@ -4,8 +4,11 @@ import subprocess
 import argparse
 import yaml
 import toml
+import threading
+import queue
 from pathlib import Path
 from scripts.enums.book_type import BookType
+from scripts.validate_format import validate_epub_with_epubcheck, validate_pdf, validate_markdown, validate_docx
 
 # Change the current working directory to the root directory of the project
 # (Assumes the script is located one level inside the project root)
@@ -297,7 +300,57 @@ def main():
         run_script(RELATIVE_SCRIPT)                      # Convert absolute paths back to relative
         run_script(IMG_SCRIPT, "--to-relative")     # Revert image tag changes
 
-    print("🎉 All formats generated successfully! Check export.log for details.")
+
+    # Step 5: Start background validation for each generated format
+    threads = []
+
+    for fmt in selected_formats:
+        output_path = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{fmt}")
+
+        if fmt == "epub":
+            thread = threading.Thread(
+                target=validate_epub_with_epubcheck,
+                args=(output_path,),
+                name=f"Validate-{fmt.upper()}",
+                daemon=False
+            )
+            print("🧩 EPUB generated. Validation running in background...")
+        elif fmt == "pdf":
+            thread = threading.Thread(
+                target=validate_pdf,
+                args=(output_path,),
+                name=f"Validate-{fmt.upper()}",
+                daemon=False
+            )
+            print("🧩 PDF generated. Validation running in background...")
+        elif fmt == "docx":
+            thread = threading.Thread(
+                target=validate_docx,
+                args=(output_path,),
+                name=f"Validate-{fmt.upper()}",
+                daemon=False
+            )
+            print("🧩 DOCX generated. Validation running in background...")
+        elif fmt == "markdown":
+            thread = threading.Thread(
+                target=validate_markdown,
+                args=(output_path,),
+                name=f"Validate-{fmt.upper()}",
+                daemon=False
+            )
+            print("🧩 Markdown generated. Validation running in background...")
+        else:
+            continue  # Skip unknown formats
+
+        thread.start()
+        threads.append(thread)
+
+    # Optional: wait a moment for fast checks to finish (e.g. markdown)
+    # But don't block long — let slow ones (epubcheck) continue
+    print("\n🚀 Export completed. Background validation in progress...")
+    print("📁 Outputs: ./output/")
+    print("📄 Logs: ./export.log")
+    print("🔍 Validation results will appear shortly.")
 
 
 # Entry point
