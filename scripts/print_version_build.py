@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+# scripts/print_version_build.py
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 import subprocess
 from pathlib import Path
@@ -33,7 +33,7 @@ def run_script(script_path: Path, *args: str, dry_run: bool = False) -> bool:
         return True
 
     try:
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, cwd=str(PROJECT_ROOT))
         print(f"✅ Ran: {script_path.name} {' '.join(args) if args else ''}")
         return True
     except subprocess.CalledProcessError as e:
@@ -95,7 +95,10 @@ def build_steps(scripts_dir: Path, export_format: str, book_type: str) -> List[T
     Returns the pipeline steps as (script_path, [args...]).
     """
     return [
-        (scripts_dir / "strip_links.py", []),
+        # Strip links from TOC in place so full_export_book uses the cleaned file
+        (scripts_dir / "strip_links.py",
+         ["--overwrite", "--report",
+          "--file", str(PROJECT_ROOT / "manuscript" / "front-matter" / "toc.md")]),
         (scripts_dir / "convert_links_to_plain_text.py", []),
         (
             scripts_dir / "full_export_book.py",
