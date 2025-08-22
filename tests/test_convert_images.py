@@ -34,7 +34,7 @@ def test_converts_simple_inline_image(tmp_path: Path):
     src, alt, caption = m.groups()
     assert src == "img/cat.png"
     assert alt == "Alt"
-    assert caption == "Alt"  # no title -> ALT as caption
+    assert caption == "Alt"
 
 def test_uses_title_as_caption_when_present(tmp_path: Path):
     md = tmp_path / "t.md"
@@ -57,7 +57,7 @@ def test_angle_bracket_url_and_spaces_supported(tmp_path: Path, wrapper):
     assert n == 1
     out = read(md)
     src, alt, caption = FIG_RE.search(out).groups()
-    assert src == wrapper[1:-1]  # remove <…>
+    assert src == wrapper[1:-1]
     assert alt == "X"
     assert caption == "T"
 
@@ -71,10 +71,9 @@ def test_skips_fenced_code_blocks(tmp_path: Path):
         "```\n"
         "After\n"
     )
-
     n = convert_markdown_file(md)
     assert n == 0
-    assert read(md).count("![ALT](") == 1  # unchanged inside code fence
+    assert read(md).count("![ALT](") == 1
 
 def test_skips_inline_code_spans(tmp_path: Path):
     md = tmp_path / "inline.md"
@@ -123,24 +122,23 @@ def test_unknown_reference_is_left_untouched(tmp_path: Path):
     assert n == 0
     assert read(md) == "Oops: ![Bar][missing]\n"
 
-def test_backup_is_created_by_default(tmp_path: Path):
+def test_default_is_no_backup(tmp_path: Path):
+    md = tmp_path / "nb.md"
+    write(md, "![A](x.png)\n")
+    n = convert_markdown_file(md)  # default: backup=False
+    assert n == 1
+    assert not md.with_suffix(".md.bak").exists()
+
+def test_backup_when_enabled(tmp_path: Path):
     md = tmp_path / "b.md"
     write(md, "![A](x.png)\n")
     bak = md.with_suffix(".md.bak")
     assert not bak.exists()
 
-    n = convert_markdown_file(md)
+    n = convert_markdown_file(md, backup=True)
     assert n == 1
     assert bak.exists()
-    assert read(bak) == "![A](x.png)\n"  # backup contains original
-
-def test_no_backup_when_disabled(tmp_path: Path):
-    md = tmp_path / "nb.md"
-    write(md, "![A](x.png)\n")
-
-    n = convert_markdown_file(md, backup=False)
-    assert n == 1
-    assert not md.with_suffix(".md.bak").exists()
+    assert read(bak) == "![A](x.png)\n"  # original preserved in backup
 
 def test_dry_run_writes_nothing(tmp_path: Path):
     md = tmp_path / "dry.md"
@@ -149,7 +147,7 @@ def test_dry_run_writes_nothing(tmp_path: Path):
 
     n = convert_markdown_file(md, dry_run=True)
     assert n == 1
-    assert read(md) == before  # unchanged
+    assert read(md) == before
     assert not md.with_suffix(".md.bak").exists()
 
 def test_applies_figure_class_when_provided(tmp_path: Path):
@@ -185,7 +183,7 @@ def test_directory_recursive_conversion(tmp_path: Path):
     write(f1, "Intro ![A](a.png)")
     write(f2, "Nested ![B](b.png)")
 
-    total = convert_markdown_dir(tmp_path, backup=False)
+    total = convert_markdown_dir(tmp_path)  # default: no backups
     assert total == 2
 
     assert FIG_RE.search(read(f1))
@@ -197,7 +195,7 @@ def test_dry_run_directory(tmp_path: Path):
     f = sub / "c.md"
     write(f, "![Alt](c.png)")
 
-    total = convert_markdown_dir(tmp_path, backup=False, dry_run=True)
+    total = convert_markdown_dir(tmp_path, dry_run=True)
     assert total == 1
     # original file unchanged
     assert "![Alt](" in read(f)

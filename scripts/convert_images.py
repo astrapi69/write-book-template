@@ -44,9 +44,7 @@ IMG_INLINE_RE = re.compile(
     """,
     re.VERBOSE,
 )
-
 IMG_REF_RE = re.compile(r"!\[(?P<alt>[^\]]*)\]\[(?P<id>[^\]]*)\]", re.VERBOSE)
-
 REF_DEF_RE = re.compile(
     r"""
     ^\[(?P<id>[^\]]+)\]:
@@ -63,12 +61,10 @@ REF_DEF_RE = re.compile(
     """,
     re.VERBOSE | re.MULTILINE,
 )
-
 CODE_FENCE_RE = re.compile(r"(^|\n)(`{3,}|~{3,}).*?\n\2[^\S\r\n]*?(?=\n|$)", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 
 
-# --- Helpers ---
 def _unangle(url: str) -> str:
     url = url.strip()
     return url[1:-1].strip() if url.startswith("<") and url.endswith(">") else url
@@ -152,10 +148,10 @@ def _replace_reference(chunk: str, refs: Dict[str, dict], figure_class: str | No
     return IMG_REF_RE.sub(repl, chunk), count
 
 
-# --- Core function ---
 def convert_markdown_file(
-    file_path: Path, *, backup: bool = True, dry_run: bool = False, figure_class: str | None = None
+    file_path: Path, *, backup: bool = False, dry_run: bool = False, figure_class: str | None = None
 ) -> int:
+    """Convert a single Markdown file. Returns number of images converted."""
     if not file_path.exists():
         print(f"❌ File not found: {file_path}")
         return 0
@@ -194,7 +190,7 @@ def convert_markdown_file(
 
 
 def convert_markdown_dir(
-    root: Path, *, backup: bool = True, dry_run: bool = False, figure_class: str | None = None
+    root: Path, *, backup: bool = False, dry_run: bool = False, figure_class: str | None = None
 ) -> int:
     """Recursively process all .md files under root."""
     total = 0
@@ -203,20 +199,25 @@ def convert_markdown_dir(
     return total
 
 
-# --- CLI ---
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Convert Markdown images to <figure> blocks.")
     parser.add_argument("input", help="Markdown file or directory")
-    parser.add_argument("--no-backup", action="store_true", help="Do not create .bak backups")
+    parser.add_argument("--backup", action="store_true", help="Create .bak backups before writing")
     parser.add_argument("--dry-run", action="store_true", help="Only count changes, do not write files")
     parser.add_argument("--figure-class", default=None, help="Optional CSS class for <figure>")
+
+    # Backward-compat: accept --no-backup but ignore (backups are off by default)
+    parser.add_argument("--no-backup", action="store_true", help=argparse.SUPPRESS)
+
     args = parser.parse_args(argv)
 
     path = Path(args.input)
+    opts = dict(backup=args.backup, dry_run=args.dry_run, figure_class=args.figure_class)
+
     if path.is_file():
-        return convert_markdown_file(path, backup=not args.no_backup, dry_run=args.dry_run, figure_class=args.figure_class)
+        return convert_markdown_file(path, **opts)
     elif path.is_dir():
-        return convert_markdown_dir(path, backup=not args.no_backup, dry_run=args.dry_run, figure_class=args.figure_class)
+        return convert_markdown_dir(path, **opts)
     else:
         print(f"❌ Input path not found: {path}")
         return 1
