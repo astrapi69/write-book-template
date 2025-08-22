@@ -17,6 +17,7 @@ pillow = "^11.2.1"
 pyyaml = "^6.0.2"
 toml = "^0.10.2"
 ftfy = "^6.3.1"
+questionary = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.112"
@@ -25,6 +26,7 @@ pytest-mock = "^3.10.0"
 pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
+make-tag-message = "scripts.make_tag_message:main"
 bulk-change-ext = "scripts.bulk_change_extension:main"
 convert-images = "scripts.convert_images:main"
 generate-images-deepai = "scripts.generate_images_deepai:main"
