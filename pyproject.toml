@@ -26,6 +26,7 @@ pytest-mock = "^3.10.0"
 pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
+reorder-chapters = "scripts.reorder_and_rename_chapters:main"
 make-tag-message = "scripts.make_tag_message:main"
 bulk-change-ext = "scripts.bulk_change_extension:main"
 convert-images = "scripts.convert_images:main"
