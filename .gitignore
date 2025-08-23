@@ -40,4 +40,9 @@ logs/
 ###############################
 # Ignore Hypothesis test data #
 ###############################
-.hypothesis/
+.hypothesis
+
+###############################
+# Ignore coverage test output #
+###############################
+/.coverage
