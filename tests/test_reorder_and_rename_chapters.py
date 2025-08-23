@@ -1,3 +1,4 @@
+# tests/test_reorder_and_rename_chapters.py
 import json
 import csv
 from pathlib import Path
@@ -7,7 +8,6 @@ import sys
 import pytest
 
 # Importiere direkt aus deinem Script
-# Stelle sicher, dass dein Projekt-Root im PYTHONPATH ist (Poetry macht das automatisch).
 from scripts.reorder_and_rename_chapters import (
     load_mapping_file,
     parse_inline_map,
@@ -176,8 +176,6 @@ def test_two_phase_rename_and_header_update(tmp_path: Path):
     assert tgt_b.exists(), "Target B missing"
 
     # Update headers to match new numbers
-    # (emuliert die Schleife in main)
-    from scripts.reorder_and_rename_chapters import update_header_and_anchor
     update_header_and_anchor(tgt_a, 7, lang="es", dry_run=False)
     update_header_and_anchor(tgt_b, 8, lang="es", dry_run=False)
 

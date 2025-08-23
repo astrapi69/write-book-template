@@ -33,7 +33,7 @@ def run_script(script_path: Path, *args: str, dry_run: bool = False) -> bool:
         return True
 
     try:
-        subprocess.run(cmd, check=True, cwd=str(PROJECT_ROOT))
+        subprocess.run(cmd, check=True)
         print(f"✅ Ran: {script_path.name} {' '.join(args) if args else ''}")
         return True
     except subprocess.CalledProcessError as e:

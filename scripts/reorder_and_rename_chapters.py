@@ -41,19 +41,17 @@ except Exception:
 
 # -------- Language patterns --------
 
-# Each entry: (H1 regex, H1 builder callable)
-# H1 regex must capture: (prefix, number, rest, optional_anchor)
 LANG_PATTERNS: Dict[str, Tuple[re.Pattern, callable]] = {
     "es": (
-        re.compile(r'^(#\s+✦\s+Cap[ií]tulo\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?$', re.IGNORECASE),
+        re.compile(r'^(#\s+✦\s+Cap[ií]tulo\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?\s*(?:\n|$)', re.IGNORECASE),
         lambda num, rest: f"# ✦ Capítulo {num}{rest} {{#-chapter-{num}}}",
     ),
     "de": (
-        re.compile(r'^(#\s+✦\s+Kapitel\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?$', re.IGNORECASE),
+        re.compile(r'^(#\s+✦\s+Kapitel\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?\s*(?:\n|$)', re.IGNORECASE),
         lambda num, rest: f"# ✦ Kapitel {num}{rest} {{#-chapter-{num}}}",
     ),
     "en": (
-        re.compile(r'^(#\s+✦\s+Chapter\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?$', re.IGNORECASE),
+        re.compile(r'^(#\s+✦\s+Chapter\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?\s*(?:\n|$)', re.IGNORECASE),
         lambda num, rest: f"# ✦ Chapter {num}{rest} {{#-chapter-{num}}}",
     ),
 }
@@ -63,12 +61,6 @@ ANCHOR_ONLY_REGEX = re.compile(r'(\{#-chapter-)(\d+)(\})', re.IGNORECASE)
 # -------- Mapping loaders --------
 
 def load_mapping_file(path: Path) -> Dict[str, str]:
-    """
-    Load rename mapping from file.
-    - JSON: object { "src": "tgt", ... } OR list of {"src": "...", "tgt": "..."}
-    - CSV:  two columns: src,tgt (header optional)
-    - YAML: same as JSON (requires PyYAML)
-    """
     if not path.exists():
         raise FileNotFoundError(f"Mapping file not found: {path}")
 
@@ -95,16 +87,14 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
             try:
                 first_row = next(reader)
             except StopIteration:
-                return out  # empty file
+                return out
             is_header = (
-                    len(first_row) >= 2
-                    and first_row[0].strip().lower() == "src"
-                    and first_row[1].strip().lower() == "tgt"
+                len(first_row) >= 2
+                and first_row[0].strip().lower() == "src"
+                and first_row[1].strip().lower() == "tgt"
             )
             if is_header:
-                # Use DictReader on the rest, keep header names from first_row
                 dict_reader = csv.DictReader(fh, fieldnames=[c.strip() for c in first_row])
-                # Skip the header row already consumed
                 for row in dict_reader:
                     src = row.get("src")
                     tgt = row.get("tgt")
@@ -112,7 +102,6 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
                         raise ValueError("CSV with header must have columns 'src' and 'tgt'")
                     out[str(src)] = str(tgt)
             else:
-                # Treat first row as data
                 if len(first_row) < 2:
                     raise ValueError("CSV rows must have at least 2 columns: src,tgt")
                 out[str(first_row[0])] = str(first_row[1])
@@ -141,11 +130,7 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
 
     raise ValueError(f"Unsupported mapping file format: {ext}")
 
-
 def parse_inline_map(items: Iterable[str]) -> Dict[str, str]:
-    """
-    Parse inline mapping entries like: "src:tgt"
-    """
     out: Dict[str, str] = {}
     for it in items:
         if ":" not in it:
@@ -172,7 +157,14 @@ def autodetect_lang_by_header(text: str) -> Optional[str]:
 
 def update_header_and_anchor(file_path: Path, new_num: int, lang: Optional[str], dry_run: bool) -> None:
     text = file_path.read_text(encoding="utf-8")
-    lang_eff = lang or autodetect_lang_by_header(text) or "es"  # default ES for this workflow
+    lines = text.splitlines()
+    if not lines:
+        return
+
+    first_line = lines[0]
+    rest_text = "\n".join(lines[1:]) if len(lines) > 1 else ""
+
+    lang_eff = lang or autodetect_lang_by_header(text) or "es"
     if lang_eff not in LANG_PATTERNS:
         raise ValueError(f"Unsupported language '{lang_eff}'. Use one of: {', '.join(LANG_PATTERNS)}")
 
@@ -180,13 +172,18 @@ def update_header_and_anchor(file_path: Path, new_num: int, lang: Optional[str],
 
     def _repl_h1(m: re.Match) -> str:
         _prefix, _old_num, rest, _anchor = m.groups()
-        return h1_builder(new_num, rest)
+        rest_clean = re.sub(r'\s*\{#-chapter-\d+\}\s*$', '', rest or "").rstrip()
+        return h1_builder(new_num, rest_clean)
 
-    new_text, n1 = h1_regex.subn(_repl_h1, text, count=1)
+    new_first_line, n1 = h1_regex.subn(_repl_h1, first_line, count=1)
 
     if n1 == 0:
-        # Fallback: update first {#-chapter-X} occurrence
-        new_text = ANCHOR_ONLY_REGEX.sub(rf"\1{new_num}\3", new_text, count=1)
+        # Fallback: sichere Replacement-Variante ohne Backref-Parsing-Fallen
+        new_first_line = ANCHOR_ONLY_REGEX.sub(
+            lambda m: f"{m.group(1)}{new_num}{m.group(3)}", first_line, count = 1
+        )
+
+    new_text = new_first_line + ("\n" + rest_text if rest_text else "")
 
     if dry_run:
         if new_text != text:
@@ -203,23 +200,15 @@ def _resolve_mapping(map_file: Optional[Path], inline_map: Iterable[str]) -> Dic
     if map_file:
         mapping.update(load_mapping_file(map_file))
     if inline_map:
-        # inline overrides file for same src
         mapping.update(parse_inline_map(inline_map))
     if not mapping:
         raise ValueError("No mapping provided. Use --map-file and/or --map 'src:tgt'.")
-    # sanity: unique targets
-    targets = list(mapping.values())
-    if len(targets) != len(set(targets)):
+    if len(set(mapping.values())) != len(mapping.values()):
         raise ValueError("Target filename collision in mapping. Make targets unique.")
     return mapping
 
 def _two_phase_rename(base_dir: Path, mapping: Dict[str, str], dry_run: bool) -> Dict[Path, Path]:
-    """
-    Return map: temp_path -> final_path
-    """
     tmp_map: Dict[Path, Path] = {}
-
-    # Phase 1: to temp
     for src, tgt in mapping.items():
         src_path = base_dir / src
         if not src_path.exists():
@@ -232,7 +221,6 @@ def _two_phase_rename(base_dir: Path, mapping: Dict[str, str], dry_run: bool) ->
             src_path.rename(tmp_path)
         tmp_map[tmp_path] = base_dir / tgt
 
-    # Phase 2: to final
     for tmp_path, final_path in tmp_map.items():
         if dry_run:
             print(f"[DRY] Would finalize: {tmp_path.name} -> {final_path.name}")
@@ -267,10 +255,8 @@ def main() -> int:
         print(f"[ERROR] {e}", file=sys.stderr)
         return 1
 
-    # Two-phase rename
     tmp_map = _two_phase_rename(base_dir, mapping, dry_run=dry_run)
 
-    # Update headers/anchors for all final files produced
     for _tmp_path, final_path in tmp_map.items():
         try:
             new_num = int(final_path.name.split("-")[0])
