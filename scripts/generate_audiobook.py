@@ -17,6 +17,7 @@ Supported TTS engines:
 import os
 import re
 import html
+import json
 import argparse
 from pathlib import Path
 from scripts.tts.base import TTSAdapter
@@ -191,25 +192,33 @@ def generate_audio_from_markdown(input_dir: Path, output_dir: Path, tts: TTSAdap
         tts.speak(text, out_path)
 
 
-def main() -> None:
-    """CLI entry point for audiobook generation."""
+def main():
     parser = argparse.ArgumentParser(description="Generate audiobook from markdown files")
     parser.add_argument("--input", type=Path, required=True, help="Input folder with markdown files")
     parser.add_argument("--output", type=Path, required=True, help="Output folder for audio files")
-    parser.add_argument("--lang", type=str, default="en", help="Language code (e.g. 'en', 'de')")
-    parser.add_argument("--voice", type=str, default=None, help="Voice ID or name (pyttsx3/ElevenLabs)")
-    parser.add_argument("--rate", type=int, default=200, help="Speech rate (pyttsx3 only)")
-    parser.add_argument(
-        "--engine",
-        type=str,
-        choices=["google", "pyttsx3", "elevenlabs"],
-        default="google",
-        help="TTS engine to use",
-    )
+    parser.add_argument("--engine", type=str, choices=["google", "pyttsx3", "elevenlabs"], default="google",
+                        help="TTS engine to use")
+    parser.add_argument("--lang", type=str, help="Language code (e.g. 'en', 'de')")
+    parser.add_argument("--voice", type=str, help="Voice ID or name")
+    parser.add_argument("--rate", type=int, help="Speech rate (pyttsx3 only)")
+    parser.add_argument("--settings", type=Path, help="Path to JSON voice-settings file")
 
     args = parser.parse_args()
-    tts = get_tts_adapter(args.engine, args.lang, args.voice, args.rate)
+
+    # Load settings from JSON (optional)
+    config = {}
+    if args.settings and args.settings.exists():
+        with args.settings.open("r", encoding="utf-8") as f:
+            config = json.load(f)
+
+    # Apply CLI args (override config file if set)
+    lang = args.lang or config.get("language", "en")
+    voice = args.voice or config.get("voice", None)
+    rate = args.rate if args.rate is not None else config.get("rate", 200)
+
+    tts = get_tts_adapter(args.engine, lang=lang, voice=voice, rate=rate)
     generate_audio_from_markdown(args.input, args.output, tts)
+
 
 
 if __name__ == "__main__":
