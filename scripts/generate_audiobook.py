@@ -1,68 +1,109 @@
 # scripts/generate_audiobook.py
+"""
+Generate MP3 audio files from Markdown chapters using a pluggable TTS backend.
+
+Pipeline:
+1) Read each *.md file from an input directory
+2) Clean Markdown/HTML to TTS-friendly plain text
+3) Skip files that become empty (or contain no word characters) after cleanup
+4) Synthesize speech to <output>/<stem>.mp3
+
+Supported TTS engines:
+- google     -> gTTS (online)
+- pyttsx3    -> offline/local TTS
+- elevenlabs -> ElevenLabs API (requires ELEVENLABS_API_KEY)
+"""
+
 import os
+import re
+import html
 import argparse
 from pathlib import Path
 from scripts.tts.base import TTSAdapter
 
-# Change the current working directory to the root directory of the project
-# (Assumes the script is located one level inside the project root)
+# ⚠️ If this script lives in scripts/, this change ensures relative imports work
+# when executed directly. If your tooling prefers not to mutate CWD on import,
+# consider moving this into `main()` behind a guard.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
-import re
 
 
 def clean_markdown_for_tts(markdown_text: str) -> str:
     """
     Normalize Markdown/HTML to plain text suitable for TTS.
-    Removes figures, images, links (keeps link text), formatting, code, tables, etc.
+
+    What it does:
+    - Normalizes line endings
+    - Removes YAML front matter
+    - Removes <figure> blocks (and stray <figcaption>)
+    - Removes HTML comments
+    - Strips Markdown images and turns links into their link text
+    - Removes reference-style links and link definition lines
+    - Removes Markdown emphasis markers (bold/italic) but keeps text
+    - Removes heading markers (#) but keeps titles
+    - Removes fenced code blocks and backticks from inline code (keeps code text)
+    - Strips remaining HTML tags
+    - Removes Markdown table rows (| ... |)
+    - Collapses excessive blank lines
+    - Unescapes HTML entities (&nbsp;, &amp;, …)
     """
     text = markdown_text.replace("\r\n", "\n").replace("\r", "\n")
 
-    # Remove full <figure>...</figure> blocks (including nested img/figcaption)
+    # --- Front matter (YAML) -------------------------------------------------
+    # At start of file: ---\n ... \n---\n
+    text = re.sub(r'^---\n.*?\n---\n', '', text, flags=re.DOTALL)
+
+    # --- HTML blocks / comments ----------------------------------------------
+    # Full <figure>...</figure> (captures nested <img>/<figcaption>)
     text = re.sub(r'<figure\b[^>]*>.*?</figure>', '', text, flags=re.IGNORECASE | re.DOTALL)
-    # Defensive: remove standalone figcaptions if present outside figure
+    # Defensive: stray <figcaption>...</figcaption>
     text = re.sub(r'<figcaption\b[^>]*>.*?</figcaption>', '', text, flags=re.IGNORECASE | re.DOTALL)
-    # Remove HTML comments
+    # HTML comments
     text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
 
-    # Remove images ![alt](url)
+    # --- Images & Links -------------------------------------------------------
+    # Markdown image: ![alt](url)
     text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
-
-    # Remove links [text](url) → keep only "text"
+    # Inline link: [text](url)  -> keep "text"
     text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
-    # Reference links: [text][id] and [text][]
+    # Reference link usage: [text][id] or [text][] -> keep "text"
     text = re.sub(r'\[([^\]]+)\]\s*\[[^\]]*\]', r'\1', text)
-    # Remove link definition lines: [id]: http...
+    # Link definition lines: [id]: http...
     text = re.sub(r'^\s*\[[^\]]+\]:\s*\S+.*$', '', text, flags=re.MULTILINE)
-
-    # Remove bold/italic markdown: **text**, *text*, __text__, _text_
-    text = re.sub(r'(\*\*|\*|__|_)(.*?)\1', r'\2', text)
-
-    # Remove headings (#) but keep the text
-    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
-
-    # Remove code blocks (```\n...\n```)
-    text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
-
-    # Remove inline code `code`
-    text = re.sub(r'`(.+?)`', r'\1', text)
-
-    # Remove remaining HTML tags
-    text = re.sub(r'<[^>]+>', '', text)
-
-    # Remove table rows (Markdown-style)
-    text = re.sub(r'^\s*\|.*\|\s*$', '', text, flags=re.MULTILINE)
-
-    # Remove stray link definition blocks that may remain after edits
+    # Defensive: stray empty link definition keys
     text = re.sub(r'^\s*\[[^\]]+\]:\s*$', '', text, flags=re.MULTILINE)
 
-    # Remove multiple empty lines (collapse to max 2 newlines), and strip leading/trailing whitespace
-    text = re.sub(r'\n{3,}', '\n\n', text).strip()
+    # --- Emphasis / Headings --------------------------------------------------
+    # Bold/italic markers (**text**, *text*, __text__, _text_) -> keep text
+    text = re.sub(r'(\*\*|\*|__|_)(.*?)\1', r'\2', text)
+    # Heading markers: "# "..." -> keep the title text
+    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
 
-    return text
+    # --- Code blocks / inline code -------------------------------------------
+    # Fenced code blocks: ``` ... ```  or  ~~~ ... ~~~
+    text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
+    text = re.sub(r'~~~.*?~~~', '', text, flags=re.DOTALL)
+    # Inline code: `code` -> keep "code" without backticks
+    text = re.sub(r'`(.+?)`', r'\1', text)
+
+    # --- Residual HTML tags ---------------------------------------------------
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # --- Tables (Markdown) ----------------------------------------------------
+    # Remove table rows / separators
+    text = re.sub(r'^\s*\|.*\|\s*$', '', text, flags=re.MULTILINE)
+
+    # --- Whitespace and entities ---------------------------------------------
+    # Collapse 3+ newlines -> 2 newlines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+
+    # Unescape HTML entities (&nbsp; -> space, &amp; -> &)
+    text = html.unescape(text)
+
+    return text.strip()
 
 
-def get_tts_adapter(engine: str, lang: str, voice: str, rate: int) -> TTSAdapter:
+def get_tts_adapter(engine: str, lang: str, voice: str | None, rate: int) -> TTSAdapter:
     if engine == "google":
         from scripts.tts.gtts_adapter import GoogleTTSAdapter
         return GoogleTTSAdapter(lang=lang)
@@ -77,28 +118,40 @@ def get_tts_adapter(engine: str, lang: str, voice: str, rate: int) -> TTSAdapter
         raise ValueError(f"Unsupported engine: {engine}")
 
 
-def generate_audio_from_markdown(input_dir: Path, output_dir: Path, tts: TTSAdapter):
+def generate_audio_from_markdown(input_dir: Path, output_dir: Path, tts: TTSAdapter) -> None:
+    """
+    Convert all *.md files in input_dir to MP3 files in output_dir using the given TTS adapter.
+    Skips any file whose cleaned text is empty or contains no word characters.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
+
     for md_file in sorted(input_dir.glob("*.md")):
         raw_text = md_file.read_text(encoding="utf-8")
         text = clean_markdown_for_tts(raw_text)
-        if not text.strip():
-            # skip empty after cleanup
+
+        # Skip if nothing meaningful is left for TTS
+        if not text or not re.search(r'\w', text):
             continue
+
         out_path = output_dir / f"{md_file.stem}.mp3"
         print(f"Generating: {out_path.name}")
         tts.speak(text, out_path)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Generate audiobook from markdown files")
     parser.add_argument("--input", type=Path, required=True, help="Input folder with markdown files")
     parser.add_argument("--output", type=Path, required=True, help="Output folder for audio files")
     parser.add_argument("--lang", type=str, default="en", help="Language code (e.g. 'en', 'de')")
-    parser.add_argument("--voice", type=str, default=None, help="Voice ID or name (pyttsx3 only)")
+    parser.add_argument("--voice", type=str, default=None, help="Voice ID or name (pyttsx3/ElevenLabs)")
     parser.add_argument("--rate", type=int, default=200, help="Speech rate (pyttsx3 only)")
-    parser.add_argument("--engine", type=str, choices=["google", "pyttsx3", "elevenlabs"], default="google",
-                        help="TTS engine to use")
+    parser.add_argument(
+        "--engine",
+        type=str,
+        choices=["google", "pyttsx3", "elevenlabs"],
+        default="google",
+        help="TTS engine to use",
+    )
 
     args = parser.parse_args()
     tts = get_tts_adapter(args.engine, args.lang, args.voice, args.rate)

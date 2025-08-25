@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/bulk_change_extension.py
 """
 Bulk-change file extensions (e.g., .png -> .jpg) without touching file content.
 

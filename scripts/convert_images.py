@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/convert_images.py
 """
 convert_images.py
 -----------------

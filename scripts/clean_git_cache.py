@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/clean_git_cache.py
 """
 clean_git_cache.py
 
