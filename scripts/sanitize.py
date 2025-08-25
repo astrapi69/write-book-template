@@ -1,4 +1,4 @@
-# scripts/sanitizer.py
+# scripts/sanitize.py
 from __future__ import annotations
 import argparse
 import re

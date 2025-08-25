@@ -1,3 +1,4 @@
+# scripts/emoji_map.py
 # Final KDP-safe emoji symbol mapping (no invalid Unicode, no duplicates)
 EMOJI_MAP = {
     "🕰": ":",

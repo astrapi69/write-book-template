@@ -1,3 +1,4 @@
+# scripts/shortcuts_export_comic.py
 """
 Shortcut utility for common comic book export operations.
 

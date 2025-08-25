@@ -1,3 +1,4 @@
+# scripts/full_export_book.py
 import os
 import shutil
 import subprocess

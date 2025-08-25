@@ -1,3 +1,4 @@
+# scripts/translate_book_deepl.py
 """
 translate_book_deepl.py
 

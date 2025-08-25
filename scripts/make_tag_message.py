@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/make_tag_message.py
 """
 Make an AI-ready tag message prompt from git history and (optionally) create the tag.
 

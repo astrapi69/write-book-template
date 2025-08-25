@@ -1,3 +1,4 @@
+# scripts/generate_images.py
 import os
 import json
 import argparse

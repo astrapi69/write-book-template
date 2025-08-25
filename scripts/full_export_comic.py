@@ -1,3 +1,4 @@
+# scripts/full_export_comic.py
 import os
 import re
 import sys

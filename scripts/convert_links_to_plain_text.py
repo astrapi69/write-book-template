@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/convert_links_to_plain_text.py
 """
 convert_links_to_plain_text.py
 

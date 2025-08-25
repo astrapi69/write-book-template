@@ -1,3 +1,4 @@
+# scripts/translate_book_lmstudio.py
 """
 translate_book_lmstudio.py
 

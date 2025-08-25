@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/convert_img_tags.py
 """
 convert_img_tags.py
 

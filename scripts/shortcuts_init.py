@@ -1,3 +1,4 @@
+# scripts/shortcuts_init.py
 """
 Shortcut utility for common init operations.
 

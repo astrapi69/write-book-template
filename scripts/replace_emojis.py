@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/replace_emojis.py
 from __future__ import annotations
 
 import argparse

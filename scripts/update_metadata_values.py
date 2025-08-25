@@ -1,3 +1,4 @@
+# scripts/update_metadata_values.py
 import json
 import re
 import os

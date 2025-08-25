@@ -1,3 +1,4 @@
+# scripts/shortcuts_export.py
 """
 Shortcut utility for common book export operations.
 

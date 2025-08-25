@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/pandoc_batch.py
 from __future__ import annotations
 
 import argparse

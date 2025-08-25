@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/convert_to_relative.py
 import os
 import re
 from pathlib import Path

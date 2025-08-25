@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/validate_format.py
 from __future__ import annotations
 
 import argparse
