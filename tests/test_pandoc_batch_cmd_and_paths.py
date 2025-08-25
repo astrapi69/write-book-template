@@ -1,4 +1,4 @@
-# tests/test_cmd_and_paths.py
+# tests/test_pandoc_batch_cmd_and_paths.py
 from pathlib import Path
 from scripts.pandoc_batch import build_cmd, rel_output_path, EXT_BY_TO
 import argparse

@@ -1,4 +1,4 @@
-# tests/test_run_and_main.py
+# tests/test_pandoc_batch_run_and_main.py
 import argparse
 from pathlib import Path
 

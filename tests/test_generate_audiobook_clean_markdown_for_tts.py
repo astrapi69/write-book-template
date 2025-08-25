@@ -1,4 +1,4 @@
-# tests/test_clean_markdown_for_tts.py
+# tests/test_generate_audiobook_clean_markdown_for_tts.py
 import textwrap
 from scripts.generate_audiobook import clean_markdown_for_tts
 

@@ -1,4 +1,4 @@
-# tests/test_patch_markdown_text.py
+# tests/test_pandoc_batch_patch_markdown_text.py
 from scripts.pandoc_batch import patch_markdown_text
 
 def test_patch_strips_bom_and_normalizes_newlines():
