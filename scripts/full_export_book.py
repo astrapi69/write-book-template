@@ -221,6 +221,11 @@ def main():
     """Main script execution logic."""
     parser = argparse.ArgumentParser(description="Export your book into multiple formats.")
     parser.add_argument("--skip-images", action="store_true", help="Skip image conversion scripts.")
+    parser.add_argument(
+        "--keep-relative-paths",
+        action="store_true",
+        help="Do not rewrite image/URL paths to absolute and back; keeps relative paths (skips Steps 1 and 4)."
+    )
     parser.add_argument("--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub).")
     parser.add_argument("--order", type=str, default=",".join(DEFAULT_SECTION_ORDER),
                         help="Specify document order (comma-separated).")
@@ -275,10 +280,12 @@ def main():
         print("⚠️ No language set in CLI or metadata.yaml. Defaulting to 'en'")
 
     # Step 1: Convert image paths to absolute
-    # Run pre-processing scripts unless user opts out
-    if not args.skip_images:
-        run_script(ABSOLUTE_SCRIPT)                      # Convert relative paths to absolute
-        run_script(IMG_SCRIPT, "--to-absolute")     # Process image tags
+    # Run pre-processing scripts unless user opts out or wants to keep relative paths
+    if not args.skip_images and not args.keep_relative_paths:
+        run_script(ABSOLUTE_SCRIPT)                  # Convert relative paths to absolute
+        run_script(IMG_SCRIPT, "--to-absolute")      # Process image tags
+    else:
+        print("⏭️  Skipping Step 1 (keep relative paths).")
 
     # Step 2: Prepare environment
     prepare_output_folder()                              # Prepare folders and backup if needed
@@ -296,10 +303,12 @@ def main():
             print(f"⚠️ Skipping unknown format: {fmt}")
 
     # Step 4: Restore original image paths
-    # Revert any image/URL changes made before compilation
-    if not args.skip_images:
-        run_script(RELATIVE_SCRIPT)                      # Convert absolute paths back to relative
-        run_script(IMG_SCRIPT, "--to-relative")     # Revert image tag changes
+    # Revert any image/URL changes made before compilation unless we kept relative paths
+    if not args.skip_images and not args.keep_relative_paths:
+        run_script(RELATIVE_SCRIPT)                  # Convert absolute paths back to relative
+        run_script(IMG_SCRIPT, "--to-relative")      # Revert image tag changes
+    else:
+        print("⏭️  Skipping Step 4 (paths already relative).")
 
 
     # Step 5: Start background validation for each generated format
