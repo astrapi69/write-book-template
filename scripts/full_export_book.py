@@ -30,6 +30,8 @@ SCRIPT_DIR = "./scripts"
 ABSOLUTE_SCRIPT = os.path.join(SCRIPT_DIR, "convert_to_absolute.py")     # Script to convert relative links to absolute
 RELATIVE_SCRIPT = os.path.join(SCRIPT_DIR, "convert_to_relative.py")     # Script to revert absolute links back to relative
 IMG_SCRIPT = os.path.join(SCRIPT_DIR, "convert_img_tags.py")             # Script to modify image tag styles if needed
+TOC_FILE = Path(BOOK_DIR) / "front-matter" / "toc.md"
+NORMALIZE_TOC = os.path.join(SCRIPT_DIR, "normalize_toc_links.py")
 
 CONFIG_DIR = "./config"
 METADATA_FILE =  Path(CONFIG_DIR) / "metadata.yaml"     # YAML file for Pandoc metadata (title, author, etc.)
@@ -58,6 +60,11 @@ DEFAULT_SECTION_ORDER = [
     "back-matter/bibliography.md",
     "back-matter/index.md",
 ]
+
+def resolve_ext(fmt: str, custom_markdown_ext: str | None) -> str:
+    if fmt == "markdown":
+        return custom_markdown_ext if custom_markdown_ext else "md"
+    return FORMATS[fmt]
 
 
 def get_project_name_from_pyproject(pyproject_path="pyproject.toml"):
@@ -150,10 +157,7 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False, lang
     - format: Format to compile (e.g. pdf, docx)
     - section_order: Ordered list of sections to include
     """
-    if format == "markdown":
-        ext = custom_ext if custom_ext else "md"
-    else:
-        ext = FORMATS[format]
+    ext = resolve_ext(format, custom_ext)
     output_path = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{ext}")
 
     md_files = []
@@ -285,6 +289,24 @@ def main():
         lang = "en"
         print("⚠️ No language set in CLI or metadata.yaml. Defaulting to 'en'")
 
+    # Step 1a: Normalize TOC (recommended: pure anchors, robust for single-file Markdown)
+    try:
+        if TOC_FILE.exists():
+            # Choice: "strip-to-anchors" is safest.
+            # If you want to keep paths, use mode=replace-ext instead and specify the extension.
+            toc_mode = "strip-to-anchors"
+            toc_ext = args.extension if args.extension else "md"
+            subprocess.run(
+                ["python3", NORMALIZE_TOC, "--toc", str(TOC_FILE),
+                 "--mode", toc_mode, "--ext", toc_ext],
+                check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a")
+            )
+            print(f"✅ TOC normalized using mode={toc_mode}")
+        else:
+            print(f"ℹ️  No TOC file at {TOC_FILE}; skipping TOC normalization.")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error normalizing TOC: {e}")
+
     # Step 1: Convert image paths to absolute
     # Run pre-processing scripts unless user opts out or wants to keep relative paths
     if not args.skip_images and not args.keep_relative_paths:
@@ -325,7 +347,8 @@ def main():
     threads = []
 
     for fmt in selected_formats:
-        output_path = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{fmt}")
+        ext_for_fmt = resolve_ext(fmt, args.extension if fmt == "markdown" else None)
+        output_path = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{ext_for_fmt}")
 
         if fmt == "epub":
             thread = threading.Thread(
