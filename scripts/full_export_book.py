@@ -220,12 +220,6 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False, lang
 def main():
     """Main script execution logic."""
     parser = argparse.ArgumentParser(description="Export your book into multiple formats.")
-    parser.add_argument("--skip-images", action="store_true", help="Skip image conversion scripts.")
-    parser.add_argument(
-        "--keep-relative-paths",
-        action="store_true",
-        help="Do not rewrite image/URL paths to absolute and back; keeps relative paths (skips Steps 1 and 4)."
-    )
     parser.add_argument("--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub).")
     parser.add_argument("--order", type=str, default=",".join(DEFAULT_SECTION_ORDER),
                         help="Specify document order (comma-separated).")
@@ -241,6 +235,18 @@ def main():
         help="Specify the book type (ebook, paperback, etc.). Affects output file naming."
     )
     parser.add_argument("--output-file", type=str, help="Custom output file base name (overrides project name)")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--skip-images",
+        action="store_true",
+        help="Skip all image-related steps (no path rewrites, no tag transforms)."
+    )
+    group.add_argument(
+        "--keep-relative-paths",
+        action="store_true",
+        help="Do not rewrite image/URL paths to absolute and back; keeps relative paths (skips Steps 1 and 4)."
+    )
 
     args = parser.parse_args()
     section_order = args.order.split(",")
@@ -284,6 +290,8 @@ def main():
     if not args.skip_images and not args.keep_relative_paths:
         run_script(ABSOLUTE_SCRIPT)                  # Convert relative paths to absolute
         run_script(IMG_SCRIPT, "--to-absolute")      # Process image tags
+    elif args.skip_images:
+        print("⏭️  Skipping Step 1 (skip-images).")
     else:
         print("⏭️  Skipping Step 1 (keep relative paths).")
 
@@ -307,8 +315,10 @@ def main():
     if not args.skip_images and not args.keep_relative_paths:
         run_script(RELATIVE_SCRIPT)                  # Convert absolute paths back to relative
         run_script(IMG_SCRIPT, "--to-relative")      # Revert image tag changes
+    elif args.skip_images:
+        print("⏭️  Skipping Step 4 (skip-images).")
     else:
-        print("⏭️  Skipping Step 4 (paths already relative).")
+        print("⏭️  Skipping Step 4 (keep relative paths).")
 
 
     # Step 5: Start background validation for each generated format
