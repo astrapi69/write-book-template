@@ -1,0 +1,13 @@
+[run]
+branch = True
+omit =
+    */.venv/*
+    */venv/*
+    */site-packages/*
+    tests/*
+    scripts/tts/*   # optional: if you only want to cover the generator logic
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

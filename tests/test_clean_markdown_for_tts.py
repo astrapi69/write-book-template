@@ -2,20 +2,15 @@
 import textwrap
 from scripts.generate_audiobook import clean_markdown_for_tts
 
-
 def norm(s: str) -> str:
     return "\n".join(line.rstrip() for line in s.strip().splitlines())
-
 
 def test_removes_full_figure_block():
     src = textwrap.dedent("""
     <p>Intro before.</p>
     <figure class="img">
-      <img src="assets/village-without-money.png"
-           alt="_Una plaza de mercado bañada por el sol..._" />
-      <figcaption>
-        <em>_Una plaza de mercado bañada por el sol..._</em>
-      </figcaption>
+      <img src="assets/village-without-money.png" alt="_..._" />
+      <figcaption><em>_..._</em></figcaption>
     </figure>
     <p>After figure.</p>
     """)
@@ -25,14 +20,12 @@ def test_removes_full_figure_block():
     assert "After figure." in out
     assert "Intro before." in out
 
-
 def test_removes_markdown_images_and_keeps_link_text():
     src = "Text ![alt](img.png) and [click here](https://example.com  )."
     out = clean_markdown_for_tts(src)
     assert "img.png" not in out
     assert "click here" in out
     assert "(" not in out  # no URL residue
-
 
 def test_reference_links_and_definitions_removed():
     src = textwrap.dedent("""
@@ -43,13 +36,9 @@ def test_reference_links_and_definitions_removed():
     """)
     out = clean_markdown_for_tts(src)
     out_n = norm(out)
-    assert "text" in out_n
-    assert "more" in out_n
-    assert "example.com" not in out_n
-    assert "example.org" not in out_n
-    # definitions gone → no square bracket lines
+    assert "text" in out_n and "more" in out_n
+    assert "example.com" not in out_n and "example.org" not in out_n
     assert not any(line.strip().startswith("[") for line in out_n.splitlines())
-
 
 def test_code_blocks_and_inline_code_removed():
     src = textwrap.dedent("""
@@ -61,8 +50,7 @@ def test_code_blocks_and_inline_code_removed():
     """)
     out = clean_markdown_for_tts(src)
     assert "print(" not in out
-    assert "x = 1" in out  # inline code keeps content without backticks
-
+    assert "x = 1" in out  # inline code content preserved
 
 def test_headings_bold_italics_tables_removed():
     src = textwrap.dedent("""
@@ -78,10 +66,20 @@ def test_headings_bold_italics_tables_removed():
     assert "**" not in out and "_" not in out
     assert "|" not in out
 
-
 def test_html_comments_removed_and_excess_newlines_collapsed():
     src = "A<!-- hidden -->\n\n\nB"
     out = clean_markdown_for_tts(src)
     assert "<!--" not in out
-    # collapsed to at most double newlines
     assert "\n\n\n" not in out
+
+def test_yaml_front_matter_removed_and_entities_unescaped():
+    src = textwrap.dedent("""\
+    ---
+    title: Test
+    author: You &amp; Me
+    ---
+    Hello&nbsp;World &amp; Co.
+    """)
+    out = clean_markdown_for_tts(src)
+    assert "title:" not in out and "author:" not in out
+    assert "Hello World & Co." in out
