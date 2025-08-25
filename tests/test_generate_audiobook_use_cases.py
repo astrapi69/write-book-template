@@ -1,4 +1,4 @@
-# tests/test_generate_use_cases.py
+# tests/test_generate_audiobook_use_cases.py
 from pathlib import Path
 from types import ModuleType
 import sys

@@ -1,3 +1,4 @@
+# tests/test_strip_links_cli.py
 from pathlib import Path
 import pytest
 import scripts.strip_links as sl

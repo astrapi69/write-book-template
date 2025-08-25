@@ -1,3 +1,4 @@
+# tests/test_strip_links_io.py
 from pathlib import Path
 from scripts.strip_links import process_file
 

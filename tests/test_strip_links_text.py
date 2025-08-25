@@ -1,3 +1,4 @@
+# tests/test_strip_links_text.py
 from scripts.strip_links import strip_links_in_text
 
 def test_basic_link_to_text():
