@@ -140,6 +140,32 @@ def prepare_output_folder(verbose=False):
     if verbose:
         print("📂 Created clean output directory.")
 
+import tempfile
+
+DEFAULT_METADATA = """title: 'CHANGE TO YOUR TITLE'
+author: 'YOUR NAME'
+date: '2025'
+lang: 'en'
+"""
+
+def get_or_create_metadata_file(preferred_path: Path | str | None = None):
+    """
+    Return a usable metadata file path.
+
+    - If the preferred_path exists, return it with `is_temp=False`.
+    - Otherwise, create a temporary metadata YAML file with default content
+      and return it with `is_temp=True`.
+    """
+    path = Path(preferred_path) if preferred_path else METADATA_FILE
+    if path.exists():
+        return path, False
+
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".yaml")
+    tmp.write(DEFAULT_METADATA.encode("utf-8"))
+    tmp.flush()
+    tmp.close()
+    return Path(tmp.name), True
+
 
 def ensure_metadata_file():
     """
@@ -326,7 +352,8 @@ def main():
 
     # Step 2: Prepare environment
     prepare_output_folder()                              # Prepare folders and backup if needed
-    ensure_metadata_file()                               # Make sure metadata exists
+    global METADATA_FILE
+    METADATA_FILE, _is_temp_metadata = get_or_create_metadata_file(METADATA_FILE) # Make sure metadata exists
 
     # Step 3: Compile book in requested formats
     # Determine formats to export
@@ -348,7 +375,6 @@ def main():
         print("⏭️  Skipping Step 4 (skip-images).")
     else:
         print("⏭️  Skipping Step 4 (keep relative paths).")
-
 
     # Step 5: Start background validation for each generated format
     threads = []
@@ -401,6 +427,12 @@ def main():
     print("📁 Outputs: ./output/")
     print("📄 Logs: ./export.log")
     print("🔍 Validation results will appear shortly.")
+    if _is_temp_metadata:
+        try:
+            METADATA_FILE.unlink(missing_ok=True)
+            print(f"🗑️ Deleted temporary metadata file: {METADATA_FILE}")
+        except OSError as e:
+            print(f"⚠️ Could not delete temporary metadata file {METADATA_FILE}: {e}")
 
 
 # Entry point
