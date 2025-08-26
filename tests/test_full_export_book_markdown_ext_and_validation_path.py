@@ -1,4 +1,4 @@
-# tests/test_full_export_markdown_ext_and_validation_path.py
+# tests/test_full_export_book_markdown_ext_and_validation_path.py
 import sys
 from pathlib import Path
 import importlib

@@ -80,11 +80,15 @@ def get_project_name_from_pyproject(pyproject_path="pyproject.toml"):
     Returns:
     - str: The project name if found, otherwise a fallback value ("book")
     """
+    if pyproject_path is None:
+        pyproject_path = Path(__file__).resolve().parent.parent / "pyproject.toml"
     try:
         data = toml.load(pyproject_path)
-        return data["tool"]["poetry"]["name"]
+        return data.get("tool", {}).get("poetry", {}).get("name") \
+            or data.get("project", {}).get("name") \
+            or "book"
     except Exception as e:
-        print(f"⚠️ Could not read project name from pyproject.toml: {e}")
+        print(f"⚠️ Could not read project name from {pyproject_path}: {e}")
         return "book"
 
 
@@ -261,11 +265,14 @@ def main():
     # Set global output filename
     global OUTPUT_FILE
     if args.output_file:
+        # user explicitly provided a name → highest priority
         OUTPUT_FILE = f"{args.output_file}-{book_type.value}"
-    elif not OUTPUT_FILE:
+    elif OUTPUT_FILE is None:
+        # default case: nothing set, so fall back to project name
         project_name = get_project_name_from_pyproject()
         OUTPUT_FILE = f"{project_name}-{book_type.value}"
     else:
+        # global OUTPUT_FILE was pre-set in the script (not None)
         OUTPUT_FILE = f"{OUTPUT_FILE}-{book_type.value}"
 
     print(f"📘 Output file base name set to: {OUTPUT_FILE}")
