@@ -9,8 +9,9 @@ Shortcut utility for common book export operations.
     # Run a shortcut directly
     export_pdf()
 
-    # Or use CLI interface
-    $ python shortcuts_export.py export_epub
+    # Or use CLI interface (now with passthrough args):
+    $ python scripts/shortcuts_export.py export_pdf --skip-images --keep-relative-paths
+    $ poetry run shortcuts export_epub --cover=./assets/covers/custom.jpg
 
 🎯 Available shortcuts:
     - export_epub()
@@ -28,88 +29,152 @@ Shortcut utility for common book export operations.
 
 import sys
 import argparse
+from typing import Iterable, List
+
 from scripts.full_export_book import main as export_main
 from scripts.print_version_build import main as export_print_version_main
 
-# --- Export Shortcuts ---
+# --- Helpers -----------------------------------------------------------------
 
-def export(format: str, cover: str = None):
-    """
-    Export book to the specified format using full-export pipeline
+def _has_option(extra: Iterable[str], name: str) -> bool:
+    """Return True if --name or --name=... is present in extra args."""
+    name_eq = name + "="
+    extra = list(extra)
+    for i, tok in enumerate(extra):
+        if tok == name:
+            return True
+        if tok.startswith(name_eq):
+            return True
+        # Also handle separated value form: --name value
+        if tok == name and i + 1 < len(extra):
+            return True
+    return False
 
-    :param format: One of 'pdf', 'epub', 'docx', 'markdown'
-    :param cover: Optional path to cover image (used for EPUB)
-    """
-    sys.argv = ["full-export", f"--format={format}"]
-    if cover:
-        sys.argv.append(f"--cover={cover}")
+
+def _run_full_export(args_list: List[str]):
+    """Invoke the full export pipeline with a synthetic argv."""
+    sys.argv = ["full-export", *args_list]
     export_main()
 
 
-def export_pdf():
+def _run_print_version(args_list: List[str]):
+    """Invoke the print-version pipeline with a synthetic argv."""
+    sys.argv = ["print-version-build", *args_list]
+    export_print_version_main()
+
+# --- Export Shortcuts ---------------------------------------------------------
+
+def export(format: str, cover: str | None = None, *extra: str):
+    """
+    Export book to the specified format using full-export pipeline.
+    - Adds --format=FORMAT unless user already provided --format
+    - Adds --cover=... unless user already provided --cover
+    """
+    extra = list(extra)
+    args: List[str] = []
+
+    # Only add --format if not already provided by the user
+    if not _has_option(extra, "--format"):
+        args.append(f"--format={format}")
+
+    # Only add --cover if not already provided by the user and a default is given
+    if cover and not _has_option(extra, "--cover"):
+        args.append(f"--cover={cover}")
+
+    args.extend(extra)
+    _run_full_export(args)
+
+
+def export_pdf(*extra: str):
     """Export book as PDF"""
-    export("pdf")
+    export("pdf", None, *extra)
 
 
-def export_docx():
+def export_docx(*extra: str):
     """Export book as DOCX"""
-    export("docx")
+    export("docx", None, *extra)
 
 
-def export_epub():
-    """Export book as EPUB (without cover)"""
-    export("epub")
+def export_epub(*extra: str):
+    """Export book as EPUB (without cover by default)"""
+    export("epub", None, *extra)
 
 
-def export_markdown():
+def export_markdown(*extra: str):
     """Export book as plain Markdown"""
-    export("markdown")
+    export("markdown", None, *extra)
 
 
-def export_epub_with_cover():
-    """Export EPUB with cover image"""
-    export("epub", "./assets/covers/cover.jpg")
+def export_epub_with_cover(*extra: str):
+    """Export EPUB with cover image (can be overridden by --cover=...)"""
+    export("epub", "./assets/covers/cover.jpg", *extra)
 
 
-def all_formats_with_cover():
+def all_formats_with_cover(*extra: str):
     """Export all formats (PDF, EPUB, DOCX) with EPUB cover"""
-    sys.argv = [
-        "full-export",
-        "--format=pdf,epub,docx",
-        "--cover=./assets/covers/cover.jpg"
-    ]
-    export_main()
-
-def export_epub2():
-    """Export EPUB in EPUB 2 format"""
-    sys.argv = ["full-export", "--format=epub", "--epub2"]
-    export_main()
-
-def export_epub2_with_cover():
-    """Export EPUB 2 with cover image"""
-    sys.argv = ["full-export", "--format=epub", "--epub2", "--cover=./assets/covers/cover.jpg"]
-    export_main()
+    extra = list(extra)
+    args: List[str] = []
+    if not _has_option(extra, "--format"):
+        args.append("--format=pdf,epub,docx")
+    if not _has_option(extra, "--cover"):
+        args.append("--cover=./assets/covers/cover.jpg")
+    args.extend(extra)
+    _run_full_export(args)
 
 
-def export_print_version_epub():
-    """Export the print-optimized EPUB version via print_version_build"""
-    sys.argv = ["print-version-build",]
-    export_print_version_main()
+def export_epub2(*extra: str):
+    """Export EPUB in EPUB 2 format (adds --epub2 unless user passed it)"""
+    extra = list(extra)
+    args: List[str] = []
+    if not _has_option(extra, "--format"):
+        args.append("--format=epub")
+    # Add --epub2 only if user didn't specify
+    if not _has_option(extra, "--epub2"):
+        args.append("--epub2")
+    args.extend(extra)
+    _run_full_export(args)
 
 
-def export_print_version_paperback():
-    """Export the print-optimized EPUB version for paperback"""
-    sys.argv = ["print-version-build", "--book-type=paperback"]
-    export_print_version_main()
+def export_epub2_with_cover(*extra: str):
+    """Export EPUB 2 with cover image (respects user overrides)"""
+    extra = list(extra)
+    args: List[str] = []
+    if not _has_option(extra, "--format"):
+        args.append("--format=epub")
+    if not _has_option(extra, "--epub2"):
+        args.append("--epub2")
+    if not _has_option(extra, "--cover"):
+        args.append("--cover=./assets/covers/cover.jpg")
+    args.extend(extra)
+    _run_full_export(args)
 
 
-def export_print_version_hardcover():
-    """Export the print-optimized EPUB version for hardcover"""
-    sys.argv = ["print-version-build", "--book-type=hardcover"]
-    export_print_version_main()
+def export_print_version_epub(*extra: str):
+    """Export the print-optimized EPUB via print_version_build"""
+    _run_print_version(list(extra))
 
 
-# --- CLI Dispatcher ---
+def export_print_version_paperback(*extra: str):
+    """Export print-optimized EPUB for paperback"""
+    extra = list(extra)
+    args: List[str] = []
+    if not _has_option(extra, "--book-type"):
+        args.append("--book-type=paperback")
+    args.extend(extra)
+    _run_print_version(args)
+
+
+def export_print_version_hardcover(*extra: str):
+    """Export print-optimized EPUB for hardcover"""
+    extra = list(extra)
+    args: List[str] = []
+    if not _has_option(extra, "--book-type"):
+        args.append("--book-type=hardcover")
+    args.extend(extra)
+    _run_print_version(args)
+
+
+# --- CLI Dispatcher -----------------------------------------------------------
 
 available_shortcuts = {
     "export_epub": export_epub,
@@ -126,11 +191,17 @@ available_shortcuts = {
 }
 
 def main():
-    """Main CLI dispatcher for shortcuts"""
+    """Main CLI dispatcher for shortcuts (supports passthrough args)"""
     parser = argparse.ArgumentParser(
         description="📚 Book Project Shortcut Runner",
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog="\nRun a shortcut like: poetry run shortcuts export_pdf"
+        epilog=(
+            "\nExamples:\n"
+            "  poetry run shortcuts export_pdf --skip-images --keep-relative-paths\n"
+            "  poetry run shortcuts export_epub --cover=./assets/covers/custom.jpg\n"
+            "  poetry run shortcuts export_epub2 --output-file=mybook --skip-images\n"
+            "  poetry run shortcuts export_print_version_paperback --toc-depth=2\n"
+        ),
     )
 
     shortcut_names = sorted(available_shortcuts.keys())
@@ -143,10 +214,12 @@ def main():
         help=f"Available shortcuts:\n{shortcut_help}"
     )
 
-    args = parser.parse_args()
+    # Parse known args and keep the rest to pass through
+    args, extra = parser.parse_known_args()
 
     if args.task:
-        available_shortcuts[args.task]()
+        # Call the chosen shortcut with passthrough args
+        available_shortcuts[args.task](*extra)
     else:
         parser.print_help()
 
