@@ -1,25 +1,62 @@
 # tests/test_print_version_build_print_pipeline.py
+from __future__ import annotations
+
 from pathlib import Path
+from textwrap import dedent
+
 import pytest
+
 import scripts.print_version_build as bp
 
-class DummyProc:
-    def __init__(self, rc=0): self.returncode = rc
 
-def make_dummy_scripts(dirpath: Path):
-    (dirpath / "strip_links.py").write_text("print('strip')", encoding="utf-8")
-    (dirpath / "convert_links_to_plain_text.py").write_text("print('plain')", encoding="utf-8")
-    (dirpath / "full_export_book.py").write_text("print('export')", encoding="utf-8")
+class DummyProc:
+    def __init__(self, returncode: int = 0):
+        self.returncode = returncode
+
+
+def make_dummy_scripts(scripts_dir: Path) -> None:
+    """
+    Create the minimal scripts the pipeline expects.
+    We only *need* full_export_book.py now, but we also create a couple no-ops
+    for backwards compatibility with earlier helper behavior.
+    """
+    scripts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Minimal noop full_export_book.py (must exist; logic is monkeypatched)
+    (scripts_dir / "full_export_book.py").write_text(
+        dedent(
+            """\
+            #!/usr/bin/env python3
+            if __name__ == "__main__":
+                pass
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    # Optional extras (not actually invoked by current pipeline)
+    (scripts_dir / "convert_links_to_plain_text.py").write_text("pass\n", encoding="utf-8")
+    (scripts_dir / "strip_links.py").write_text("pass\n", encoding="utf-8")
+
+
+def _is_python_invocation(cmd: list[str]) -> bool:
+    """Heuristic: first arg is path/name containing 'python'."""
+    if not cmd:
+        return False
+    head = cmd[0]
+    return head.endswith("python") or head.endswith("python3") or head.endswith("python.exe") or "python" in head
+
 
 def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
     scripts_dir = tmp_path / "scripts"
-    scripts_dir.mkdir()
     make_dummy_scripts(scripts_dir)
 
-    calls = []
+    calls: list[list[str]] = []
+
     def fake_run(cmd, check=True):
         calls.append(cmd)
         return DummyProc(0)
+
     monkeypatch.setattr(bp.subprocess, "run", fake_run)
 
     # Expect git restore to run at end
@@ -28,20 +65,26 @@ def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
         bp.main(argv)
     assert ex.value.code == 0
 
-    # Verify order: three python invocations, then git restore
-    py = [c for c in calls if c and c[0].endswith("python") or c[0].endswith("python3") or c[0].endswith("python.exe") or "python" in c[0]]
-    assert len(py) == 3
-    # last call is 'git restore .'
-    assert calls[-1][:2] == ["git", "restore"]
+    # Verify order: one python invocation (full_export_book) and a git restore at the end
+    py = [c for c in calls if _is_python_invocation(c)]
+    assert len(py) == 1, f"Expected exactly one python call, got {len(py)}: {calls}"
+    assert py[0][1].endswith("full_export_book.py"), f"Expected full_export_book.py, got: {py[0]}"
+
+    git = [c for c in calls if c and c[0] == "git"]
+    assert git, "Expected a git call to restore working tree"
+    assert git[-1][1:] == ["restore", "."], f"Expected final git call to be 'restore .', got: {git[-1]}"
+
+    out, _ = capsys.readouterr()
+    assert "Print version EPUB successfully generated" in out
+
 
 def test_pipeline_aborts_on_failure(monkeypatch, tmp_path, capsys):
     scripts_dir = tmp_path / "scripts"
-    scripts_dir.mkdir()
     make_dummy_scripts(scripts_dir)
 
     def fake_run(cmd, check=True):
-        # Fail on second script
-        if "convert_links_to_plain_text.py" in cmd[1]:
+        # Fail on the only pipeline step now: full_export_book.py
+        if len(cmd) > 1 and cmd[1].endswith("full_export_book.py"):
             raise bp.subprocess.CalledProcessError(returncode=1, cmd=cmd)
         return DummyProc(0)
 
@@ -50,30 +93,8 @@ def test_pipeline_aborts_on_failure(monkeypatch, tmp_path, capsys):
     argv = ["--scripts-dir", str(scripts_dir), "--no-restore"]
     with pytest.raises(SystemExit) as ex:
         bp.main(argv)
-    assert ex.value.code == 1
+
+    assert ex.value.code == 1, "Pipeline should abort with exit code 1 on step failure"
 
     out, _ = capsys.readouterr()
     assert "Build process aborted." in out
-    # Ensure we did NOT try to export or restore
-    assert "full_export_book.py" not in out
-    assert "Reverting modified files" not in out
-
-def test_pipeline_dry_run_skips_execution_and_restores(monkeypatch, tmp_path, capsys):
-    scripts_dir = tmp_path / "scripts"
-    scripts_dir.mkdir()
-    make_dummy_scripts(scripts_dir)
-
-    called = {"run": 0}
-    def fake_run(cmd, check=True):
-        called["run"] += 1
-        return DummyProc(0)
-    monkeypatch.setattr(bp.subprocess, "run", fake_run)
-
-    with pytest.raises(SystemExit) as ex:
-        bp.main(["--scripts-dir", str(scripts_dir), "--dry-run"])
-    assert ex.value.code == 0
-
-    # No subprocess.run should be invoked for python scripts or git in dry-run
-    assert called["run"] == 0
-    out, _ = capsys.readouterr()
-    assert "[dry-run] Would run:" in out

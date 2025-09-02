@@ -29,7 +29,7 @@ def test_run_script_failure(monkeypatch, tmp_path, capsys):
 
     assert bp.run_script(s) is False
     out, _ = capsys.readouterr()
-    assert "Error running" in out
+    assert "Command failed with exit code" in out
 
 def test_run_script_missing(tmp_path, capsys):
     missing = tmp_path / "nope.py"

@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import argparse
-import sys
 import subprocess
+import sys
 from pathlib import Path
 from typing import Iterable, List, Tuple
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants & Defaults
+# ──────────────────────────────────────────────────────────────────────────────
 
 # Allowed book types
 VALID_BOOK_TYPES = ["paperback", "hardcover"]
@@ -15,6 +19,60 @@ DEFAULT_BOOK_TYPE = "paperback"
 # Default scripts dir: project root / scripts
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+
+# Public allow-lists (option *names* only, value-agnostic)
+# Options that THIS script understands directly (not forwarded)
+PRINT_VERSION_ALLOWED_OPTS = {
+    "--book-type",
+    "--export-format",
+    "--scripts-dir",
+    "--dry-run",
+    "--no-restore",
+    "--strict-opts",  # control abort-on-invalid behavior in this script
+}
+
+# Options that will be FORWARDED to full_export_book.py
+# Keep this in sync with full_export_book.py CLI
+FULL_EXPORT_ALLOWED_OPTS = {
+    "--format",
+    "--order",
+    "--cover",
+    "--epub2",
+    "--lang",
+    "--extension",
+    "--book-type",
+    "--output-file",
+    "--skip-images",
+    "--keep-relative-paths",
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Utility helpers
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _split_valid_invalid_options(extra: List[str], allowed: set[str]) -> tuple[list[str], list[str]]:
+    """
+    Split passthrough args into (valid, invalid) based on *option names* only.
+    Handles both '--opt=value' and '--opt value' forms. Non-option tokens are ignored.
+    """
+    valid: list[str] = []
+    invalid: list[str] = []
+
+    i = 0
+    while i < len(extra):
+        tok = extra[i]
+        if tok.startswith("--"):
+            name = tok.split("=", 1)[0]
+            bucket = valid if name in allowed else invalid
+            bucket.append(tok)
+            # If value is in next token (e.g., --opt value) keep it with the same bucket
+            if "=" not in tok and (i + 1) < len(extra) and not extra[i + 1].startswith("-"):
+                bucket.append(extra[i + 1])
+                i += 1
+        # Bare tokens (positional) are ignored for this pipeline
+        i += 1
+    return valid, invalid
 
 
 def run_script(script_path: Path, *args: str, dry_run: bool = False) -> bool:
@@ -34,49 +92,98 @@ def run_script(script_path: Path, *args: str, dry_run: bool = False) -> bool:
 
     try:
         subprocess.run(cmd, check=True)
-        print(f"✅ Ran: {script_path.name} {' '.join(args) if args else ''}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running {script_path.name}: {e}")
+        print(f"❌ Command failed with exit code {e.returncode}: {' '.join(cmd)}")
         return False
-    except FileNotFoundError as e:
-        print(f"❌ Failed to execute interpreter or script: {e}")
-        return False
+
+
+def git_restore_all(dry_run: bool = False) -> None:
+    """
+    Restore any working tree changes (used after a successful build).
+    """
+    cmd = ["git", "restore", "."]
+    if dry_run:
+        print(f"🔎 [dry-run] Would run: {' '.join(cmd)}")
+        return
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ git restore failed (non-fatal). Exit code: {e.returncode}")
+
+
+def build_steps(scripts_dir: Path, export_format: str, book_type: str) -> list[tuple[Path, list[str]]]:
+    """
+    Define the pipeline steps for building a print-optimized EPUB.
+
+    Currently a single step that calls full_export_book.py with format 'epub'.
+    Adjust this if your real pipeline has multiple pre/post steps.
+    """
+    steps: list[tuple[Path, list[str]]] = []
+
+    full_export = scripts_dir / "full_export_book.py"
+
+    # Always export EPUB for print-version (you can still override via forwarded extras)
+    base_args: list[str] = [
+        "--format",
+        export_format,
+        "--book-type",
+        book_type,
+        "--output-file",
+        "print-version",  # logical basename; underlying script may append extension
+    ]
+
+    steps.append((full_export, base_args))
+    return steps
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CLI
+# ──────────────────────────────────────────────────────────────────────────────
 
 
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Build a print-ready version of the book (EPUB export pipeline)."
     )
+
     p.add_argument(
         "--book-type",
         default=DEFAULT_BOOK_TYPE,
-        help=f"Specify the book type (default: {DEFAULT_BOOK_TYPE}; allowed: {', '.join(VALID_BOOK_TYPES)})",
+        help=f"Book type to build ({', '.join(VALID_BOOK_TYPES)}). Default: {DEFAULT_BOOK_TYPE}",
     )
     p.add_argument(
         "--export-format",
         default="epub",
-        help="Export format passed to full_export_book.py (default: epub)",
+        choices=["epub"],  # print-version target is EPUB; keep choices if you expand later
+        help="Output format for print version (currently only 'epub').",
     )
     p.add_argument(
         "--scripts-dir",
         type=Path,
         default=DEFAULT_SCRIPTS_DIR,
-        help="Directory containing pipeline scripts (default: ./scripts relative to repo root).",
+        help=f"Directory where pipeline scripts reside. Default: {DEFAULT_SCRIPTS_DIR}",
     )
     p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Print the commands that would run, without executing.",
+        help="Print commands without executing them.",
     )
     p.add_argument(
         "--no-restore",
         action="store_true",
         help="Skip 'git restore .' at the end on success.",
     )
-    args = p.parse_args(list(argv) if argv is not None else None)
 
-    # Validate book type manually to preserve original behavior (fallback)
+    # We accept unknowns so we can validate/forward to full_export_book.py
+    args, extra = p.parse_known_args(list(argv) if argv is not None else None)
+    args._extra = extra  # stash passthrough
+
+    # Lightweight strict mode via presence of --strict-opts (not forwarded)
+    args.strict_opts = any(t == "--strict-opts" for t in extra)
+    args._extra = [t for t in args._extra if t != "--strict-opts"]
+
+    # Validate book type with fallback
     bt = (args.book_type or "").lower()
     if bt not in VALID_BOOK_TYPES:
         print(
@@ -90,46 +197,38 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     return args
 
 
-def build_steps(scripts_dir: Path, export_format: str, book_type: str) -> List[Tuple[Path, List[str]]]:
-    """
-    Returns the pipeline steps as (script_path, [args...]).
-    """
-    return [
-        # Strip links from TOC in place so full_export_book uses the cleaned file
-        (scripts_dir / "strip_links.py",
-         ["--overwrite", "--report",
-          "--file", str(PROJECT_ROOT / "manuscript" / "front-matter" / "toc.md")]),
-        (scripts_dir / "convert_links_to_plain_text.py", []),
-        (
-            scripts_dir / "full_export_book.py",
-            [f"--format={export_format}", f"--book-type={book_type}"],
-        ),
-    ]
-
-
-def git_restore_all(dry_run: bool = False) -> bool:
-    cmd = ["git", "restore", "."]
-    if dry_run:
-        print(f"🔎 [dry-run] Would run: {' '.join(cmd)}")
-        return True
-    try:
-        subprocess.run(cmd, check=True)
-        print("✅ Reverted all changes using git restore")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to revert changes: {e}")
-        return False
-
-
 def main(argv: Iterable[str] | None = None) -> None:
     args = parse_args(argv)
 
     print(f"📘 Building PRINT version of the book ({args.book_type.upper()})...\n")
 
+    # Validate and split extras for the full_export step
+    valid_extra, invalid_extra = _split_valid_invalid_options(
+        getattr(args, "_extra", []),
+        FULL_EXPORT_ALLOWED_OPTS,
+    )
+
+    if invalid_extra:
+        print("⚠️ Detected invalid options for full_export_book.py:")
+        for tok in invalid_extra:
+            print(f"   - {tok}")
+        if args.strict_opts:
+            print("🛑 Aborting due to --strict-opts.")
+            sys.exit(2)
+
+    if valid_extra:
+        print("🔧 Forwarding valid options to full_export_book.py:")
+        print("   " + " ".join(valid_extra))
+
     steps = build_steps(args.scripts_dir, args.export_format, args.book_type)
 
     for script_path, arguments in steps:
-        ok = run_script(script_path, *arguments, dry_run=args.dry_run)
+        # Inject filtered extras only for the full_export step
+        if script_path.name == "full_export_book.py" and valid_extra:
+            merged = [*arguments, *valid_extra]
+            ok = run_script(script_path, *merged, dry_run=args.dry_run)
+        else:
+            ok = run_script(script_path, *arguments, dry_run=args.dry_run)
         if not ok:
             print("🛑 Build process aborted.")
             sys.exit(1)
