@@ -10,17 +10,20 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.14"
-pandas = "^2.2.3"
+pandas = "^2.3.2"
 python-dotenv = "^1.1.0"
-requests = "^2.31.0"
+requests = "^2.32.5"
 pillow = "^11.2.1"
 pyyaml = "^6.0.2"
 toml = "^0.10.2"
 ftfy = "^6.3.1"
-questionary = "^2.1.0"
+questionary = "^2.1.1"
 
 [tool.poetry.group.dev.dependencies]
-hypothesis = "^6.112"
+hypothesis = "^6.138.13"
+
+[tool.poetry.group.test.dependencies]
+hypothesis = ">=6,<7"
 pytest = "^8.2"
 pytest-mock = "^3.10.0"
 pytest-cov = "^5.0.0"
@@ -76,6 +79,12 @@ export-print-version-paperback = "scripts.shortcuts_export:export_print_version_
 export-pvp = "scripts.shortcuts_export:export_print_version_paperback"
 export-print-version-hardcover = "scripts.shortcuts_export:export_print_version_hardcover"
 export-pvh = "scripts.shortcuts_export:export_print_version_hardcover"
+# Safe shortcuts (skip Step 1 & 4)
+export-pdf-safe = "scripts.shortcuts_export:export_pdf_safe"
+export-epub-safe = "scripts.shortcuts_export:export_epub_safe"
+export-es = "scripts.shortcuts_export:export_epub_safe"
+export-docx-safe = "scripts.shortcuts_export:export_docx_safe"
+export-markdown-safe = "scripts.shortcuts_export:export_markdown_safe"
 
 # Init Shortcuts
 update-mdv = "scripts.shortcuts_init:run_update_metadata_values"
