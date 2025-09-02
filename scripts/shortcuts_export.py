@@ -122,9 +122,11 @@ __all__ = [
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def _has_option(extra: Iterable[str], name: str) -> bool:
+def _has_any_option(extra: Iterable[str], names: set[str]) -> bool:
     for tok in extra:
-        if tok.startswith(name):
+        if not tok.startswith("--"):
+            continue
+        if tok.split("=", 1)[0] in names:
             return True
     return False
 
@@ -381,12 +383,9 @@ def export_safe(format: str, *extra: str):
     """
     args = ["--format", format]
 
-    # Force safe flags unless user overrides them
-    if not _has_option(extra, "--skip-images"):
-        args.append("--skip-images")
-    # If you also want to enforce keep-relative-paths:
-    if not _has_option(extra, "--keep-relative-paths"):
-        args.append("--keep-relative-paths")
+    # Mutually exclusive in full_export_book.py: pick ONE
+    if not _has_any_option(extra, {"--skip-images", "--keep-relative-paths"}):
+        args.append("--skip-images")  # default safe behavior
 
     strict = "--strict-opts" in extra
     extra = [t for t in extra if t != "--strict-opts"]
@@ -429,7 +428,11 @@ def export_print_version_paperback_safe(*extra: str):
       - Forces --skip-images and --keep-relative-paths (no in-place source edits).
       - Validates passthrough; aborts if --strict-opts and invalid flags present.
     """
-    args = ["--book-type", "paperback", "--skip-images", "--keep-relative-paths"]
+    args = ["--book-type", "paperback"]
+
+    # Add exactly one safe flag if none provided by user
+    if not _has_any_option(extra, {"--skip-images", "--keep-relative-paths"}):
+        args.append("--skip-images")
 
     strict = "--strict-opts" in extra
     extra = [t for t in extra if t != "--strict-opts"]
@@ -457,7 +460,10 @@ def export_print_version_hardcover_safe(*extra: str):
       - Forces --skip-images and --keep-relative-paths (no in-place source edits).
       - Validates passthrough; aborts if --strict-opts and invalid flags present.
     """
-    args = ["--book-type", "hardcover", "--skip-images", "--keep-relative-paths"]
+    args = ["--book-type", "hardcover"]
+
+    if not _has_any_option(extra, {"--skip-images", "--keep-relative-paths"}):
+        args.append("--skip-images")
 
     strict = "--strict-opts" in extra
     extra = [t for t in extra if t != "--strict-opts"]
