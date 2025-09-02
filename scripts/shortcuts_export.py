@@ -174,6 +174,49 @@ def export_print_version_hardcover(*extra: str):
     _run_print_version(args)
 
 
+def export_safe(format: str, *extra: str):
+    """
+    Export book in safe mode:
+    - Always adds --skip-images and --keep-relative-paths
+    - Skips Step 1 and Step 4 in full_export_book (no in-place file edits)
+
+    :param format: One of 'pdf', 'epub', 'docx', 'markdown'
+    """
+    extra = list(extra)
+    args: list[str] = []
+
+    # Add format unless user already specified
+    if not _has_option(extra, "--format"):
+        args.append(f"--format={format}")
+
+    # Force safe flags unless user overrides them
+    if not _has_option(extra, "--skip-images"):
+        args.append("--skip-images")
+
+
+    args.extend(extra)
+    _run_full_export(args)
+
+
+def export_pdf_safe(*extra: str):
+    """Export book as PDF (safe mode)"""
+    export_safe("pdf", *extra)
+
+
+def export_epub_safe(*extra: str):
+    """Export book as EPUB (safe mode)"""
+    export_safe("epub", *extra)
+
+
+def export_docx_safe(*extra: str):
+    """Export book as DOCX (safe mode)"""
+    export_safe("docx", *extra)
+
+
+def export_markdown_safe(*extra: str):
+    """Export book as Markdown (safe mode)"""
+    export_safe("markdown", *extra)
+
 # --- CLI Dispatcher -----------------------------------------------------------
 
 available_shortcuts = {
@@ -188,6 +231,10 @@ available_shortcuts = {
     "export_print_version_paperback": export_print_version_paperback,
     "export_print_version_hardcover": export_print_version_hardcover,
     "all_formats_with_cover": all_formats_with_cover,
+    "export_pdf_safe": export_pdf_safe,
+    "export_epub_safe": export_epub_safe,
+    "export_docx_safe": export_docx_safe,
+    "export_markdown_safe": export_markdown_safe,
 }
 
 def main():
