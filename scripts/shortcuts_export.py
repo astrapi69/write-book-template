@@ -99,6 +99,8 @@ __all__ = [
     "export_print_version_epub",
     "export_print_version_paperback",
     "export_print_version_hardcover",
+    "export_print_version_paperback_safe",
+    "export_print_version_hardcover_safe",
     "export_safe",
     # Safe aliases:
     "export_pdf_safe",
@@ -419,6 +421,64 @@ def export_docx_safe(*extra: str):
 
 def export_markdown_safe(*extra: str):
     return export_safe("markdown", *extra)
+
+
+def export_print_version_paperback_safe(*extra: str):
+    """
+    Print-optimized EPUB for paperback **in Safe Mode**:
+      - Forces --skip-images and --keep-relative-paths (no in-place source edits).
+      - Validates passthrough; aborts if --strict-opts and invalid flags present.
+    """
+    args = ["--book-type", "paperback", "--skip-images", "--keep-relative-paths"]
+
+    strict = "--strict-opts" in extra
+    extra = [t for t in extra if t != "--strict-opts"]
+    valid, invalid = _split_valid_invalid_options(
+        list(extra), PRINT_VERSION_ALLOWED_OPTS | FULL_EXPORT_ALLOWED_OPTS
+    )
+
+    if invalid:
+        print("⚠️ Invalid options for print_version_build/full_export:")
+        print("   " + " ".join(invalid))
+        if strict:
+            print("🛑 Aborting due to --strict-opts.")
+            return
+
+    if valid:
+        print("🔧 Forwarding valid options (safe mode):")
+        print("   " + " ".join(valid))
+
+    args.extend(valid)
+    _run_print_version(args)
+
+def export_print_version_hardcover_safe(*extra: str):
+    """
+    Print-optimized EPUB for hardcover **in Safe Mode**:
+      - Forces --skip-images and --keep-relative-paths (no in-place source edits).
+      - Validates passthrough; aborts if --strict-opts and invalid flags present.
+    """
+    args = ["--book-type", "hardcover", "--skip-images", "--keep-relative-paths"]
+
+    strict = "--strict-opts" in extra
+    extra = [t for t in extra if t != "--strict-opts"]
+    valid, invalid = _split_valid_invalid_options(
+        list(extra), PRINT_VERSION_ALLOWED_OPTS | FULL_EXPORT_ALLOWED_OPTS
+    )
+
+    if invalid:
+        print("⚠️ Invalid options for print_version_build/full_export:")
+        print("   " + " ".join(invalid))
+        if strict:
+            print("🛑 Aborting due to --strict-opts.")
+            return
+
+    if valid:
+        print("🔧 Forwarding valid options (safe mode):")
+        print("   " + " ".join(valid))
+
+    args.extend(valid)
+    _run_print_version(args)
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # CLI entrypoint (optional; keeps Poetry shortcuts intact)

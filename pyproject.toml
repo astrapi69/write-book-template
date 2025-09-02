@@ -89,6 +89,10 @@ export-epub-safe = "scripts.shortcuts_export:export_epub_safe"
 export-es = "scripts.shortcuts_export:export_epub_safe"
 export-docx-safe = "scripts.shortcuts_export:export_docx_safe"
 export-markdown-safe = "scripts.shortcuts_export:export_markdown_safe"
+export-pvp-safe = "scripts.shortcuts_export:export_print_version_paperback_safe"
+export-pvh-safe = "scripts.shortcuts_export:export_print_version_hardcover_safe"
+export-pvps = "scripts.shortcuts_export:export_print_version_paperback_safe"
+export-pvhs = "scripts.shortcuts_export:export_print_version_hardcover_safe"
 
 # Init Shortcuts
 update-mdv = "scripts.shortcuts_init:run_update_metadata_values"
