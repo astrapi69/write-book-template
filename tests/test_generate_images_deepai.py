@@ -129,15 +129,14 @@ def test_generate_image_missing_output_url(tmp_path, caplog):
 
 def test_make_config_requires_api_key(monkeypatch, tmp_path, caplog):
     caplog.set_level("ERROR")
+
     # ensure no env var
     monkeypatch.delenv("DEEPAI_API_KEY", raising=False)
-
-    # create a real prompt file so the file-existence check passes
-    prompt_path = tmp_path / "prompts.json"
-    prompt_path.write_text('{"chapters": []}', encoding="utf-8")
+    # block getenv to avoid leaking a real key from environment
+    monkeypatch.setattr(mod.os, "getenv", lambda *a, **k: None)
 
     args = SimpleNamespace(
-        prompt_file=str(prompt_path),
+        prompt_file=str(tmp_path / "prompts.json"),
         output_dir=str(tmp_path / "out"),
         api_key=None,
         character_profile=str(tmp_path / "chars.json"),
