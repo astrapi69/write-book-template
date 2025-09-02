@@ -131,15 +131,19 @@ def test_make_config_requires_api_key(monkeypatch, tmp_path, caplog):
     caplog.set_level("ERROR")
     # ensure no env var
     monkeypatch.delenv("DEEPAI_API_KEY", raising=False)
+
+    # create a real prompt file so the file-existence check passes
+    prompt_path = tmp_path / "prompts.json"
+    prompt_path.write_text('{"chapters": []}', encoding="utf-8")
+
     args = SimpleNamespace(
-        prompt_file=str(tmp_path / "prompts.json"),
-        output_dir=tmp_path / "out",
+        prompt_file=str(prompt_path),
+        output_dir=str(tmp_path / "out"),
         api_key=None,
         character_profile=str(tmp_path / "chars.json"),
         overwrite=False,
     )
-    # need a real prompt file existence check to pass the first guard;
-    # but we test API key failure first, so do not create file yet.
+
     cfg = mod.make_config(args)
     assert cfg is None
     assert "No API key provided" in caplog.text
