@@ -129,8 +129,7 @@ def build_steps(scripts_dir: Path, export_format: str, book_type: str) -> list[t
         export_format,
         "--book-type",
         book_type,
-        "--output-file",
-        "print-version",  # logical basename; underlying script may append extension
+        # No default --output-file here; let user/underlying script decide
     ]
 
     steps.append((full_export, base_args))

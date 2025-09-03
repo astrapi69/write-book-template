@@ -290,15 +290,20 @@ def main():
 
     # Set global output filename
     global OUTPUT_FILE
+    add_type_suffix = True
     if args.output_file:
-        # user explicitly provided a name → highest priority
-        OUTPUT_FILE = f"{args.output_file}-{book_type.value}"
+        # Use user-provided basename exactly (strip any extension to avoid doubles).
+        op = Path(args.output_file)
+        OUTPUT_FILE = op.stem
+        add_type_suffix = False
     elif OUTPUT_FILE is None:
         # default case: nothing set, so fall back to project name
         project_name = get_project_name_from_pyproject()
-        OUTPUT_FILE = f"{project_name}-{book_type.value}"
+        OUTPUT_FILE = project_name
     else:
         # global OUTPUT_FILE was pre-set in the script (not None)
+        pass
+    if add_type_suffix:
         OUTPUT_FILE = f"{OUTPUT_FILE}-{book_type.value}"
 
     print(f"📘 Output file base name set to: {OUTPUT_FILE}")
