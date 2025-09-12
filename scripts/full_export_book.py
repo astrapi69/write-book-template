@@ -269,6 +269,11 @@ def main():
         help="Specify the book type (ebook, paperback, etc.). Affects output file naming."
     )
     parser.add_argument("--output-file", type=str, help="Custom output file base name (overrides project name)")
+    parser.add_argument(
+        "--no-type-suffix",
+        action="store_true",
+        help="Do not append '-{book_type}' to the output base name."
+    )
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -290,24 +295,21 @@ def main():
 
     # Set global output filename
     global OUTPUT_FILE
-    add_type_suffix = True
+    add_type_suffix = not args.no_type_suffix
     if args.output_file:
-        # Use user-provided basename exactly (strip any extension to avoid doubles).
+        # User provided name: use the stem, extension is added per-format later
         op = Path(args.output_file)
         OUTPUT_FILE = op.stem
-        add_type_suffix = False
     elif OUTPUT_FILE is None:
-        # default case: nothing set, so fall back to project name
+        # Fall back to project name
         project_name = get_project_name_from_pyproject()
         OUTPUT_FILE = project_name
-    else:
-        # global OUTPUT_FILE was pre-set in the script (not None)
-        pass
+    # else: keep pre-set global OUTPUT_FILE as-is
+
     if add_type_suffix:
         OUTPUT_FILE = f"{OUTPUT_FILE}-{book_type.value}"
 
     print(f"📘 Output file base name set to: {OUTPUT_FILE}")
-
 
     # Determine language: CLI > metadata.yaml > fallback
     metadata_lang = get_metadata_language()
