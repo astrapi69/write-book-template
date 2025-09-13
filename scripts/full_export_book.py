@@ -307,7 +307,7 @@ def main():
     # else: keep pre-set global OUTPUT_FILE as-is
 
     if add_type_suffix:
-        OUTPUT_FILE = f"{OUTPUT_FILE}-{book_type.value}"
+        OUTPUT_FILE = f"{OUTPUT_FILE}_{book_type.value}"
 
     print(f"📘 Output file base name set to: {OUTPUT_FILE}")
 
