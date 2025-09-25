@@ -213,7 +213,12 @@ def ensure_metadata_file():
         os.makedirs(os.path.dirname(METADATA_FILE), exist_ok=True)
         with open(METADATA_FILE, "w", encoding="utf-8") as f:
             # TODO replace with your data
-            f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\nlang: 'en'\n")
+            f.write(
+                "title: \"CHANGE TO YOUR TITLE\"\n"
+                "author: \"YOUR NAME\"\n"
+                "date: \"2025\"\n"
+                "lang: \"en\"\n"
+            )
 
 
 def compile_book(format, section_order, cover_path=None, force_epub2=False, lang="en", custom_ext=None):
