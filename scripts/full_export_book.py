@@ -6,7 +6,6 @@ import argparse
 import yaml
 import toml
 import threading
-import queue
 from pathlib import Path
 from scripts.enums.book_type import BookType
 from scripts.validate_format import validate_epub_with_epubcheck, validate_pdf, validate_markdown, validate_docx
@@ -22,7 +21,7 @@ OUTPUT_DIR = "./output"                         # Output directory for compiled 
 BACKUP_DIR = "./output_backup"                  # Backup location for previous output
 # Set to None to derive from pyproject.toml automatically.
 # Set a string to override the output file base name manually.
-OUTPUT_FILE = None
+OUTPUT_FILE = ""
 LOG_FILE = "export.log"                         # Log file for script and Pandoc output/errors
 
 # Supporting script paths
@@ -46,9 +45,9 @@ FORMATS = {
 
 # Default section order (customizable)
 DEFAULT_SECTION_ORDER = [
+    "front-matter/imprint.md",
     "front-matter/toc.md",
     "front-matter/preface.md",
-    "front-matter/introduction.md",
     "front-matter/foreword.md",
     "chapters",  # Entire chapters folder
     "back-matter/epilogue.md",
@@ -56,10 +55,47 @@ DEFAULT_SECTION_ORDER = [
     "back-matter/appendix.md",
     "back-matter/acknowledgments.md",
     "back-matter/about-the-author.md",
-    "back-matter/faq.md",
     "back-matter/bibliography.md",
-    "back-matter/index.md",
 ]
+
+# New: explicit orders per product
+# ebook section order
+EBOOK_SECTION_ORDER = DEFAULT_SECTION_ORDER
+# Paperback section order (customizable)
+PAPERBACK_SECTION_ORDER = [
+    "front-matter/imprint.md",
+    "front-matter/toc_print_edition.md", # <-- print ToC with page numbers
+    "front-matter/preface.md",
+    "front-matter/foreword.md",
+    "chapters",  # Entire chapters folder
+    "back-matter/epilogue.md",
+    "back-matter/glossary.md",
+    "back-matter/appendix.md",
+    "back-matter/acknowledgments.md",
+    "back-matter/about-the-author.md",
+    "back-matter/bibliography.md",
+]
+
+# Hardcover section order (customizable)
+HARDCOVER_SECTION_ORDER = PAPERBACK_SECTION_ORDER
+
+def pick_section_order(book_type: "BookType", fmt: str) -> list[str]:
+    """
+    Decide which section order to use if --order was not provided.
+    - ebook  -> EBOOK_SECTION_ORDER
+    - paperback/hardcover -> PAPERBACK/HARDCOVER_SECTION_ORDER
+    Note: For non-EPUB builds of ebook (e.g., markdown or pdf drafts), we still
+    stick to EBOOK_SECTION_ORDER unless user overrides.
+    """
+    if book_type.value == "ebook":
+        return EBOOK_SECTION_ORDER
+    if book_type.value == "paperback":
+        return PAPERBACK_SECTION_ORDER
+    if book_type.value == "hardcover":
+        return HARDCOVER_SECTION_ORDER
+    # fallback
+    return DEFAULT_SECTION_ORDER
+
 
 def resolve_ext(fmt: str, custom_markdown_ext: str | None) -> str:
     if fmt == "markdown":
@@ -141,7 +177,7 @@ def prepare_output_folder(verbose=False):
         print("📂 Created clean output directory.")
 
 import tempfile
-
+#TODO replace with your data
 DEFAULT_METADATA = """title: 'CHANGE TO YOUR TITLE'
 author: 'YOUR NAME'
 date: '2025'
@@ -176,7 +212,8 @@ def ensure_metadata_file():
         print(f"⚠️ Metadata file missing! Creating default {METADATA_FILE}.")
         os.makedirs(os.path.dirname(METADATA_FILE), exist_ok=True)
         with open(METADATA_FILE, "w", encoding="utf-8") as f:
-            f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\nlang: 'en'\n") #TODO replace with your data
+            # TODO replace with your data
+            f.write("title: 'CHANGE TO YOUR TITLE'\nauthor: 'YOUR NAME'\ndate: '2025'\nlang: 'en'\n")
 
 
 def compile_book(format, section_order, cover_path=None, force_epub2=False, lang="en", custom_ext=None):
@@ -251,12 +288,35 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False, lang
         print(f"❌ Error compiling {format}: {e}")
 
 
+# Step 1a: Normalize TOC (only if it's the web/ebook ToC 'toc.md')
+def normalize_toc_if_needed(toc_path: Path, args):
+    try:
+        if toc_path.exists() and toc_path.name == "toc.md":
+            toc_mode = "strip-to-anchors"
+            toc_ext = args.extension if args.extension else "md"
+            subprocess.run(
+                ["python3", NORMALIZE_TOC, "--toc", str(toc_path),
+                 "--mode", toc_mode, "--ext", toc_ext],
+                check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a")
+            )
+            print(f"✅ TOC normalized using mode={toc_mode}: {toc_path}")
+        else:
+            print(f"ℹ️  Skipping TOC normalization for {toc_path.name} (not ebook toc).")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error normalizing TOC: {e}")
+
+
 def main():
     """Main script execution logic."""
     parser = argparse.ArgumentParser(description="Export your book into multiple formats.")
     parser.add_argument("--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub).")
-    parser.add_argument("--order", type=str, default=",".join(DEFAULT_SECTION_ORDER),
-                        help="Specify document order (comma-separated).")
+    parser.add_argument(
+        "--order",
+        type=str,
+        default=None,  # was: ",".join(DEFAULT_SECTION_ORDER)
+        help="Specify document order (comma-separated). If omitted, a sane default is chosen based on --book-type."
+    )
+
     parser.add_argument("--cover", type=str, help="Optional path to cover image (for EPUB export).")
     parser.add_argument("--epub2", action="store_true", help="Force EPUB 2 export (for epubli compatibility).")
     parser.add_argument("--lang", type=str, help="Language code for metadata (e.g. en, de, fr)")
@@ -288,10 +348,17 @@ def main():
     )
 
     args = parser.parse_args()
-    section_order = args.order.split(",")
 
     # Book type handling
     book_type = BookType(args.book_type)
+    # Decide section order: CLI > auto by book type
+    if args.order:
+        section_order = args.order.split(",")
+    else:
+        # we don’t know the format yet (could be multiple), so we pass a callable down
+        # and re-pick per format later, OR pick a single order now:
+        # We’ll pick later per format to allow mixed builds like: --format=epub,pdf
+        section_order = None
 
     # Set global output filename
     global OUTPUT_FILE
@@ -364,14 +431,32 @@ def main():
 
     # Step 3: Compile book in requested formats
     # Determine formats to export
+    # Step 3: Compile the book in requested formats
     selected_formats = args.format.split(",") if args.format else FORMATS.keys()
 
-    # Compile the book for each format
     for fmt in selected_formats:
-        if fmt in FORMATS:
-            compile_book(fmt, section_order, args.cover, args.epub2, lang, args.extension)
-        else:
+        if fmt not in FORMATS:
             print(f"⚠️ Skipping unknown format: {fmt}")
+            continue
+
+        effective_order = section_order if section_order is not None else pick_section_order(book_type, fmt)
+
+        # Warnen, falls die Print-ToC-Datei fehlt
+        if "front-matter/toc_print_edition.md" in effective_order:
+            toc_print_path = Path(BOOK_DIR) / "front-matter" / "toc_print_edition.md"
+            if not toc_print_path.exists():
+                print("⚠️ Print ToC file missing: manuscript/front-matter/toc_print_edition.md "
+                      "(fallback to ebook toc.md)")
+                # Fallback: ersetze durch toc.md, falls vorhanden
+                idx = effective_order.index("front-matter/toc_print_edition.md")
+                effective_order = effective_order.copy()
+                effective_order[idx] = "front-matter/toc.md"
+
+        # TOC normalisieren NUR wenn es toc.md ist (ebook)
+        toc_candidate = Path(BOOK_DIR) / "front-matter" / ("toc.md" if "front-matter/toc.md" in effective_order else "toc_print_edition.md")
+        normalize_toc_if_needed(toc_candidate, args)
+
+        compile_book(fmt, effective_order, args.cover, args.epub2, lang, args.extension)
 
     # Step 4: Restore original image paths
     # Revert any image/URL changes made before compilation unless we kept relative paths

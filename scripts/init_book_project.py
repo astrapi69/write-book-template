@@ -156,9 +156,11 @@ def run_init_book_project(
     files = [
         "manuscript/chapters/01-chapter.md",
         "manuscript/chapters/02-chapter.md",
+        "manuscript/front-matter/imprint.md",
         "manuscript/front-matter/foreword.md",
         "manuscript/front-matter/preface.md",
         "manuscript/front-matter/toc.md",
+        "manuscript/front-matter/toc_print_edition.md",
         "manuscript/back-matter/about-the-author.md",
         "manuscript/back-matter/acknowledgments.md",
         "manuscript/back-matter/appendix.md",
