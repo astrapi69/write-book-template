@@ -22,6 +22,7 @@ pyyaml = "^6.0.2"
 toml = "^0.10.2"
 ftfy = "^6.3.1"
 questionary = "^2.1.1"
+pymupdf = "^1.26.4"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.138.13"
