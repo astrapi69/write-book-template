@@ -7,7 +7,9 @@ import pytest
 
 
 def import_ctr(module_path: Path):
-    spec = importlib.util.spec_from_file_location("convert_to_relative", str(module_path))
+    spec = importlib.util.spec_from_file_location(
+        "convert_to_relative", str(module_path)
+    )
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(mod)
@@ -47,7 +49,9 @@ def test_markdown_image_absolute_to_relative(temp_project, monkeypatch):
     )
 
     # Import the implementation from your repo (tests/.. = project root)
-    mod = import_ctr(Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py")
+    mod = import_ctr(
+        Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py"
+    )
 
     # Point the module to the temp project structure
     monkeypatch.setattr(mod, "PROJECT_ROOT", project.resolve(), raising=False)
@@ -73,7 +77,9 @@ def test_markdown_image_absolute_to_relative(temp_project, monkeypatch):
 
 def test_html_img_and_a_tags(temp_project, monkeypatch):
     project = temp_project
-    mod = import_ctr(Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py")
+    mod = import_ctr(
+        Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py"
+    )
 
     chapter = project / "manuscript" / "chapters" / "p.md"
     pic = project / "assets" / "img" / "p.png"
@@ -92,7 +98,9 @@ def test_html_img_and_a_tags(temp_project, monkeypatch):
 
 def test_skip_urls_anchors_and_non_assets(temp_project, monkeypatch):
     project = temp_project
-    mod = import_ctr(Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py")
+    mod = import_ctr(
+        Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py"
+    )
 
     chapter = project / "manuscript" / "chapters" / "p.md"
     outside = project / "notassets" / "p.png"
@@ -119,7 +127,9 @@ def test_skip_urls_anchors_and_non_assets(temp_project, monkeypatch):
 
 def test_idempotency(temp_project, monkeypatch):
     project = temp_project
-    mod = import_ctr(Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py")
+    mod = import_ctr(
+        Path(__file__).resolve().parents[1] / "scripts" / "convert_to_relative.py"
+    )
 
     chapter = project / "manuscript" / "chapters" / "p.md"
     pic = project / "assets" / "img" / "p.png"

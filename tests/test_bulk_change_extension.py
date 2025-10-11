@@ -2,7 +2,6 @@
 from pathlib import Path
 import subprocess
 import sys
-import pytest
 
 from scripts.bulk_change_extension import change_extension  # <- fixed import
 
@@ -27,7 +26,9 @@ def test_happy_path_png_to_jpg(tmp_path: Path):
 
 def test_case_sensitive_only_exact_match(tmp_path: Path):
     make_files(tmp_path, ["A.png", "B.PNG", "C.PnG"])
-    res = change_extension(tmp_path, ".png", ".jpg", recursive=False, case_insensitive=False)
+    res = change_extension(
+        tmp_path, ".png", ".jpg", recursive=False, case_insensitive=False
+    )
     assert res.renamed == 1
     assert (tmp_path / "A.jpg").exists()
     assert (tmp_path / "B.PNG").exists()

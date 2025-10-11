@@ -28,10 +28,7 @@ IMG_TAG_RE = re.compile(r"<img\b([^>]*)>", flags=re.IGNORECASE)
 
 # Attribute parser: key="value" or key='value' with optional whitespace
 # Old: ATTR_RE = re.compile(r'(\w+)\s*=\s*("([^"]*)"|\'([^\']*)\')')
-ATTR_RE = re.compile(
-    r'([A-Za-z_:][A-Za-z0-9:._-]*)\s*=\s*("([^"]*)"|\'([^\']*)\')'
-)
-
+ATTR_RE = re.compile(r'([A-Za-z_:][A-Za-z0-9:._-]*)\s*=\s*("([^"]*)"|\'([^\']*)\')')
 
 
 def parse_img_attributes(attr_text: str) -> dict[str, str]:
@@ -42,7 +39,9 @@ def parse_img_attributes(attr_text: str) -> dict[str, str]:
     attrs: dict[str, str] = {}
     for m in ATTR_RE.finditer(attr_text):
         key = m.group(1).lower()
-        value = m.group(3) if m.group(3) is not None else m.group(4)  # prefer group3 (") else group4 (')
+        value = (
+            m.group(3) if m.group(3) is not None else m.group(4)
+        )  # prefer group3 (") else group4 (')
         attrs[key] = value
     return attrs
 
@@ -66,7 +65,9 @@ def build_img_tag(attrs: dict[str, str]) -> str:
     return f"<img{' ' if inside else ''}{inside}>"
 
 
-def _convert_src_for_file(md_file: Path, to_absolute: bool, assets_dir: Path) -> tuple[str, int]:
+def _convert_src_for_file(
+    md_file: Path, to_absolute: bool, assets_dir: Path
+) -> tuple[str, int]:
     original = md_file.read_text(encoding="utf-8")
     converted = 0
 
@@ -146,7 +147,9 @@ def convert_markdown_tree(
         if not md_dir.exists():
             continue
         for md_file in md_dir.rglob("*.md"):
-            new_content, converted = _convert_src_for_file(md_file, to_absolute=to_absolute, assets_dir=assets_dir)
+            new_content, converted = _convert_src_for_file(
+                md_file, to_absolute=to_absolute, assets_dir=assets_dir
+            )
             if converted > 0:
                 md_file.write_text(new_content, encoding="utf-8")
                 files_changed += 1
@@ -156,11 +159,25 @@ def convert_markdown_tree(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert <img> src paths between relative and absolute.")
-    parser.add_argument("--to-absolute", action="store_true", help="Convert relative paths to absolute paths.")
-    parser.add_argument("--to-relative", action="store_true", help="Convert absolute paths (under assets/) to relative paths.")
-    parser.add_argument("--base-dir", type=str, default=str(Path(__file__).resolve().parent.parent),
-                        help="Project root (defaults to repository root).")
+    parser = argparse.ArgumentParser(
+        description="Convert <img> src paths between relative and absolute."
+    )
+    parser.add_argument(
+        "--to-absolute",
+        action="store_true",
+        help="Convert relative paths to absolute paths.",
+    )
+    parser.add_argument(
+        "--to-relative",
+        action="store_true",
+        help="Convert absolute paths (under assets/) to relative paths.",
+    )
+    parser.add_argument(
+        "--base-dir",
+        type=str,
+        default=str(Path(__file__).resolve().parent.parent),
+        help="Project root (defaults to repository root).",
+    )
     args = parser.parse_args()
 
     base = Path(args.base_dir).resolve()
@@ -171,11 +188,17 @@ def main() -> None:
         raise SystemExit(2)
 
     to_abs = bool(args.to_absolute)
-    changed, converted = convert_markdown_tree(base, to_absolute=to_abs, assets_dir=assets)
+    changed, converted = convert_markdown_tree(
+        base, to_absolute=to_abs, assets_dir=assets
+    )
     if to_abs:
-        print(f"✅ Converted {converted} <img> tag(s) to absolute across {changed} file(s).")
+        print(
+            f"✅ Converted {converted} <img> tag(s) to absolute across {changed} file(s)."
+        )
     else:
-        print(f"🔄 Reverted {converted} <img> tag(s) to relative across {changed} file(s).")
+        print(
+            f"🔄 Reverted {converted} <img> tag(s) to relative across {changed} file(s)."
+        )
 
 
 if __name__ == "__main__":

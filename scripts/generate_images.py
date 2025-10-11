@@ -13,6 +13,7 @@ os.chdir("..")
 # Load environment variables from .env
 load_dotenv()
 
+
 def load_character_profiles(path="scripts/data/character_profiles.json"):
     try:
         with open(path, encoding="utf-8") as f:
@@ -20,6 +21,7 @@ def load_character_profiles(path="scripts/data/character_profiles.json"):
     except Exception as e:
         print(f"⚠️ Failed to load character profiles: {e}")
         return {}
+
 
 def generate_image(prompt, filename, output_dir, api_key):
     output_path = Path(output_dir) / filename
@@ -31,8 +33,8 @@ def generate_image(prompt, filename, output_dir, api_key):
 
     response = requests.post(
         "https://api.deepai.org/api/text2img",
-        data={'text': prompt},
-        headers={'api-key': api_key}
+        data={"text": prompt},
+        headers={"api-key": api_key},
     )
 
     if response.status_code != 200:
@@ -40,32 +42,39 @@ def generate_image(prompt, filename, output_dir, api_key):
         return
 
     try:
-        image_url = response.json()['output_url']
+        image_url = response.json()["output_url"]
         img_data = requests.get(image_url).content
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(img_data)
         print(f"✅ Saved: {output_path}")
     except Exception as e:
         print(f"❌ Failed to save image for prompt: {prompt}\n{e}")
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Generate images from prompts using DeepAI text2img")
-    parser.add_argument("--prompt-file",
-                        default="scripts/data/image_prompts.json",
-                        help="Path to the prompt JSON file (default: scripts/data/image_prompts.json)"
+    parser = argparse.ArgumentParser(
+        description="Generate images from prompts using DeepAI text2img"
     )
-    parser.add_argument("--output-dir",
-                        type=Path,
-                        default=Path("assets/illustrations"),
-                        help="Directory to save generated images (default: assets/illustrations)"
+    parser.add_argument(
+        "--prompt-file",
+        default="scripts/data/image_prompts.json",
+        help="Path to the prompt JSON file (default: scripts/data/image_prompts.json)",
     )
-    parser.add_argument("--api-key",
-                        required=False,
-                        help="DeepAI API key (optional, overrides .env)")
-    parser.add_argument("--character-profile",
-                        default="scripts/data/character_profiles.json",
-                        help="Path to character profile JSON file")
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("assets/illustrations"),
+        help="Directory to save generated images (default: assets/illustrations)",
+    )
+    parser.add_argument(
+        "--api-key", required=False, help="DeepAI API key (optional, overrides .env)"
+    )
+    parser.add_argument(
+        "--character-profile",
+        default="scripts/data/character_profiles.json",
+        help="Path to character profile JSON file",
+    )
     args = parser.parse_args()
 
     prompt_file = Path(args.prompt_file)
@@ -95,11 +104,15 @@ def main():
 
             # Unterstützt Liste oder Einzelwert
             if isinstance(character_key, list):
-                character_desc = ", ".join([character_profiles.get(name, "") for name in character_key])
+                character_desc = ", ".join(
+                    [character_profiles.get(name, "") for name in character_key]
+                )
             else:
                 character_desc = character_profiles.get(character_key, "")
 
-            combined = f"{character_desc}, {base_prompt}" if character_desc else base_prompt
+            combined = (
+                f"{character_desc}, {base_prompt}" if character_desc else base_prompt
+            )
             final_prompt = f"{combined}, {global_style}" if global_style else combined
 
             filename = item.get("filename", "output.png")
@@ -107,8 +120,9 @@ def main():
                 prompt=final_prompt,
                 filename=filename,
                 output_dir=output_dir,
-                api_key=api_key
+                api_key=api_key,
             )
+
 
 if __name__ == "__main__":
     main()

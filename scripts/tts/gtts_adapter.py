@@ -3,6 +3,7 @@ from gtts import gTTS
 from pathlib import Path
 from scripts.tts.base import TTSAdapter
 
+
 class GoogleTTSAdapter(TTSAdapter):
     def __init__(self, lang: str = "en"):
         self.lang = lang

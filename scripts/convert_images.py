@@ -91,7 +91,7 @@ def _split_outside_code(text: str) -> List[Tuple[bool, str]]:
     last = 0
     for m in CODE_FENCE_RE.finditer(text):
         if m.start() > last:
-            segments.append((False, text[last:m.start()]))
+            segments.append((False, text[last : m.start()]))
         segments.append((True, m.group(0)))
         last = m.end()
     if last < len(text):
@@ -106,7 +106,7 @@ def _split_outside_code(text: str) -> List[Tuple[bool, str]]:
             pos = 0
             for im in INLINE_CODE_RE.finditer(seg):
                 if im.start() > pos:
-                    refined.append((False, seg[pos:im.start()]))
+                    refined.append((False, seg[pos : im.start()]))
                 refined.append((True, im.group(0)))
                 pos = im.end()
             if pos < len(seg):
@@ -130,7 +130,9 @@ def _replace_inline(chunk: str, figure_class: str | None) -> Tuple[str, int]:
     return IMG_INLINE_RE.sub(repl, chunk), count
 
 
-def _replace_reference(chunk: str, refs: Dict[str, dict], figure_class: str | None) -> Tuple[str, int]:
+def _replace_reference(
+    chunk: str, refs: Dict[str, dict], figure_class: str | None
+) -> Tuple[str, int]:
     count = 0
 
     def repl(m: re.Match) -> str:
@@ -150,7 +152,11 @@ def _replace_reference(chunk: str, refs: Dict[str, dict], figure_class: str | No
 
 
 def convert_markdown_file(
-    file_path: Path, *, backup: bool = False, dry_run: bool = False, figure_class: str | None = None
+    file_path: Path,
+    *,
+    backup: bool = False,
+    dry_run: bool = False,
+    figure_class: str | None = None,
 ) -> int:
     """Convert a single Markdown file. Returns number of images converted."""
     if not file_path.exists():
@@ -191,21 +197,35 @@ def convert_markdown_file(
 
 
 def convert_markdown_dir(
-    root: Path, *, backup: bool = False, dry_run: bool = False, figure_class: str | None = None
+    root: Path,
+    *,
+    backup: bool = False,
+    dry_run: bool = False,
+    figure_class: str | None = None,
 ) -> int:
     """Recursively process all .md files under root."""
     total = 0
     for file in root.rglob("*.md"):
-        total += convert_markdown_file(file, backup=backup, dry_run=dry_run, figure_class=figure_class)
+        total += convert_markdown_file(
+            file, backup=backup, dry_run=dry_run, figure_class=figure_class
+        )
     return total
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Convert Markdown images to <figure> blocks.")
+    parser = argparse.ArgumentParser(
+        description="Convert Markdown images to <figure> blocks."
+    )
     parser.add_argument("input", help="Markdown file or directory")
-    parser.add_argument("--backup", action="store_true", help="Create .bak backups before writing")
-    parser.add_argument("--dry-run", action="store_true", help="Only count changes, do not write files")
-    parser.add_argument("--figure-class", default=None, help="Optional CSS class for <figure>")
+    parser.add_argument(
+        "--backup", action="store_true", help="Create .bak backups before writing"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Only count changes, do not write files"
+    )
+    parser.add_argument(
+        "--figure-class", default=None, help="Optional CSS class for <figure>"
+    )
 
     # Backward-compat: accept --no-backup but ignore (backups are off by default)
     parser.add_argument("--no-backup", action="store_true", help=argparse.SUPPRESS)
@@ -213,7 +233,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     path = Path(args.input)
-    opts = dict(backup=args.backup, dry_run=args.dry_run, figure_class=args.figure_class)
+    opts = dict(
+        backup=args.backup, dry_run=args.dry_run, figure_class=args.figure_class
+    )
 
     if path.is_file():
         return convert_markdown_file(path, **opts)

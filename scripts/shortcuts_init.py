@@ -24,6 +24,7 @@ from scripts.init_book_project import main as init_book_project_main
 
 # --- Initialization Shortcuts ---
 
+
 def run_init_book_project():
     """Initialize a new book project structure"""
     init_book_project_main()
@@ -41,12 +42,13 @@ available_shortcuts = {
     "run_init_book_project": run_init_book_project,
 }
 
+
 def main():
     """Main CLI dispatcher for shortcuts"""
     parser = argparse.ArgumentParser(
         description="📚 Book Project Shortcut Runner",
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog="\nRun a shortcut like: poetry run shortcuts run_init_book_project"
+        epilog="\nRun a shortcut like: poetry run shortcuts run_init_book_project",
     )
 
     shortcut_names = sorted(available_shortcuts.keys())
@@ -56,7 +58,7 @@ def main():
         "task",
         nargs="?",
         choices=shortcut_names,
-        help=f"Available shortcuts:\n{shortcut_help}"
+        help=f"Available shortcuts:\n{shortcut_help}",
     )
 
     args = parser.parse_args()

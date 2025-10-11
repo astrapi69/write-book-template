@@ -62,7 +62,8 @@ def _restore_segments(text: str, mapping: Dict[str, str]) -> str:
 # URL-like detection
 # -----------------------
 
-URLISH_RE = re.compile(r'^(?:[a-zA-Z][a-zA-Z0-9+.\-]*:|//)')
+URLISH_RE = re.compile(r"^(?:[a-zA-Z][a-zA-Z0-9+.\-]*:|//)")
+
 
 def _is_url_like(target: str) -> bool:
     """Return True if target looks like a URL (http:, https:, data:, mailto:, //cdn, etc.)."""
@@ -72,6 +73,7 @@ def _is_url_like(target: str) -> bool:
 # -----------------------
 # Image tag scanner
 # -----------------------
+
 
 def _find_image_tag(text: str, start: int) -> Optional[Tuple[int, int, str, str]]:
     """
@@ -209,6 +211,7 @@ def _strip_angle_brackets(s: str) -> str:
 # Conversion core
 # -----------------------
 
+
 def _convert_images_in_text(md_text: str, md_file: Path) -> Tuple[str, int]:
     """
     Convert relative image targets inside a single Markdown text to absolute paths.
@@ -249,7 +252,7 @@ def _convert_images_in_text(md_text: str, md_file: Path) -> Tuple[str, int]:
         if abs_candidate.exists():
             converted += 1
             # title_part already includes leading space if present
-            out_parts.append(f'![{alt}]({abs_candidate}{title_part})')
+            out_parts.append(f"![{alt}]({abs_candidate}{title_part})")
         else:
             # leave untouched
             out_parts.append(protected[tag_start:tag_end])
@@ -264,6 +267,7 @@ def _convert_images_in_text(md_text: str, md_file: Path) -> Tuple[str, int]:
 # -----------------------
 # Public API
 # -----------------------
+
 
 def convert_file_to_absolute(md_file: Path) -> Tuple[bool, int]:
     """
@@ -283,6 +287,7 @@ DEFAULT_DIRECTORIES = [
     Path("manuscript") / "front-matter",
     Path("manuscript") / "back-matter",
 ]
+
 
 def convert_to_absolute(directories: Iterable[Path]) -> Tuple[int, int]:
     """
@@ -310,7 +315,9 @@ def convert_to_absolute(directories: Iterable[Path]) -> Tuple[int, int]:
                 images_converted += count
 
     if files_changed:
-        print(f"✅ Updated {files_changed} file(s), converted {images_converted} image path(s) to absolute.")
+        print(
+            f"✅ Updated {files_changed} file(s), converted {images_converted} image path(s) to absolute."
+        )
     else:
         print("ℹ️ No changes made (no convertible relative image paths found).")
 
@@ -320,6 +327,7 @@ def convert_to_absolute(directories: Iterable[Path]) -> Tuple[int, int]:
 # -----------------------
 # CLI
 # -----------------------
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(

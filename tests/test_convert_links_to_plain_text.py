@@ -3,12 +3,14 @@ from pathlib import Path
 from scripts.convert_links_to_plain_text import (
     convert_links_in_text,
     convert_file,
-    convert_many
+    convert_many,
 )
+
 
 def write(p: Path, text: str):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(text, encoding="utf-8")
+
 
 def test_basic_link_conversion():
     text = "Visit [Example](https://example.com) now."
@@ -16,11 +18,13 @@ def test_basic_link_conversion():
     assert n == 1
     assert out == "Visit Example: https://example.com now."
 
+
 def test_skip_images_and_anchor_links():
     text = "![Img](pic.png) and [anchor](#section)"
     out, n = convert_links_in_text(text)
     assert n == 0
     assert out == text
+
 
 def test_skip_links_in_code():
     code = "```\n[Link](https://secret.com)\n``` and `[Another](https://skip.com)`"
@@ -28,6 +32,7 @@ def test_skip_links_in_code():
     assert n == 0
     assert "[Link]" in out
     assert "[Another]" in out
+
 
 def test_file_and_many_conversion(tmp_path: Path):
     f1 = tmp_path / "file1.md"

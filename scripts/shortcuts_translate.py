@@ -16,6 +16,7 @@ SUPPORTED_LANGS = {
 
 # --- Translation Shortcuts ---
 
+
 def translate():
     """
     CLI command to translate a manuscript using DeepL
@@ -25,18 +26,24 @@ def translate():
         description="Translate a manuscript from one language to another using DeepL"
     )
     parser.add_argument(
-        "--from", dest="source", required=True,
+        "--from",
+        dest="source",
+        required=True,
         choices=SUPPORTED_LANGS.keys(),
-        help=f"Source language code ({', '.join(SUPPORTED_LANGS.keys())})"
+        help=f"Source language code ({', '.join(SUPPORTED_LANGS.keys())})",
     )
     parser.add_argument(
-        "--to", dest="target", required=True,
+        "--to",
+        dest="target",
+        required=True,
         choices=SUPPORTED_LANGS.keys(),
-        help=f"Target language code ({', '.join(SUPPORTED_LANGS.keys())})"
+        help=f"Target language code ({', '.join(SUPPORTED_LANGS.keys())})",
     )
     parser.add_argument(
-        "--dir", dest="base_dir", default="manuscript",
-        help="Directory containing Markdown files (default: manuscript)"
+        "--dir",
+        dest="base_dir",
+        default="manuscript",
+        help="Directory containing Markdown files (default: manuscript)",
     )
 
     args = parser.parse_args()
@@ -45,14 +52,19 @@ def translate():
         print(f"❌ Source and target languages must differ: both are '{args.source}'")
         sys.exit(1)
 
-    print(f"🌍 Translating from {SUPPORTED_LANGS[args.source]} → {SUPPORTED_LANGS[args.target]}")
+    print(
+        f"🌍 Translating from {SUPPORTED_LANGS[args.source]} → {SUPPORTED_LANGS[args.target]}"
+    )
     print(f"📂 Folder: {args.base_dir}\n")
 
     sys.argv = [
         "translate-book-deepl",
-        "--base-dir", args.base_dir,
-        "--source-lang", args.source,
-        "--target-lang", args.target,
+        "--base-dir",
+        args.base_dir,
+        "--source-lang",
+        args.source,
+        "--target-lang",
+        args.target,
     ]
     export_translate_book_deepl_main()
 
@@ -67,9 +79,12 @@ def translate_manuscript(source: str, target: str, base_dir: str):
     """
     sys.argv = [
         "translate-book-deepl",
-        "--base-dir", base_dir,
-        "--source-lang", source,
-        "--target-lang", target,
+        "--base-dir",
+        base_dir,
+        "--source-lang",
+        source,
+        "--target-lang",
+        target,
     ]
     export_translate_book_deepl_main()
 

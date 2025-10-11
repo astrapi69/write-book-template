@@ -35,7 +35,9 @@ def make_dummy_scripts(scripts_dir: Path) -> None:
     )
 
     # Optional extras (not actually invoked by current pipeline)
-    (scripts_dir / "convert_links_to_plain_text.py").write_text("pass\n", encoding="utf-8")
+    (scripts_dir / "convert_links_to_plain_text.py").write_text(
+        "pass\n", encoding="utf-8"
+    )
     (scripts_dir / "strip_links.py").write_text("pass\n", encoding="utf-8")
 
 
@@ -44,7 +46,12 @@ def _is_python_invocation(cmd: list[str]) -> bool:
     if not cmd:
         return False
     head = cmd[0]
-    return head.endswith("python") or head.endswith("python3") or head.endswith("python.exe") or "python" in head
+    return (
+        head.endswith("python")
+        or head.endswith("python3")
+        or head.endswith("python.exe")
+        or "python" in head
+    )
 
 
 def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
@@ -68,11 +75,16 @@ def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
     # Verify order: one python invocation (full_export_book) and a git restore at the end
     py = [c for c in calls if _is_python_invocation(c)]
     assert len(py) == 1, f"Expected exactly one python call, got {len(py)}: {calls}"
-    assert py[0][1].endswith("full_export_book.py"), f"Expected full_export_book.py, got: {py[0]}"
+    assert py[0][1].endswith(
+        "full_export_book.py"
+    ), f"Expected full_export_book.py, got: {py[0]}"
 
     git = [c for c in calls if c and c[0] == "git"]
     assert git, "Expected a git call to restore working tree"
-    assert git[-1][1:] == ["restore", "."], f"Expected final git call to be 'restore .', got: {git[-1]}"
+    assert git[-1][1:] == [
+        "restore",
+        ".",
+    ], f"Expected final git call to be 'restore .', got: {git[-1]}"
 
     out, _ = capsys.readouterr()
     assert "Print version EPUB successfully generated" in out

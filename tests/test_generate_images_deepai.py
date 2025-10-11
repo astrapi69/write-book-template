@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from types import SimpleNamespace
 
-import pytest
 import requests
 
 import scripts.generate_images_deepai as mod
@@ -34,7 +32,9 @@ class FakeSession:
         self.get_calls = []
 
     def post(self, url, data=None, headers=None, timeout=None):
-        self.post_calls.append({"url": url, "data": data, "headers": headers, "timeout": timeout})
+        self.post_calls.append(
+            {"url": url, "data": data, "headers": headers, "timeout": timeout}
+        )
         return self._post_resp
 
     def get(self, url, timeout=None):
@@ -56,7 +56,9 @@ def test_build_prompt_single_character_and_style():
 
 def test_build_prompt_multiple_characters_and_missing():
     profiles = {"Timmy": "Timmy brave", "Boronius": "Boronius wise"}
-    final = mod.build_prompt("in a cave", ["Timmy", "Unknown", "Boronius"], profiles, None)
+    final = mod.build_prompt(
+        "in a cave", ["Timmy", "Unknown", "Boronius"], profiles, None
+    )
     # Unknown is omitted; order preserved
     assert final == "Timmy brave, Boronius wise, in a cave"
 
@@ -153,10 +155,20 @@ def test_main_happy_path(monkeypatch, tmp_path):
     prompts = {
         "style": "cinematic",
         "chapters": [
-            {"prompts": [
-                {"prompt": "scene one", "character": "Timmy", "filename": "img1.png"},
-                {"prompt": "scene two", "character": ["Timmy", "Boronius"], "filename": "img2.png"},
-            ]}
+            {
+                "prompts": [
+                    {
+                        "prompt": "scene one",
+                        "character": "Timmy",
+                        "filename": "img1.png",
+                    },
+                    {
+                        "prompt": "scene two",
+                        "character": ["Timmy", "Boronius"],
+                        "filename": "img2.png",
+                    },
+                ]
+            }
         ],
     }
     prompt_file = tmp_path / "prompts.json"
@@ -178,11 +190,16 @@ def test_main_happy_path(monkeypatch, tmp_path):
     monkeypatch.setattr(mod, "generate_image", fake_generate_image)
     monkeypatch.setenv("DEEPAI_API_KEY", "abc123")
 
-    rc = mod.main([
-        "--prompt-file", str(prompt_file),
-        "--output-dir", str(tmp_path / "out"),
-        "--character-profile", str(char_file),
-    ])
+    rc = mod.main(
+        [
+            "--prompt-file",
+            str(prompt_file),
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--character-profile",
+            str(char_file),
+        ]
+    )
 
     assert rc == 0
     assert len(called) == 2
@@ -243,13 +260,17 @@ def test_invalid_json_logged(tmp_path, caplog):
 def test_make_config_missing_prompt_file(tmp_path, monkeypatch, caplog):
     caplog.set_level("ERROR")
     monkeypatch.setenv("DEEPAI_API_KEY", "abc")
-    args = type("A", (), {
-        "prompt_file": str(tmp_path / "nope.json"),
-        "output_dir": tmp_path / "out",
-        "api_key": None,
-        "character_profile": str(tmp_path / "chars.json"),
-        "overwrite": False,
-    })()
+    args = type(
+        "A",
+        (),
+        {
+            "prompt_file": str(tmp_path / "nope.json"),
+            "output_dir": tmp_path / "out",
+            "api_key": None,
+            "character_profile": str(tmp_path / "chars.json"),
+            "overwrite": False,
+        },
+    )()
     cfg = mod.make_config(args)
     assert cfg is None
     assert "Prompt file does not exist" in caplog.text
@@ -282,24 +303,42 @@ def test_prompt_building_edge_cases():
 def test_main_returns_failure_if_any_generation_fails(tmp_path, monkeypatch):
     # prompt file
     pf = tmp_path / "p.json"
-    pf.write_text(json.dumps({
-        "chapters": [{"prompts": [{"prompt": "a", "filename": "a.png"},
-                                  {"prompt": "b", "filename": "b.png"}]}]
-    }), encoding="utf-8")
+    pf.write_text(
+        json.dumps(
+            {
+                "chapters": [
+                    {
+                        "prompts": [
+                            {"prompt": "a", "filename": "a.png"},
+                            {"prompt": "b", "filename": "b.png"},
+                        ]
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
     # chars
     cf = tmp_path / "c.json"
     cf.write_text("{}", encoding="utf-8")
     # fake generator: first ok, second fails
     calls = []
+
     def fake_gen(**kw):
         calls.append(kw)
         return len(calls) == 1
+
     monkeypatch.setattr(mod, "generate_image", fake_gen)
     monkeypatch.setenv("DEEPAI_API_KEY", "K")
 
-    rc = mod.main([
-        "--prompt-file", str(pf),
-        "--character-profile", str(cf),
-        "--output-dir", str(tmp_path / "out"),
-    ])
+    rc = mod.main(
+        [
+            "--prompt-file",
+            str(pf),
+            "--character-profile",
+            str(cf),
+            "--output-dir",
+            str(tmp_path / "out"),
+        ]
+    )
     assert rc == 1

@@ -26,13 +26,12 @@ Usage examples:
 from __future__ import annotations
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 
 # Optional fancy prompts
 try:
@@ -41,7 +40,9 @@ except Exception:
     questionary = None  # graceful fallback to input()
 
 # Improved default pretty format that enables reliable filtering
-DEFAULT_PRETTY_FORMAT = "--pretty=format:commit %H%nAuthor: %an <%ae>%nDate: %ad%nSubject: %s%n%n%b%n"
+DEFAULT_PRETTY_FORMAT = (
+    "--pretty=format:commit %H%nAuthor: %an <%ae>%nDate: %ad%nSubject: %s%n%n%b%n"
+)
 
 # Template configurations
 TEMPLATES = {
@@ -51,10 +52,10 @@ TEMPLATES = {
             "**Content & Style**",
             "**Imagery & Accessibility**",
             "**Structure & Typography**",
-            "**Metadata & Build**"
+            "**Metadata & Build**",
         ],
         "audience": "Readers of the German edition (non‑technical, okay with brief technical notes)",
-        "conclusion": "Conclude with one sentence on the release purpose (production‑ready, accessibility, cohesion)."
+        "conclusion": "Conclude with one sentence on the release purpose (production‑ready, accessibility, cohesion).",
     },
     "en": {
         "title_template": "Version {version_label} — <brief summary>",
@@ -62,15 +63,17 @@ TEMPLATES = {
             "**Features & Content**",
             "**User Experience**",
             "**Technical Improvements**",
-            "**Infrastructure & Build**"
+            "**Infrastructure & Build**",
         ],
         "audience": "End users and technical stakeholders",
-        "conclusion": "Conclude with one sentence on the release's main value proposition."
-    }
+        "conclusion": "Conclude with one sentence on the release's main value proposition.",
+    },
 }
 
 
-def get_template_prompt(template_name: str, branch: str, tag: str, version_label: str, git_log: str) -> str:
+def get_template_prompt(
+    template_name: str, branch: str, tag: str, version_label: str, git_log: str
+) -> str:
     """Generate prompt using specified template."""
     template = TEMPLATES.get(template_name, TEMPLATES["de"])
 
@@ -107,15 +110,29 @@ class GitOperations:
     @staticmethod
     def run(cmd: List[str], cwd: Optional[str] = None) -> str:
         """Run git command with proper error handling."""
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, text=True, encoding="utf-8")
+        res = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=cwd,
+            text=True,
+            encoding="utf-8",
+        )
         if res.returncode != 0:
             raise RuntimeError(f"Command failed: {' '.join(cmd)}\n{res.stderr}")
         return res.stdout.strip()
 
     @classmethod
-    def get_log(cls, branch: str, rev_range: Optional[str], pretty: str,
-                include_patches: bool, extra_args: List[str], max_commits: Optional[int] = None,
-                patches_mode: Optional[str] = None) -> str:
+    def get_log(
+        cls,
+        branch: str,
+        rev_range: Optional[str],
+        pretty: str,
+        include_patches: bool,
+        extra_args: List[str],
+        max_commits: Optional[int] = None,
+        patches_mode: Optional[str] = None,
+    ) -> str:
         """Get git log with optional commit limit and patch modes."""
         base_cmd = ["git", "log", pretty]
         if include_patches:
@@ -159,7 +176,9 @@ class GitOperations:
         """Check if tag exists on remote."""
         try:
             # Check for both refs/tags/<tag> and <tag> patterns for robustness
-            out = cls.run(["git", "ls-remote", "--tags", remote, f"refs/tags/{tag}", tag])
+            out = cls.run(
+                ["git", "ls-remote", "--tags", remote, f"refs/tags/{tag}", tag]
+            )
             return bool(out.strip())
         except RuntimeError:
             return False
@@ -257,46 +276,66 @@ class LogProcessor:
         commits = []
         current_commit = {}
 
-        for line in log_text.split('\n'):
+        for line in log_text.split("\n"):
             line = line.strip()
-            if line.startswith('commit '):
+            if line.startswith("commit "):
                 if current_commit:
                     commits.append(current_commit)
-                current_commit = {'hash': line.split()[1], 'subject': '', 'author': '', 'date': ''}
-            elif line.startswith('Author: '):
-                current_commit['author'] = line[8:]
-            elif line.startswith('Date: '):
-                current_commit['date'] = line[6:]
-            elif line.startswith('Subject: '):
-                current_commit['subject'] = line[9:]
-            elif not current_commit.get('subject') and line and not line.startswith(('Author:', 'Date:')):
+                current_commit = {
+                    "hash": line.split()[1],
+                    "subject": "",
+                    "author": "",
+                    "date": "",
+                }
+            elif line.startswith("Author: "):
+                current_commit["author"] = line[8:]
+            elif line.startswith("Date: "):
+                current_commit["date"] = line[6:]
+            elif line.startswith("Subject: "):
+                current_commit["subject"] = line[9:]
+            elif (
+                not current_commit.get("subject")
+                and line
+                and not line.startswith(("Author:", "Date:"))
+            ):
                 # Fallback for subject extraction
-                current_commit['subject'] = line
+                current_commit["subject"] = line
 
         if current_commit:
             commits.append(current_commit)
 
         # Simple categorization based on subject keywords
         categories = {
-            'content_style': [],
-            'imagery_accessibility': [],
-            'structure_typography': [],
-            'metadata_build': [],
-            'other': []
+            "content_style": [],
+            "imagery_accessibility": [],
+            "structure_typography": [],
+            "metadata_build": [],
+            "other": [],
         }
 
         for commit in commits:
-            subject_lower = commit['subject'].lower()
-            if any(word in subject_lower for word in ['content', 'text', 'style', 'css']):
-                categories['content_style'].append(commit)
-            elif any(word in subject_lower for word in ['image', 'img', 'accessibility', 'a11y', 'alt']):
-                categories['imagery_accessibility'].append(commit)
-            elif any(word in subject_lower for word in ['structure', 'layout', 'typography', 'font']):
-                categories['structure_typography'].append(commit)
-            elif any(word in subject_lower for word in ['build', 'ci', 'deploy', 'config', 'meta']):
-                categories['metadata_build'].append(commit)
+            subject_lower = commit["subject"].lower()
+            if any(
+                word in subject_lower for word in ["content", "text", "style", "css"]
+            ):
+                categories["content_style"].append(commit)
+            elif any(
+                word in subject_lower
+                for word in ["image", "img", "accessibility", "a11y", "alt"]
+            ):
+                categories["imagery_accessibility"].append(commit)
+            elif any(
+                word in subject_lower
+                for word in ["structure", "layout", "typography", "font"]
+            ):
+                categories["structure_typography"].append(commit)
+            elif any(
+                word in subject_lower
+                for word in ["build", "ci", "deploy", "config", "meta"]
+            ):
+                categories["metadata_build"].append(commit)
             else:
-                categories['other'].append(commit)
+                categories["other"].append(commit)
 
         return categories
 
@@ -326,11 +365,15 @@ def preflight_checks(args: argparse.Namespace) -> List[str]:
     if GitOperations.tag_exists_remote(args.tag):
         issues.append(f"⚠️  Tag '{args.tag}' already exists on remote")
         # Add remediation guidance
-        issues.append(f"    💡 To fix: git tag -d {args.tag} && git push --delete origin {args.tag}")
+        issues.append(
+            f"    💡 To fix: git tag -d {args.tag} && git push --delete origin {args.tag}"
+        )
 
     # Check message file if creating tag
     if args.create_tag:
-        message_file = Path(args.message_file or f"{args.output_dir}/TAGMSG_{args.tag}.txt")
+        message_file = Path(
+            args.message_file or f"{args.output_dir}/TAGMSG_{args.tag}.txt"
+        )
         if not message_file.exists():
             issues.append(f"❌ Message file not found: {message_file}")
         elif message_file.stat().st_size == 0:
@@ -340,7 +383,9 @@ def preflight_checks(args: argparse.Namespace) -> List[str]:
     if args.rev_range:
         commit_count = GitOperations.count_commits(args.rev_range)
         if commit_count > 1000:
-            issues.append(f"⚠️  Large commit range: {commit_count} commits (consider --max-commits)")
+            issues.append(
+                f"⚠️  Large commit range: {commit_count} commits (consider --max-commits)"
+            )
         elif commit_count == 0:
             issues.append(f"❌ No commits found in range: {args.rev_range}")
 
@@ -354,7 +399,9 @@ def ask_text(prompt: str, default: Optional[str] = None, validate=None) -> str:
         if ans is None:
             raise SystemExit("Aborted.")
     else:
-        ans = input(f"{prompt} " + (f"[{default}] " if default else "")).strip() or (default or "")
+        ans = input(f"{prompt} " + (f"[{default}] " if default else "")).strip() or (
+            default or ""
+        )
     if validate:
         validate(ans)
     return ans
@@ -399,30 +446,94 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description="Generate AI-ready tag message prompt from git history and (optionally) create the tag."
     )
-    ap.add_argument("--interactive", action="store_true", help="Prompt for missing values and confirmations.")
-    ap.add_argument("--dry-run", action="store_true", help="Show what would be done without executing.")
-    ap.add_argument("--branch", default=None, help="Branch to read history from (default: develop-de)")
+    ap.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Prompt for missing values and confirmations.",
+    )
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without executing.",
+    )
+    ap.add_argument(
+        "--branch",
+        default=None,
+        help="Branch to read history from (default: develop-de)",
+    )
     ap.add_argument("--tag", help="Tag name to prepare (e.g., v1.6.1-de)")
-    ap.add_argument("--range", dest="rev_range", help="Git rev range (e.g., v1.6.0-de..develop-de).")
-    ap.add_argument("--since-tag", help="Use 'auto' to auto-detect last tag, or specify tag name.")
-    ap.add_argument("--pretty", default=DEFAULT_PRETTY_FORMAT,
-                    help=f"git log pretty format (default: reliable format for filtering)")
-    ap.add_argument("--patches", choices=["none", "brief", "full"], default="none",
-                    help="Include diffs: none, brief (-U1), or full (-p).")
-    ap.add_argument("--max-commits", type=int, help="Maximum number of commits to include (default: unlimited).")
-    ap.add_argument("--since", help='Only include commits since date (e.g., "2025-08-01").')
-    ap.add_argument("--exclude", nargs="*", default=["chore", "merge", "wip"],
-                    help="Case-insensitive subject substrings to exclude.")
-    ap.add_argument("--output-dir", default="dist/releases", help="Where to write files (default: dist/releases)")
-    ap.add_argument("--template", choices=list(TEMPLATES.keys()), default="de",
-                    help="Template to use for prompt generation.")
-    ap.add_argument("--template-file", help="Custom template file path (overrides --template).")
-    ap.add_argument("--emit-json", action="store_true", help="Also emit JSON categorized commit summary.")
-    ap.add_argument("--message-file", help="If set with --create-tag, read the tag message from this file.")
-    ap.add_argument("--create-tag", action="store_true", help="Create the annotated tag from the message file.")
-    ap.add_argument("--push", action="store_true", help="Push the created tag to origin.")
-    ap.add_argument("--auto-stub", action="store_true", help="Create empty TAGMSG_<tag>.txt stub file for convenience.")
-    ap.add_argument("--force-stub", action="store_true", help="Overwrite existing TAGMSG_<tag>.txt stub file.")
+    ap.add_argument(
+        "--range", dest="rev_range", help="Git rev range (e.g., v1.6.0-de..develop-de)."
+    )
+    ap.add_argument(
+        "--since-tag", help="Use 'auto' to auto-detect last tag, or specify tag name."
+    )
+    ap.add_argument(
+        "--pretty",
+        default=DEFAULT_PRETTY_FORMAT,
+        help="git log pretty format (default: reliable format for filtering)",
+    )
+    ap.add_argument(
+        "--patches",
+        choices=["none", "brief", "full"],
+        default="none",
+        help="Include diffs: none, brief (-U1), or full (-p).",
+    )
+    ap.add_argument(
+        "--max-commits",
+        type=int,
+        help="Maximum number of commits to include (default: unlimited).",
+    )
+    ap.add_argument(
+        "--since", help='Only include commits since date (e.g., "2025-08-01").'
+    )
+    ap.add_argument(
+        "--exclude",
+        nargs="*",
+        default=["chore", "merge", "wip"],
+        help="Case-insensitive subject substrings to exclude.",
+    )
+    ap.add_argument(
+        "--output-dir",
+        default="dist/releases",
+        help="Where to write files (default: dist/releases)",
+    )
+    ap.add_argument(
+        "--template",
+        choices=list(TEMPLATES.keys()),
+        default="de",
+        help="Template to use for prompt generation.",
+    )
+    ap.add_argument(
+        "--template-file", help="Custom template file path (overrides --template)."
+    )
+    ap.add_argument(
+        "--emit-json",
+        action="store_true",
+        help="Also emit JSON categorized commit summary.",
+    )
+    ap.add_argument(
+        "--message-file",
+        help="If set with --create-tag, read the tag message from this file.",
+    )
+    ap.add_argument(
+        "--create-tag",
+        action="store_true",
+        help="Create the annotated tag from the message file.",
+    )
+    ap.add_argument(
+        "--push", action="store_true", help="Push the created tag to origin."
+    )
+    ap.add_argument(
+        "--auto-stub",
+        action="store_true",
+        help="Create empty TAGMSG_<tag>.txt stub file for convenience.",
+    )
+    ap.add_argument(
+        "--force-stub",
+        action="store_true",
+        help="Overwrite existing TAGMSG_<tag>.txt stub file.",
+    )
     return ap
 
 
@@ -433,7 +544,7 @@ def resolve_since_tag(args: argparse.Namespace) -> None:
         pattern = None
         if args.tag:
             # Extract pattern like "*-de" from "v1.6.1-de"
-            match = re.search(r'(.+?)(\d+\.\d+\.\d+)(.+)', args.tag)
+            match = re.search(r"(.+?)(\d+\.\d+\.\d+)(.+)", args.tag)
             if match:
                 prefix, _, suffix = match.groups()
                 pattern = f"{prefix}*{suffix}"
@@ -447,7 +558,7 @@ def resolve_since_tag(args: argparse.Namespace) -> None:
                 cmd = ["git", "tag", "--list", pattern, "--sort=-creatordate"]
                 result = GitOperations.run(cmd)
                 if result:
-                    last_tag = result.split('\n')[0]
+                    last_tag = result.split("\n")[0]
             except RuntimeError:
                 pass
 
@@ -459,7 +570,7 @@ def resolve_since_tag(args: argparse.Namespace) -> None:
             args.rev_range = f"{last_tag}..{branch}"
             print(f"🔍 Auto-detected range: {args.rev_range}")
         else:
-            print(f"⚠️  No previous tag found, using full branch history")
+            print("⚠️  No previous tag found, using full branch history")
 
 
 def fill_from_interactive(args: argparse.Namespace) -> argparse.Namespace:
@@ -469,14 +580,23 @@ def fill_from_interactive(args: argparse.Namespace) -> argparse.Namespace:
 
     # Ask core parameters
     args.branch = ask_text("Branch:", default=default_branch)
-    args.tag = ask_text("Tag (e.g., v1.6.1-de):", default=args.tag or "", validate=validate_tag)
+    args.tag = ask_text(
+        "Tag (e.g., v1.6.1-de):", default=args.tag or "", validate=validate_tag
+    )
 
     # Template selection
     if len(TEMPLATES) > 1:
-        args.template = ask_choice("Template:", list(TEMPLATES.keys()), default=args.template)
+        args.template = ask_choice(
+            "Template:", list(TEMPLATES.keys()), default=args.template
+        )
 
     # Range selection
-    range_options = ["Full branch history", "Since last tag (auto)", "Custom range", "Since date"]
+    range_options = [
+        "Full branch history",
+        "Since last tag (auto)",
+        "Custom range",
+        "Since date",
+    ]
     range_choice = ask_choice("Commit range:", range_options, default=range_options[0])
 
     if range_choice == "Since last tag (auto)":
@@ -489,7 +609,9 @@ def fill_from_interactive(args: argparse.Namespace) -> argparse.Namespace:
     # Advanced options
     if ask_confirm("Configure advanced options?", default=False):
         if ask_confirm("Include patches for precision?", default=False):
-            args.patches = ask_choice("Patch detail:", ["brief", "full"], default="brief")
+            args.patches = ask_choice(
+                "Patch detail:", ["brief", "full"], default="brief"
+            )
 
         if ask_confirm("Limit number of commits?", default=False):
             args.max_commits = int(ask_text("Max commits:", default="100"))
@@ -515,14 +637,18 @@ def main():
     args = parser.parse_args()
 
     # Interactive fill-in if requested or if crucial values are missing
-    need_prompt = args.interactive or (sys.stdin.isatty() and (not args.tag or not args.branch))
+    need_prompt = args.interactive or (
+        sys.stdin.isatty() and (not args.tag or not args.branch)
+    )
     if need_prompt:
         args = fill_from_interactive(args)
     else:
         # Non-interactive defaults
         args.branch = args.branch or "develop-de"
         if not args.tag:
-            parser.error("--tag is required in non-interactive mode. Use --interactive to be prompted.")
+            parser.error(
+                "--tag is required in non-interactive mode. Use --interactive to be prompted."
+            )
 
     validate_tag(args.tag)
 
@@ -548,7 +674,7 @@ def main():
 
     # Setup paths
     out_dir = Path(args.output_dir)
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    _ = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     def _sanitize_filename(name: str) -> str:
         """Sanitize filename component to avoid filesystem issues."""
@@ -573,7 +699,9 @@ def main():
         if args.auto_stub:
             print(f"  📄 Stub file    : {tagmsg_path}")
         if args.create_tag:
-            print(f"  🏷️  Create tag   : {args.tag} from {args.message_file or tagmsg_path}")
+            print(
+                f"  🏷️  Create tag   : {args.tag} from {args.message_file or tagmsg_path}"
+            )
             if args.push:
                 print(f"  📤 Push tag     : {args.tag} to origin")
         return
@@ -603,7 +731,7 @@ def main():
         include_patches=include_patches,
         extra_args=extra_args,
         max_commits=args.max_commits,
-        patches_mode=args.patches if include_patches else None
+        patches_mode=args.patches if include_patches else None,
     )
 
     # Filter log
@@ -612,7 +740,9 @@ def main():
     write_file(history_path, filtered)
 
     # Generate prompt
-    version_label = args.tag.replace("v", "", 1) if args.tag.startswith("v") else args.tag
+    version_label = (
+        args.tag.replace("v", "", 1) if args.tag.startswith("v") else args.tag
+    )
 
     if args.template_file:
         # Load custom template
@@ -621,36 +751,44 @@ def main():
             branch=args.branch,
             tag=args.tag,
             version_label=version_label,
-            git_log=filtered.strip()
+            git_log=filtered.strip(),
         )
     else:
-        prompt = get_template_prompt(args.template, args.branch, args.tag, version_label, filtered.strip())
+        prompt = get_template_prompt(
+            args.template, args.branch, args.tag, version_label, filtered.strip()
+        )
 
     # Add max-commits note if truncated
     if args.max_commits:
-        prompt = f"_Note: Output limited to {args.max_commits} most recent commits for brevity._\n\n" + prompt
+        prompt = (
+            f"_Note: Output limited to {args.max_commits} most recent commits for brevity._\n\n"
+            + prompt
+        )
 
     write_file(prompt_path, prompt)
 
     # Generate JSON summary if requested
     if args.emit_json:
-        print(f"📊 Generating JSON commit summary...")
+        print("📊 Generating JSON commit summary...")
         categories = LogProcessor.categorize_commits(filtered)
         json_summary = {
             "tag": args.tag,
             "branch": args.branch,
             "timestamp": datetime.now().isoformat(),
             "total_commits": sum(len(commits) for commits in categories.values()),
-            "categories": categories
+            "categories": categories,
         }
         write_file(json_path, json.dumps(json_summary, indent=2))
 
     # Create stub file if requested
     if args.auto_stub and (not tagmsg_path.exists() or args.force_stub):
-        write_file(tagmsg_path, f"# Tag message for {args.tag}\n# Paste AI-generated content here\n")
+        write_file(
+            tagmsg_path,
+            f"# Tag message for {args.tag}\n# Paste AI-generated content here\n",
+        )
 
     # Output summary
-    print(f"\n✅ Generated files:")
+    print("\n✅ Generated files:")
     print(f"  📝 History: {history_path}")
     print(f"  🤖 AI Prompt: {prompt_path}")
     if args.emit_json:
@@ -658,11 +796,11 @@ def main():
     if args.auto_stub and tagmsg_path.exists():
         print(f"  📄 Message Stub: {tagmsg_path}")
 
-    print(f"\n💡 Next steps:")
+    print("\n💡 Next steps:")
     print(f"  1. Copy the prompt from {prompt_path.name}")
-    print(f"  2. Paste into your AI assistant")
+    print("  2. Paste into your AI assistant")
     print(f"  3. Save the AI output to {tagmsg_path.name}")
-    print(f"  4. Run with --create-tag --push to finalize")
+    print("  4. Run with --create-tag --push to finalize")
 
     # Tag creation flow
     if args.create_tag:
@@ -674,19 +812,28 @@ def main():
             )
 
         if message_file.stat().st_size < 10:  # Basic non-empty check
-            raise SystemExit(f"Message file appears to be empty or too small: {message_file}")
+            raise SystemExit(
+                f"Message file appears to be empty or too small: {message_file}"
+            )
 
         # Final confirmation
         if args.interactive:
-            if not ask_confirm(f"Create tag {args.tag} at {args.branch} using {message_file}?", default=True):
+            if not ask_confirm(
+                f"Create tag {args.tag} at {args.branch} using {message_file}?",
+                default=True,
+            ):
                 raise SystemExit("Aborted before tag creation.")
 
         print(f"🏷️  Creating tag {args.tag}...")
-        GitOperations.run(["git", "tag", "-a", args.tag, "-F", str(message_file), args.branch])
+        GitOperations.run(
+            ["git", "tag", "-a", args.tag, "-F", str(message_file), args.branch]
+        )
         print(f"✅ Created tag {args.tag} at {args.branch}")
 
         if args.push:
-            if args.interactive and not ask_confirm(f"Push tag {args.tag} to origin?", default=True):
+            if args.interactive and not ask_confirm(
+                f"Push tag {args.tag} to origin?", default=True
+            ):
                 print("Skipped push.")
             else:
                 print(f"📤 Pushing tag {args.tag}...")

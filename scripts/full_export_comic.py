@@ -1,5 +1,4 @@
 # scripts/full_export_comic.py
-import os
 import re
 import sys
 import subprocess
@@ -65,7 +64,9 @@ def combine_html_chapters(
     with output_path.open("w", encoding="utf-8") as outfile:
         outfile.write(f'<!DOCTYPE html>\n<html lang="{lang}">\n<head>\n')
         outfile.write('  <meta charset="UTF-8">\n')
-        outfile.write('  <meta name="viewport" content="width=device-width, initial-scale=1">\n')
+        outfile.write(
+            '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        )
         outfile.write(f"  <title>{title}</title>\n")
         outfile.write(f'  <link rel="stylesheet" href="{stylesheet_path}">\n')
         outfile.write("</head>\n<body>\n")
@@ -75,9 +76,9 @@ def combine_html_chapters(
             body = _extract_body(html_text).strip()
             if body:
                 # Add a marker for debugging/anchoring (does not affect layout)
-                outfile.write(f'<!-- BEGIN {chapter_file.name} -->\n')
+                outfile.write(f"<!-- BEGIN {chapter_file.name} -->\n")
                 outfile.write(body)
-                outfile.write(f'\n<!-- END {chapter_file.name} -->\n\n')
+                outfile.write(f"\n<!-- END {chapter_file.name} -->\n\n")
 
         outfile.write("</body>\n</html>\n")
 
@@ -147,9 +148,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--stylesheet", type=str, default="config/comic.css", help="Pfad zur CSS-Datei"
     )
-    parser.add_argument("--title", type=str, default="Die Nasenbohrer-Chroniken", help="Titel der Seite")
-    parser.add_argument("--lang", type=str, default="de", help="Sprache der Seite (lang-Attribut)")
-    parser.add_argument("--pdf", action="store_true", help="Auch ein PDF mit Pandoc erzeugen")
+    parser.add_argument(
+        "--title", type=str, default="Die Nasenbohrer-Chroniken", help="Titel der Seite"
+    )
+    parser.add_argument(
+        "--lang", type=str, default="de", help="Sprache der Seite (lang-Attribut)"
+    )
+    parser.add_argument(
+        "--pdf", action="store_true", help="Auch ein PDF mit Pandoc erzeugen"
+    )
     return parser
 
 

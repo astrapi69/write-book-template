@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import importlib
 
+
 def test_resolve_ext_for_markdown_and_others(monkeypatch):
     """
     Verifies:
@@ -16,6 +17,7 @@ def test_resolve_ext_for_markdown_and_others(monkeypatch):
 
     # Prevent chdir side-effects during import
     import os
+
     monkeypatch.setattr(os, "chdir", lambda _p: None)
 
     feb = importlib.import_module("scripts.full_export_book")
@@ -36,6 +38,7 @@ def test_resolve_ext_for_markdown_and_others(monkeypatch):
     assert feb.resolve_ext("epub", None) == feb.FORMATS["epub"]
     assert feb.resolve_ext("docx", None) == feb.FORMATS["docx"]
 
+
 def test_validator_path_uses_resolved_ext(monkeypatch, tmp_path):
     """
     Simulate how the exporter computes output paths for validation.
@@ -45,6 +48,7 @@ def test_validator_path_uses_resolved_ext(monkeypatch, tmp_path):
     sys.path.insert(0, str(repo_root))
 
     import os
+
     monkeypatch.setattr(os, "chdir", lambda _p: None)
     feb = importlib.import_module("scripts.full_export_book")
 
@@ -69,13 +73,13 @@ def test_validator_path_uses_resolved_ext(monkeypatch, tmp_path):
     assert out_path("docx").name == "mybook-ebook.docx"
 
 
-
 def test_resolve_ext_and_paths(monkeypatch, tmp_path):
     repo_root = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(repo_root))
 
     # neutralize chdir side-effects in module import
     import os
+
     monkeypatch.setattr(os, "chdir", lambda _p: None)
 
     feb = importlib.import_module("scripts.full_export_book")

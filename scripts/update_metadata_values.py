@@ -26,7 +26,7 @@ def main():
         "KEYWORDS": ["Enter some keywords here"],
         "COVER_IMAGE": "",
         "OUTPUT_FORMATS": ["pdf", "epub", "mobi", "docx"],
-        "KDP_ENABLED": False
+        "KDP_ENABLED": False,
     }
 
     try:
@@ -39,7 +39,9 @@ def main():
 
         # Normalize KEYWORDS if it's a string
         if isinstance(metadata_values.get("KEYWORDS"), str):
-            metadata_values["KEYWORDS"] = [k.strip() for k in metadata_values["KEYWORDS"].split(",")]
+            metadata_values["KEYWORDS"] = [
+                k.strip() for k in metadata_values["KEYWORDS"].split(",")
+            ]
 
         # Read metadata.yaml
         with open(yaml_file, "r", encoding="utf-8") as file:
@@ -59,7 +61,9 @@ def main():
         with open(yaml_file, "w", encoding="utf-8") as file:
             file.write(content)
 
-        print("✅ metadata.yaml has been updated with values from metadata_values.json.")
+        print(
+            "✅ metadata.yaml has been updated with values from metadata_values.json."
+        )
 
         # Delete the JSON file after successful transfer
         if os.path.exists(metadata_file):

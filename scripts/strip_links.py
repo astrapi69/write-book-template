@@ -101,7 +101,9 @@ def strip_links_in_text_no_code(text: str) -> Tuple[str, int]:
     return t3, n1 + ref_count + n3
 
 
-def process_file(src: Path, overwrite: bool, suffix: str, encoding: str = "utf-8") -> Tuple[Path, int, Optional[Path]]:
+def process_file(
+    src: Path, overwrite: bool, suffix: str, encoding: str = "utf-8"
+) -> Tuple[Path, int, Optional[Path]]:
     """
     Process one file. Returns (src_path, links_stripped, dest_written_or_None).
     - If overwrite=True: writes back to src only if changed.
@@ -143,8 +145,12 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         help="Suffix for copy mode (default: -nolinks.md).",
     )
     ap.add_argument("--encoding", default="utf-8", help="File encoding.")
-    ap.add_argument("--dry-run", action="store_true", help="Print planned changes without writing.")
-    ap.add_argument("--report", action="store_true", help="Print number of links stripped.")
+    ap.add_argument(
+        "--dry-run", action="store_true", help="Print planned changes without writing."
+    )
+    ap.add_argument(
+        "--report", action="store_true", help="Print number of links stripped."
+    )
     return ap.parse_args(list(argv) if argv is not None else None)
 
 

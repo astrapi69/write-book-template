@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from emoji_map import EMOJI_MAP  # same directory
 
+
 def main() -> int:
     if not isinstance(EMOJI_MAP, dict) or not EMOJI_MAP:
         print("❌ EMOJI_MAP must be a non-empty dict")
@@ -16,6 +17,7 @@ def main() -> int:
             return 1
     print(f"OK. entries={len(EMOJI_MAP)}")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

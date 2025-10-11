@@ -7,6 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPT_PATH = REPO_ROOT / "scripts" / "normalize_toc_links.py"
 
+
 def run_script(toc_path: Path, args):
     assert SCRIPT_PATH.exists(), f"normalize_toc_links.py not found at {SCRIPT_PATH}"
     cmd = [sys.executable, str(SCRIPT_PATH), "--toc", str(toc_path), *args]
@@ -18,16 +19,19 @@ def run_script(toc_path: Path, args):
         check=False,
     )
 
+
 def test_strip_to_anchors_basic(tmp_path):
     # Create a temp TOC in tmp_path
     toc = tmp_path / "toc.md"
     toc.write_text(
-        "\n".join([
-            "- [Intro](chapters/01.gfm#einleitung)",
-            "- [Kapitel 2](chapters/02.markdown#zweites)",
-            "- [Schon Anker](#bereits-anker)",
-            "- [Normales .md](chapters/03.md#drittes)",
-        ]),
+        "\n".join(
+            [
+                "- [Intro](chapters/01.gfm#einleitung)",
+                "- [Kapitel 2](chapters/02.markdown#zweites)",
+                "- [Schon Anker](#bereits-anker)",
+                "- [Normales .md](chapters/03.md#drittes)",
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -44,15 +48,18 @@ def test_strip_to_anchors_basic(tmp_path):
     assert "chapters/02.markdown" not in out
     assert "chapters/03.md" not in out
 
+
 def test_replace_ext_swaps_endings(tmp_path):
     toc = tmp_path / "toc.md"
     toc.write_text(
-        "\n".join([
-            "- [GFM](chapters/01.gfm#einleitung)",
-            "- [MD](chapters/02.md#zweites)",
-            "- [MARKDOWN](chapters/03.markdown#drittes)",
-            "- [Nur Anker](#nur-anker)",  # should stay unchanged
-        ]),
+        "\n".join(
+            [
+                "- [GFM](chapters/01.gfm#einleitung)",
+                "- [MD](chapters/02.md#zweites)",
+                "- [MARKDOWN](chapters/03.markdown#drittes)",
+                "- [Nur Anker](#nur-anker)",  # should stay unchanged
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -64,6 +71,7 @@ def test_replace_ext_swaps_endings(tmp_path):
     assert "(chapters/02.md#zweites)" in out
     assert "(chapters/03.md#drittes)" in out
     assert "(#nur-anker)" in out  # untouched
+
 
 def test_strip_to_anchors_idempotent(tmp_path):
     toc = tmp_path / "toc.md"

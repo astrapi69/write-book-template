@@ -45,7 +45,9 @@ class FishAudioTTS(TTSAdapter):
         """
         self.api_key = api_key or os.getenv("FISHAUDIO_API_KEY")
         if not self.api_key:
-            raise ValueError("FishAudioTTS: API key missing. Set `api_key` or env FISHAUDIO_API_KEY.")
+            raise ValueError(
+                "FishAudioTTS: API key missing. Set `api_key` or env FISHAUDIO_API_KEY."
+            )
 
         self.base_url = base_url.rstrip("/")
         self.api_version = api_version.strip("/")
@@ -108,7 +110,9 @@ class FishAudioTTS(TTSAdapter):
                     detail = resp.json()
                 except Exception:
                     detail = resp.text
-                raise RuntimeError(f"FishAudioTTS API error [{resp.status_code}]: {detail}")
+                raise RuntimeError(
+                    f"FishAudioTTS API error [{resp.status_code}]: {detail}"
+                )
 
             # Write streamed audio to file
             with open(output_path, "wb") as f:

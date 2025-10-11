@@ -26,6 +26,8 @@ pymupdf = "^1.26.4"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.138.13"
+types-pyyaml = "^6.0.12.20250915"
+types-toml = "^0.10.8.20240310"
 
 [tool.poetry.group.test.dependencies]
 hypothesis = ">=6,<7"
@@ -138,3 +140,11 @@ standalone = true
 test_only = false
 patch_md = true
 fix_inplace = false
+
+[tool.mypy]
+python_version = "3.11"
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+check_untyped_defs = false  # you can set it to true later
+ignore_missing_imports = false

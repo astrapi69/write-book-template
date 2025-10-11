@@ -24,6 +24,7 @@ from scripts.full_export_comic import main as export_comic_main
 
 # --- Export Shortcuts ---
 
+
 def export_comic_html():
     sys.argv = [
         "export-comic",
@@ -33,10 +34,7 @@ def export_comic_html():
 
 
 def export_comic_pdf():
-    sys.argv = [
-        "export-comic",
-        "--pdf"
-    ]
+    sys.argv = ["export-comic", "--pdf"]
     export_comic_main()
 
 
@@ -53,12 +51,13 @@ available_shortcuts = {
     "export_comic_markdown": export_comic_markdown,
 }
 
+
 def main():
     """Main CLI dispatcher for comic export shortcuts"""
     parser = argparse.ArgumentParser(
         description="📚 Comic Book Project Shortcut Runner",
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog="\nRun a shortcut like: poetry run export-comic-shortcuts export_comic_pdf"
+        epilog="\nRun a shortcut like: poetry run export-comic-shortcuts export_comic_pdf",
     )
 
     shortcut_names = sorted(available_shortcuts.keys())
@@ -68,7 +67,7 @@ def main():
         "task",
         nargs="?",
         choices=shortcut_names,
-        help=f"Available shortcuts:\n{shortcut_help}"
+        help=f"Available shortcuts:\n{shortcut_help}",
     )
 
     args = parser.parse_args()

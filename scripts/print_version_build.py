@@ -151,9 +151,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
       - dry_run, no_restore, scripts_dir, export_format, book_type, exact_name, extra
     """
     p = argparse.ArgumentParser(description="Build print version of a book project.")
-    p.add_argument("--dry-run", action="store_true", help="Print commands without executing.")
-    p.add_argument("--no-restore", action="store_true", help="Skip git restore at the end.")
-    p.add_argument("--scripts-dir", type=str, help="Path to scripts dir (defaults to ./scripts).")
+    p.add_argument(
+        "--dry-run", action="store_true", help="Print commands without executing."
+    )
+    p.add_argument(
+        "--no-restore", action="store_true", help="Skip git restore at the end."
+    )
+    p.add_argument(
+        "--scripts-dir", type=str, help="Path to scripts dir (defaults to ./scripts)."
+    )
     p.add_argument(
         "--export-format",
         dest="export_format",
@@ -162,16 +168,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Export format for the print pipeline (epub|pdf).",
     )
     # Alias for backward compatibility
-    p.add_argument("--format", dest="export_format", choices=["epub", "pdf"], help=argparse.SUPPRESS)
-    p.add_argument("--book-type", type=str, help="paperback or hardcover (default: paperback).")
-    p.add_argument("--exact-name", action="store_true", help="Use exact output name (no suffix).")
+    p.add_argument(
+        "--format",
+        dest="export_format",
+        choices=["epub", "pdf"],
+        help=argparse.SUPPRESS,
+    )
+    p.add_argument(
+        "--book-type", type=str, help="paperback or hardcover (default: paperback)."
+    )
+    p.add_argument(
+        "--exact-name", action="store_true", help="Use exact output name (no suffix)."
+    )
 
     known, unknown = p.parse_known_args(argv)
 
     ns = argparse.Namespace(
         dry_run=known.dry_run,
         no_restore=known.no_restore,
-        scripts_dir=Path(known.scripts_dir) if known.scripts_dir else DEFAULT_SCRIPTS_DIR,
+        scripts_dir=(
+            Path(known.scripts_dir) if known.scripts_dir else DEFAULT_SCRIPTS_DIR
+        ),
         export_format=_normalize_export_format(known.export_format),
         book_type=_normalize_book_type(known.book_type),
         exact_name=known.exact_name,

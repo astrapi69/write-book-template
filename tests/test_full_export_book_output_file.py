@@ -3,10 +3,15 @@ import io
 import subprocess
 from scripts import full_export_book
 
-def run_main_with_args(monkeypatch, args, tmp_path,
-                       pyproject_content=None,
-                       preset_output=None,
-                       stub_project_name=None):
+
+def run_main_with_args(
+    monkeypatch,
+    args,
+    tmp_path,
+    pyproject_content=None,
+    preset_output=None,
+    stub_project_name=None,
+):
     """
     Helper to run full_export_book.main() with controlled environment.
     - monkeypatch: pytest fixture
@@ -26,17 +31,24 @@ def run_main_with_args(monkeypatch, args, tmp_path,
     full_export_book.OUTPUT_FILE = preset_output
 
     # Stub external calls so we don’t run real scripts
-    monkeypatch.setattr(full_export_book, "run_script",
-                        lambda *a, **k: print(f"MOCK run_script {a} {k}"))
+    monkeypatch.setattr(
+        full_export_book,
+        "run_script",
+        lambda *a, **k: print(f"MOCK run_script {a} {k}"),
+    )
 
     class _CP:
         returncode = 0
+
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: _CP())
 
     # Stub project name resolution if desired
     if stub_project_name is not None:
-        monkeypatch.setattr(full_export_book, "get_project_name_from_pyproject",
-                            lambda *a, **k: stub_project_name)
+        monkeypatch.setattr(
+            full_export_book,
+            "get_project_name_from_pyproject",
+            lambda *a, **k: stub_project_name,
+        )
 
     # Capture stdout
     old_stdout = sys.stdout
@@ -52,8 +64,9 @@ def run_main_with_args(monkeypatch, args, tmp_path,
 
 
 def test_output_file_explicit(monkeypatch, tmp_path):
-    out = run_main_with_args(monkeypatch, ["--output-file", "custom"], tmp_path,
-                             stub_project_name="ignored")
+    out = run_main_with_args(
+        monkeypatch, ["--output-file", "custom"], tmp_path, stub_project_name="ignored"
+    )
     assert "custom_ebook" in out
 
 
@@ -64,20 +77,27 @@ def test_output_file_from_pyproject(monkeypatch, tmp_path):
 
 
 def test_output_file_preset(monkeypatch, tmp_path):
-    out = run_main_with_args(monkeypatch, [], tmp_path,
-                             preset_output="presetname",
-                             stub_project_name="ignored")
+    out = run_main_with_args(
+        monkeypatch,
+        [],
+        tmp_path,
+        preset_output="presetname",
+        stub_project_name="ignored",
+    )
     assert "presetname_ebook" in out
 
 
 def test_output_file_book_type(monkeypatch, tmp_path):
-    out = run_main_with_args(monkeypatch, ["--book-type", "paperback"], tmp_path,
-                             stub_project_name="demo-book")
+    out = run_main_with_args(
+        monkeypatch,
+        ["--book-type", "paperback"],
+        tmp_path,
+        stub_project_name="demo-book",
+    )
     assert "demo-book_paperback" in out
 
 
 def test_output_file_broken_pyproject(monkeypatch, tmp_path):
     # Simulate parsing error fallback
-    out = run_main_with_args(monkeypatch, [], tmp_path,
-                             stub_project_name="book")
+    out = run_main_with_args(monkeypatch, [], tmp_path, stub_project_name="book")
     assert "book_ebook" in out

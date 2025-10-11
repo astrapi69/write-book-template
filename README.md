@@ -37,7 +37,7 @@ cd YOUR_BOOK_REPO
 
 ### 2️⃣ Initialize Project Structure
 
-> ⚠️ **Note:** The shell script `scripts/create_project_structure.sh` is now **deprecated** and will be removed in the future.  
+> ⚠️ **Note:** The shell script `scripts/create_project_structure.sh` is now **deprecated** and will be removed in the future.
 > ✅ Please use the **Python script with Poetry integration** instead.
 
 Run the following command to create the complete folder structure and all required files:
@@ -49,17 +49,17 @@ poetry run init-book-project
 This will:
 
 * Create all necessary folders (`manuscript/`, `config/`, `assets/`, `output/`, etc.)
-    
-* Generate chapter and front/back matter files
-    
-* Create `metadata.yaml` and `metadata_values.json` with placeholders
-    
-* Add a template for image generation prompts (`scripts/data/image_project_config.json`)
-    
-* Prepare the project for exporting and translation
-    
 
-📘 **Full guide available here:**  
+* Generate chapter and front/back matter files
+
+* Create `metadata.yaml` and `metadata_values.json` with placeholders
+
+* Add a template for image generation prompts (`scripts/data/image_project_config.json`)
+
+* Prepare the project for exporting and translation
+
+
+📘 **Full guide available here:**
 👉 [📦 Project Initialization – Wiki](https://github.com/astrapi69/write-book-template/wiki/Project-Initialization)
 
 ---
@@ -158,7 +158,7 @@ git push
 
 ## 📖 Documentation
 
-The full documentation is available in the [Wiki](https://github.com/astrapi69/write-book-template/wiki).  
+The full documentation is available in the [Wiki](https://github.com/astrapi69/write-book-template/wiki).
 Here are the main sections to get you started:
 
 ### 🏁 Getting Started

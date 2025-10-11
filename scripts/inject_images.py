@@ -11,6 +11,7 @@ from typing import Dict, Iterable, List, Optional
 
 # ---- Helpers for prompt loading ----
 
+
 def _flatten_prompts(data: dict) -> List[dict]:
     """
     Accepts either:
@@ -42,13 +43,17 @@ def load_prompts(prompt_file: Path) -> List[dict]:
 
     prompts = _flatten_prompts(data)
     if not prompts:
-        raise ValueError("Prompt JSON must contain a list of prompt objects under 'prompts' or 'chapters[].prompts'.")
+        raise ValueError(
+            "Prompt JSON must contain a list of prompt objects under 'prompts' or 'chapters[].prompts'."
+        )
     # Keep only entries that have filename
     return [p for p in prompts if isinstance(p, dict) and p.get("filename")]
+
 
 # ---- Mapping chapter <-> filename ----
 
 _CHAPTER_NUM_RE = re.compile(r"(?:^|[_\-])(?:chapter[_\-]?)?(\d{1,2})(?!\d)")
+
 
 def _extract_two_digit(num_str: str) -> str:
     try:
@@ -56,6 +61,7 @@ def _extract_two_digit(num_str: str) -> str:
         return f"{n:02d}"
     except Exception:
         return ""
+
 
 def chapter_key_from_filename(filename: str) -> str:
     """
@@ -105,9 +111,11 @@ def build_filename_map(prompts: Iterable[dict]) -> Dict[str, str]:
             mapping[key] = filename
     return mapping
 
+
 # ---- Injection logic ----
 
 _IMG_BY_BASENAME_RE_TEMPLATE = r"!\[[^\]]*\]\((?P<path>[^)]*[/\\])?%s\)"
+
 
 def link_already_present(content: str, image_filename: str) -> bool:
     """
@@ -145,7 +153,9 @@ def find_insertion_index(lines: List[str]) -> int:
     return 0
 
 
-def inject_image(content: str, image_rel_path: str, alt_text: Optional[str] = None) -> tuple[str, bool]:
+def inject_image(
+    content: str, image_rel_path: str, alt_text: Optional[str] = None
+) -> tuple[str, bool]:
     """
     Insert a Markdown image and return (new_content, injected_flag).
     If a link to the same basename already exists, return (content, False).
@@ -159,9 +169,11 @@ def inject_image(content: str, image_rel_path: str, alt_text: Optional[str] = No
     idx = find_insertion_index(lines)
 
     # If inserting at the very top, no leading blank line.
-    md_line = (f"![{alt}]({image_rel_path})\n"
-               if idx == 0 else
-               f"\n![{alt}]({image_rel_path})\n")
+    md_line = (
+        f"![{alt}]({image_rel_path})\n"
+        if idx == 0
+        else f"\n![{alt}]({image_rel_path})\n"
+    )
 
     lines.insert(idx, md_line)
     new_content = "\n".join(lines)
@@ -169,7 +181,9 @@ def inject_image(content: str, image_rel_path: str, alt_text: Optional[str] = No
         new_content += "\n"
     return new_content, True
 
+
 # ---- Runner ----
+
 
 @dataclass
 class Stats:
@@ -235,18 +249,39 @@ def process(
 
 
 def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Inject generated images into chapter markdown files")
-    p.add_argument("--chapter-dir", default="manuscript/chapters", type=Path, help="Directory with chapter .md files")
-    p.add_argument("--image-dir", default="assets/illustrations", type=Path, help="Directory with generated images")
-    p.add_argument("--prompt-file", default="scripts/data/image_prompts.json", type=Path, help="Prompt JSON path")
-    p.add_argument("--dry-run", action="store_true", help="Run without writing changes to files")
+    p = argparse.ArgumentParser(
+        description="Inject generated images into chapter markdown files"
+    )
+    p.add_argument(
+        "--chapter-dir",
+        default="manuscript/chapters",
+        type=Path,
+        help="Directory with chapter .md files",
+    )
+    p.add_argument(
+        "--image-dir",
+        default="assets/illustrations",
+        type=Path,
+        help="Directory with generated images",
+    )
+    p.add_argument(
+        "--prompt-file",
+        default="scripts/data/image_prompts.json",
+        type=Path,
+        help="Prompt JSON path",
+    )
+    p.add_argument(
+        "--dry-run", action="store_true", help="Run without writing changes to files"
+    )
     return p.parse_args(argv)
 
 
 def main(argv: Optional[Iterable[str]] = None) -> int:
     args = parse_args(argv)
     try:
-        stats = process(args.chapter_dir, args.image_dir, args.prompt_file, dry_run=args.dry_run)
+        _ = process(
+            args.chapter_dir, args.image_dir, args.prompt_file, dry_run=args.dry_run
+        )
     except (FileNotFoundError, ValueError) as e:
         print(f"❌ {e}")
         return 2

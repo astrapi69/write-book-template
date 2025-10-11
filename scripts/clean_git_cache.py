@@ -14,7 +14,9 @@ import sys
 from typing import Iterable, Optional
 
 
-def run_git_command(args: Iterable[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+def run_git_command(
+    args: Iterable[str], cwd: Optional[Path] = None
+) -> subprocess.CompletedProcess:
     """
     Run a git command with robust defaults.
 
@@ -45,7 +47,9 @@ def run_git_command(args: Iterable[str], cwd: Optional[Path] = None) -> subproce
     return cp
 
 
-def clean_git_cache(cwd: Optional[Path] = None, aggressive: bool = True, prune: str = "now") -> None:
+def clean_git_cache(
+    cwd: Optional[Path] = None, aggressive: bool = True, prune: str = "now"
+) -> None:
     """
     Expire reflogs and run git gc pruning unreachable objects.
 

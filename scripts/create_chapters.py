@@ -18,7 +18,9 @@ def _ensure_valid_pattern(pattern: str) -> None:
     Validate that the pattern contains a '{num' placeholder.
     """
     if "{num" not in pattern:
-        raise ValueError("`--name-pattern` must include a '{num}' placeholder (e.g. '{num:02d}-chapter.md').")
+        raise ValueError(
+            "`--name-pattern` must include a '{num}' placeholder (e.g. '{num:02d}-chapter.md')."
+        )
 
 
 def _pattern_to_regex(pattern: str) -> re.Pattern[str]:
@@ -40,7 +42,7 @@ def _pattern_to_regex(pattern: str) -> re.Pattern[str]:
     for m in token_re.finditer(pattern):
         # Escape text before token
         if m.start() > last:
-            parts.append(re.escape(pattern[last:m.start()]))
+            parts.append(re.escape(pattern[last : m.start()]))
         # Insert capture group
         parts.append(r"(?P<num>\d+)")
         last = m.end()
@@ -109,7 +111,9 @@ def create_chapter_files(
     if not dry_run:
         chapter_dir.mkdir(parents=True, exist_ok=True)
 
-    start_num = start if start is not None else _detect_next_start(chapter_dir, name_pattern)
+    start_num = (
+        start if start is not None else _detect_next_start(chapter_dir, name_pattern)
+    )
     end_num = start_num + total - 1
 
     planned: List[Path] = []
@@ -133,7 +137,9 @@ def create_chapter_files(
 
 
 def _parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate Markdown files (chapters/scenes/parts) with a flexible name pattern.")
+    parser = argparse.ArgumentParser(
+        description="Generate Markdown files (chapters/scenes/parts) with a flexible name pattern."
+    )
     parser.add_argument(
         "--project-dir",
         type=str,
@@ -157,7 +163,7 @@ def _parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
         type=str,
         default=DEFAULT_PATTERN,
         help=f"Filename pattern with '{{num}}' placeholder (default: '{DEFAULT_PATTERN}'). "
-             "Examples: '{num:02d}-chapter.md', '{num:03d}_scene.md', '{num}-part.md'",
+        "Examples: '{num:02d}-chapter.md', '{num:03d}_scene.md', '{num}-part.md'",
     )
     parser.add_argument(
         "--dry-run",

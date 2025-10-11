@@ -21,23 +21,29 @@ FORMAT_CHARS = {
     "\u200d",  # ZWJ
     "\u200e",  # LRM
     "\u200f",  # RLM
-    "\u202a", "\u202b", "\u202c", "\u202d", "\u202e",  # embedding/override
+    "\u202a",
+    "\u202b",
+    "\u202c",
+    "\u202d",
+    "\u202e",  # embedding/override
     "\ufeff",  # BOM
 }
 
 DANGEROUS_MAP = {
-    "\u00ad": "",   # soft hyphen
-    "\u2028": "\n", # line separator → newline
-    "\u2029": "\n", # paragraph separator → newline
+    "\u00ad": "",  # soft hyphen
+    "\u2028": "\n",  # line separator → newline
+    "\u2029": "\n",  # paragraph separator → newline
     "\u202f": " ",  # narrow no‑break space
     "\u00a0": " ",  # no‑break space
 }
+
 
 @dataclass
 class Stats:
     files_seen: int = 0
     files_changed: int = 0
     errors: int = 0
+
 
 def sanitize_markdown(text: str) -> str:
     # 1) Fix mojibake etc.
@@ -64,6 +70,7 @@ def sanitize_markdown(text: str) -> str:
 
     return text
 
+
 def process_file(path: Path, *, dry_run: bool, backup: bool) -> bool:
     original = path.read_text(encoding="utf-8", errors="strict")
     cleaned = sanitize_markdown(original)
@@ -75,13 +82,20 @@ def process_file(path: Path, *, dry_run: bool, backup: bool) -> bool:
         return True
     return False
 
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(description="Sanitize Markdown in a directory.")
     p.add_argument("--root", default="manuscript", help="Root directory to scan")
     p.add_argument("--include", default="**/*.md", help="Glob to include")
-    p.add_argument("--exclude", action="append", default=[], help="Glob(s) to exclude (repeatable)")
-    p.add_argument("--dry-run", action="store_true", help="Show changes but do not write files")
-    p.add_argument("--backup", action="store_true", help="Create .bak alongside modified files")
+    p.add_argument(
+        "--exclude", action="append", default=[], help="Glob(s) to exclude (repeatable)"
+    )
+    p.add_argument(
+        "--dry-run", action="store_true", help="Show changes but do not write files"
+    )
+    p.add_argument(
+        "--backup", action="store_true", help="Create .bak alongside modified files"
+    )
     args = p.parse_args(argv)
 
     root = Path(args.root)
@@ -120,6 +134,7 @@ def main(argv: list[str] | None = None) -> None:
         f"Changed: {stats.files_changed} • Errors: {stats.errors} "
         f"{'(dry-run)' if args.dry_run else ''}"
     )
+
 
 if __name__ == "__main__":
     main()

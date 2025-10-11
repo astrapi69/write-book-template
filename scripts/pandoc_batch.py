@@ -16,29 +16,36 @@ from typing import Optional, Tuple, Dict, List
 # --- TOML loader (tomllib for 3.11+, fallback to toml) ---
 try:
     import tomllib as _toml  # Python 3.11+
+
     def load_toml(p: Path) -> dict:
         return _toml.loads(p.read_text(encoding="utf-8"))
+
 except Exception:
     try:
         import toml as _toml  # type: ignore
+
         def load_toml(p: Path) -> dict:
             return _toml.load(p)  # type: ignore
+
     except Exception:
         _toml = None  # type: ignore
+
         def load_toml(p: Path) -> dict:
             return {}
+
 
 EXT_BY_TO: Dict[str, str] = {
     "epub": ".epub",
     "html": ".html",
-    "pdf":  ".pdf",
+    "pdf": ".pdf",
     "docx": ".docx",
-    "odt":  ".odt",
-    "rtf":  ".rtf",
+    "odt": ".odt",
+    "rtf": ".rtf",
 }
 
 # Horizontal rule regex; ensure a blank line after HR if the next line is not blank.
-HRX = re.compile(r'(?m)^(?:-{3}|(?:\*\s*){3}|(?:_\s*){3})[ \t]*\r?\n(?![ \t]*\r?\n)')
+HRX = re.compile(r"(?m)^(?:-{3}|(?:\*\s*){3}|(?:_\s*){3})[ \t]*\r?\n(?![ \t]*\r?\n)")
+
 
 def patch_markdown_text(text: str) -> Tuple[str, int]:
     """
@@ -55,10 +62,12 @@ def patch_markdown_text(text: str) -> Tuple[str, int]:
     patched, n1 = HRX.subn(lambda m: m.group(0) + "\n", text)
     return patched, n1
 
+
 def require_cmd(cmd: str) -> None:
     if shutil.which(cmd) is None:
         print(f"ERROR: '{cmd}' not found in PATH.", file=sys.stderr)
         sys.exit(127)
+
 
 def find_pyproject() -> Optional[Path]:
     # Search from CWD upwards
@@ -74,6 +83,7 @@ def find_pyproject() -> Optional[Path]:
             return f
     return None
 
+
 def load_defaults() -> dict:
     pp = find_pyproject()
     if not pp or _toml is None:
@@ -82,7 +92,8 @@ def load_defaults() -> dict:
         data = load_toml(pp)
     except Exception:
         return {}
-    return (data.get("tool", {}).get("pandoc_batch", {}) or {})
+    return data.get("tool", {}).get("pandoc_batch", {}) or {}
+
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     defaults = load_defaults()
@@ -90,41 +101,100 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Batch Pandoc conversion for all .md files in a directory tree."
     )
-    p.add_argument("--root", type=Path, default=Path(defaults.get("root", "manuscript")),
-                   help="Root folder to search for .md files (recursively).")
-    p.add_argument("--outdir", type=Path, default=Path(defaults.get("outdir", "output")),
-                   help="Output folder (directory structure is mirrored).")
-    p.add_argument("--to", choices=list(EXT_BY_TO.keys()), default=defaults.get("to"),
-                   help="Pandoc output format.")
-    p.add_argument("--from", dest="from_fmt", default=defaults.get("from", "markdown"),
-                   help="Pandoc --from format (default: markdown).")
-    p.add_argument("--metadata-file", type=Path, default=defaults.get("metadata_file"),
-                   help="Path to a YAML metadata file.")
-    p.add_argument("--resource-path", action="append", default=defaults.get("resource_path", []),
-                   help="Resource path(s); may be passed multiple times.")
-    p.add_argument("--lang", default=defaults.get("lang"),
-                   help="--metadata lang=<code> passed to Pandoc.")
-    p.add_argument("--standalone", action="store_true", default=defaults.get("standalone", True),
-                   help="Pass --standalone to Pandoc (default: on). Use --no-standalone to disable.")
+    p.add_argument(
+        "--root",
+        type=Path,
+        default=Path(defaults.get("root", "manuscript")),
+        help="Root folder to search for .md files (recursively).",
+    )
+    p.add_argument(
+        "--outdir",
+        type=Path,
+        default=Path(defaults.get("outdir", "output")),
+        help="Output folder (directory structure is mirrored).",
+    )
+    p.add_argument(
+        "--to",
+        choices=list(EXT_BY_TO.keys()),
+        default=defaults.get("to"),
+        help="Pandoc output format.",
+    )
+    p.add_argument(
+        "--from",
+        dest="from_fmt",
+        default=defaults.get("from", "markdown"),
+        help="Pandoc --from format (default: markdown).",
+    )
+    p.add_argument(
+        "--metadata-file",
+        type=Path,
+        default=defaults.get("metadata_file"),
+        help="Path to a YAML metadata file.",
+    )
+    p.add_argument(
+        "--resource-path",
+        action="append",
+        default=defaults.get("resource_path", []),
+        help="Resource path(s); may be passed multiple times.",
+    )
+    p.add_argument(
+        "--lang",
+        default=defaults.get("lang"),
+        help="--metadata lang=<code> passed to Pandoc.",
+    )
+    p.add_argument(
+        "--standalone",
+        action="store_true",
+        default=defaults.get("standalone", True),
+        help="Pass --standalone to Pandoc (default: on). Use --no-standalone to disable.",
+    )
     p.add_argument("--no-standalone", dest="standalone", action="store_false")
-    p.add_argument("--verbose", action="store_true", default=defaults.get("verbose", False),
-                   help="Pass --verbose to Pandoc.")
-    p.add_argument("--jobs", type=int, default=defaults.get("jobs", os.cpu_count() or 4),
-                   help="Parallel jobs.")
-    p.add_argument("--test-only", action="store_true", default=defaults.get("test_only", False),
-                   help="Don’t write files; output -> os.devnull.")
-    p.add_argument("--extra", nargs=argparse.REMAINDER,
-                   help="Extra Pandoc args after '--'.")
-    p.add_argument("--print-config", action="store_true",
-                   help="Print resolved config and exit.")
-    p.add_argument("--patch-md", action="store_true", default=True,
-                   help="Pre-patch markdown (strip BOM, normalize newlines, blank line after HR). Default: on.")
-    p.add_argument("--no-patch-md", dest="patch_md", action="store_false",
-                   help="Disable pre-patching.")
-    p.add_argument("--fix-inplace", action="store_true",
-                   help="Write patched markdown back to source files (in-place).")
-    p.add_argument("--report-patches", action="store_true",
-                   help="Print how many fixes were applied per file.")
+    p.add_argument(
+        "--verbose",
+        action="store_true",
+        default=defaults.get("verbose", False),
+        help="Pass --verbose to Pandoc.",
+    )
+    p.add_argument(
+        "--jobs",
+        type=int,
+        default=defaults.get("jobs", os.cpu_count() or 4),
+        help="Parallel jobs.",
+    )
+    p.add_argument(
+        "--test-only",
+        action="store_true",
+        default=defaults.get("test_only", False),
+        help="Don’t write files; output -> os.devnull.",
+    )
+    p.add_argument(
+        "--extra", nargs=argparse.REMAINDER, help="Extra Pandoc args after '--'."
+    )
+    p.add_argument(
+        "--print-config", action="store_true", help="Print resolved config and exit."
+    )
+    p.add_argument(
+        "--patch-md",
+        action="store_true",
+        default=True,
+        help="Pre-patch markdown (strip BOM, normalize newlines, blank line after HR). Default: on.",
+    )
+    p.add_argument(
+        "--no-patch-md",
+        dest="patch_md",
+        action="store_false",
+        help="Disable pre-patching.",
+    )
+    p.add_argument(
+        "--fix-inplace",
+        action="store_true",
+        help="Write patched markdown back to source files (in-place).",
+    )
+    p.add_argument(
+        "--report-patches",
+        action="store_true",
+        help="Print how many fixes were applied per file.",
+    )
 
     args = p.parse_args(argv)
 
@@ -136,14 +206,20 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         sys.exit(0)
 
     if not args.to:
-        p.error("--to is required (either pass it or set it under [tool.pandoc_batch] in pyproject.toml)")
+        p.error(
+            "--to is required (either pass it or set it under [tool.pandoc_batch] in pyproject.toml)"
+        )
     return args
+
 
 def rel_output_path(src: Path, root: Path, outdir: Path, ext: str) -> Path:
     rel = src.relative_to(root)
     return (outdir / rel).with_suffix(ext)
 
-def build_cmd(infile: Path, outfile: Optional[Path], args: argparse.Namespace) -> List[str]:
+
+def build_cmd(
+    infile: Path, outfile: Optional[Path], args: argparse.Namespace
+) -> List[str]:
     cmd: List[str] = ["pandoc"]
     if args.verbose:
         cmd.append("--verbose")
@@ -163,6 +239,7 @@ def build_cmd(infile: Path, outfile: Optional[Path], args: argparse.Namespace) -
         cmd += args.extra
     return cmd
 
+
 def _create_temp_with(patched: str) -> Path:
     # Separate helper to simplify testing & ensure cleanup paths are predictable.
     tf = tempfile.NamedTemporaryFile(prefix="pandoc_patch_", suffix=".md", delete=False)
@@ -174,7 +251,10 @@ def _create_temp_with(patched: str) -> Path:
         tf.close()
     return Path(name)
 
-def run_one(infile: Path, outfile: Optional[Path], args: argparse.Namespace) -> Tuple[Path, int, str]:
+
+def run_one(
+    infile: Path, outfile: Optional[Path], args: argparse.Namespace
+) -> Tuple[Path, int, str]:
     # Ensure parent dir for output exists (even if test-only, keep behavior uniform)
     if outfile is not None:
         outfile.parent.mkdir(parents=True, exist_ok=True)
@@ -211,6 +291,7 @@ def run_one(infile: Path, outfile: Optional[Path], args: argparse.Namespace) -> 
     log = stdout_tail + ("\n" if stdout_tail and stderr_tail else "") + stderr_tail
     return infile, rc, log
 
+
 def main(argv: Optional[List[str]] = None) -> None:
     require_cmd("pandoc")
     args = parse_args(argv)
@@ -224,10 +305,15 @@ def main(argv: Optional[List[str]] = None) -> None:
         print(f"No .md files found under {root}", file=sys.stderr)
         sys.exit(2)
 
-    tasks = [(f, None if args.test_only else rel_output_path(f, root, outdir, ext)) for f in files]
+    tasks = [
+        (f, None if args.test_only else rel_output_path(f, root, outdir, ext))
+        for f in files
+    ]
 
     failures = 0
-    print(f"Starting Pandoc for {len(tasks)} file(s), format: {args.to}, jobs: {args.jobs}...")
+    print(
+        f"Starting Pandoc for {len(tasks)} file(s), format: {args.to}, jobs: {args.jobs}..."
+    )
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as ex:
         futs = {ex.submit(run_one, f, o, args): (f, o) for f, o in tasks}
         for fut in as_completed(futs):
@@ -246,6 +332,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         sys.exit(1)
     print("\nDONE without errors.")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

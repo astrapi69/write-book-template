@@ -1,7 +1,6 @@
 # tests/test_create_chapters.py
 from __future__ import annotations
 
-from pathlib import Path
 import pytest
 
 from scripts.create_chapters import create_chapter_files, DEFAULT_PATTERN
@@ -9,10 +8,16 @@ from scripts.create_chapters import create_chapter_files, DEFAULT_PATTERN
 
 def test_creates_files_in_default_dir(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    created = create_chapter_files(project_dir=None, total=3, start=1, name_pattern=DEFAULT_PATTERN)
+    created = create_chapter_files(
+        project_dir=None, total=3, start=1, name_pattern=DEFAULT_PATTERN
+    )
     chapter_dir = tmp_path / "manuscript" / "chapters"
     assert chapter_dir.is_dir()
-    assert [p.name for p in created] == ["01-chapter.md", "02-chapter.md", "03-chapter.md"]
+    assert [p.name for p in created] == [
+        "01-chapter.md",
+        "02-chapter.md",
+        "03-chapter.md",
+    ]
 
 
 def test_respects_project_dir_and_custom_pattern(tmp_path):
@@ -59,7 +64,11 @@ def test_autostart_ignores_nonmatching_files(tmp_path):
 def test_dry_run_with_pattern_creates_nothing(tmp_path):
     project_root = tmp_path / "dry"
     planned = create_chapter_files(
-        project_dir=project_root, total=2, start=1, dry_run=True, name_pattern="{num:03d}_part.md"
+        project_dir=project_root,
+        total=2,
+        start=1,
+        dry_run=True,
+        name_pattern="{num:03d}_part.md",
     )
     chapter_dir = project_root / "manuscript" / "chapters"
     assert not chapter_dir.exists()
@@ -68,14 +77,20 @@ def test_dry_run_with_pattern_creates_nothing(tmp_path):
 
 def test_invalid_total_raises(tmp_path):
     with pytest.raises(ValueError):
-        create_chapter_files(project_dir=tmp_path, total=0, start=1, name_pattern="{num}-x.md")
+        create_chapter_files(
+            project_dir=tmp_path, total=0, start=1, name_pattern="{num}-x.md"
+        )
 
 
 def test_invalid_start_raises(tmp_path):
     with pytest.raises(ValueError):
-        create_chapter_files(project_dir=tmp_path, total=1, start=0, name_pattern="{num}-x.md")
+        create_chapter_files(
+            project_dir=tmp_path, total=1, start=0, name_pattern="{num}-x.md"
+        )
 
 
 def test_missing_num_placeholder_raises(tmp_path):
     with pytest.raises(ValueError):
-        create_chapter_files(project_dir=tmp_path, total=1, start=1, name_pattern="chapter.md")
+        create_chapter_files(
+            project_dir=tmp_path, total=1, start=1, name_pattern="chapter.md"
+        )

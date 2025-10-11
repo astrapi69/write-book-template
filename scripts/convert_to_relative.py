@@ -34,7 +34,9 @@ MD_LINK_RE = re.compile(
 IMG_SRC_RE = re.compile(r'(<img\b[^>]*?\bsrc=)(["\'])([^"\']+)\2', re.IGNORECASE)
 A_HREF_RE = re.compile(r'(<a\b[^>]*?\bhref=)(["\'])([^"\']+)\2', re.IGNORECASE)
 
-SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+\-.]*:")  # http:, https:, mailto:, data:, etc.
+SCHEME_RE = re.compile(
+    r"^[a-zA-Z][a-zA-Z0-9+\-.]*:"
+)  # http:, https:, mailto:, data:, etc.
 
 
 def _strip_angles(s: str) -> Tuple[str, bool]:

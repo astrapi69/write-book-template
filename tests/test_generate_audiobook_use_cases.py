@@ -3,12 +3,13 @@ from pathlib import Path
 from types import ModuleType
 import sys
 import textwrap
-import os
 
 from scripts.generate_audiobook import generate_audio_from_markdown, get_tts_adapter
 
+
 class RecordingTTS:
     """TTS stub that records calls and writes fake MP3s."""
+
     def __init__(self):
         self.calls = []
 
@@ -17,11 +18,14 @@ class RecordingTTS:
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         Path(out_path).write_bytes(b"FAKE_MP3")
 
+
 def w(p: Path, s: str):
     p.write_text(s, encoding="utf-8")
 
+
 def test_generation_orders_by_filename_and_skips_empty(tmp_path: Path):
-    src = tmp_path / "src"; src.mkdir()
+    src = tmp_path / "src"
+    src.mkdir()
     out = tmp_path / "out"
 
     # Will be emptied by cleaner (figure+image only)
@@ -41,16 +45,23 @@ def test_generation_orders_by_filename_and_skips_empty(tmp_path: Path):
     # Cleaned text should have no markdown noise
     assert tts.calls[0][0].startswith("Hello world link")
 
+
 def test_nested_output_dir_creation_and_text_content(tmp_path: Path):
-    src = tmp_path / "src"; src.mkdir()
+    src = tmp_path / "src"
+    src.mkdir()
     out = tmp_path / "audio" / "book"
-    w(src / "chapter.md", textwrap.dedent("""
+    w(
+        src / "chapter.md",
+        textwrap.dedent(
+            """
     ---
     title: meta
     ---
     # Título &amp; Überblick
     ¡Hola&nbsp;mundo! `code ok`
-    """))
+    """
+        ),
+    )
     tts = RecordingTTS()
     generate_audio_from_markdown(src, out, tts)
 
@@ -62,19 +73,25 @@ def test_nested_output_dir_creation_and_text_content(tmp_path: Path):
     assert "Hola mundo" in cleaned  # nbsp normalized
     assert "`" not in cleaned
 
+
 # ---------- Engine selection coverage with fakes (no real deps) --------------
+
 
 def _install_fake(module_name: str, class_name: str, fail_on_kwargs=None):
     """Install a minimal fake adapter module under sys.modules."""
     mod = ModuleType(module_name)
+
     class _Adapter:
         def __init__(self, *a, **kw):
             if callable(fail_on_kwargs) and fail_on_kwargs(kw):
                 raise ValueError("Missing API key")
+
         def speak(self, text, out_path: Path):
             Path(out_path).write_bytes(b"FAKE")
+
     setattr(mod, class_name, _Adapter)
     sys.modules[module_name] = mod
+
 
 def test_get_tts_adapter_paths(monkeypatch):
     _install_fake("scripts.tts.gtts_adapter", "GoogleTTSAdapter")
@@ -84,10 +101,14 @@ def test_get_tts_adapter_paths(monkeypatch):
     b = get_tts_adapter("pyttsx3", lang="de", voice="Anna", rate=170)
     assert hasattr(a, "speak") and hasattr(b, "speak")
 
+
 def test_get_tts_adapter_elevenlabs_key_required(monkeypatch):
     # Fake module that fails if api_key not passed
-    _install_fake("scripts.tts.elevenlabs_adapter", "ElevenLabsAdapter",
-                  fail_on_kwargs=lambda kw: not kw.get("api_key"))
+    _install_fake(
+        "scripts.tts.elevenlabs_adapter",
+        "ElevenLabsAdapter",
+        fail_on_kwargs=lambda kw: not kw.get("api_key"),
+    )
 
     # No key -> should raise
     monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
@@ -102,6 +123,7 @@ def test_get_tts_adapter_elevenlabs_key_required(monkeypatch):
     monkeypatch.setenv("ELEVENLABS_API_KEY", "XYZ")
     adapter = get_tts_adapter("elevenlabs", lang="en", voice="Rachel", rate=200)
     assert hasattr(adapter, "speak")
+
 
 def test_invalid_engine_raises():
     try:

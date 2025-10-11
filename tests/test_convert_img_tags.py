@@ -5,9 +5,11 @@ import re
 
 from scripts.convert_img_tags import convert_markdown_tree
 
+
 def write(p: Path, text: str):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(text, encoding="utf-8")
+
 
 def test_to_absolute_converts_relative_and_leaves_abs(tmp_path: Path):
     base = tmp_path
@@ -21,11 +23,11 @@ def test_to_absolute_converts_relative_and_leaves_abs(tmp_path: Path):
     md = chapters / "01.md"
     rel_path = os.path.relpath(img, start=md.parent)
     content = (
-        f'Before\n'
+        f"Before\n"
         f'<img src="{rel_path}" alt="rel" class="c"/>\n'
         f'<img alt="already-abs" src="{img}" width="100">\n'
-        f'<img src=\'{rel_path}\' alt=\'single-quoted\'>\n'
-        f'After\n'
+        f"<img src='{rel_path}' alt='single-quoted'>\n"
+        f"After\n"
     )
     write(md, content)
 
@@ -40,6 +42,7 @@ def test_to_absolute_converts_relative_and_leaves_abs(tmp_path: Path):
     assert any(str(img) in s for s in srcs)
     assert new_text.count(str(img)) == 3  # one was already absolute, plus two converted
 
+
 def test_to_relative_only_under_assets(tmp_path: Path):
     base = tmp_path
     chapters = base / "manuscript" / "chapters"
@@ -52,12 +55,13 @@ def test_to_relative_only_under_assets(tmp_path: Path):
 
     md = chapters / "02.md"
     text = (
-        f'<img src="{img_assets}" alt="ok">\n'
-        f'<img src="{img_outside}" alt="skip">\n'
+        f'<img src="{img_assets}" alt="ok">\n' f'<img src="{img_outside}" alt="skip">\n'
     )
     write(md, text)
 
-    changed, converted = convert_markdown_tree(base, to_absolute=False, assets_dir=base / "assets")
+    changed, converted = convert_markdown_tree(
+        base, to_absolute=False, assets_dir=base / "assets"
+    )
     assert changed == 1
     assert converted == 1
 
@@ -65,8 +69,11 @@ def test_to_relative_only_under_assets(tmp_path: Path):
     first_line = new_text.splitlines()[0]
     # The assets image becomes relative (not absolute), the outside one stays absolute
     assert 'alt="ok"' in first_line
-    assert not first_line.startswith("/") and not first_line.startswith(str(base))  # relative, not absolute
+    assert not first_line.startswith("/") and not first_line.startswith(
+        str(base)
+    )  # relative, not absolute
     assert str(img_outside) in new_text  # untouched
+
 
 def test_no_write_when_no_change(tmp_path: Path):
     base = tmp_path
@@ -83,6 +90,7 @@ def test_no_write_when_no_change(tmp_path: Path):
     assert converted == 0
     assert md.read_text(encoding="utf-8") == text
 
+
 def test_preserves_other_attributes_and_normalizes_order(tmp_path: Path):
     base = tmp_path
     chapters = base / "manuscript" / "chapters"
@@ -97,7 +105,7 @@ def test_preserves_other_attributes_and_normalizes_order(tmp_path: Path):
 
     t = md.read_text(encoding="utf-8")
     # Normalized to src then alt then others (alpha order)
-    assert t.startswith('<img ')
+    assert t.startswith("<img ")
     assert 'src="' in t and 'alt="' in t
     src_pos = t.index('src="')
     alt_pos = t.index('alt="')

@@ -131,7 +131,9 @@ def _has_any_option(extra: Iterable[str], names: set[str]) -> bool:
     return False
 
 
-def _split_valid_invalid_options(extra: List[str], allowed: set[str]) -> tuple[list[str], list[str]]:
+def _split_valid_invalid_options(
+    extra: List[str], allowed: set[str]
+) -> tuple[list[str], list[str]]:
     valid, invalid = [], []
     i = 0
     while i < len(extra):
@@ -140,7 +142,11 @@ def _split_valid_invalid_options(extra: List[str], allowed: set[str]) -> tuple[l
             name = tok.split("=", 1)[0]
             bucket = valid if name in allowed else invalid
             bucket.append(tok)
-            if "=" not in tok and (i + 1) < len(extra) and not extra[i + 1].startswith("-"):
+            if (
+                "=" not in tok
+                and (i + 1) < len(extra)
+                and not extra[i + 1].startswith("-")
+            ):
                 bucket.append(extra[i + 1])
                 i += 1
         i += 1
@@ -412,11 +418,14 @@ def export_safe(format: str, *extra: str):
 def export_pdf_safe(*extra: str):
     return export_safe("pdf", *extra)
 
+
 def export_epub_safe(*extra: str):
     return export_safe("epub", *extra)
 
+
 def export_docx_safe(*extra: str):
     return export_safe("docx", *extra)
+
 
 def export_markdown_safe(*extra: str):
     return export_safe("markdown", *extra)
@@ -453,6 +462,7 @@ def export_print_version_paperback_safe(*extra: str):
 
     args.extend(valid)
     _run_print_version(args)
+
 
 def export_print_version_hardcover_safe(*extra: str):
     """
@@ -517,7 +527,9 @@ def main(argv: list[str] | None = None) -> None:
     p_epub2.add_argument("passthrough", nargs=argparse.REMAINDER)
 
     # epub2-with-cover
-    p_epub2c = sub.add_parser("epub2-with-cover", help="Export EPUB2 with default cover")
+    p_epub2c = sub.add_parser(
+        "epub2-with-cover", help="Export EPUB2 with default cover"
+    )
     p_epub2c.add_argument("--strict-opts", action="store_true")
     p_epub2c.add_argument("passthrough", nargs=argparse.REMAINDER)
 
@@ -544,18 +556,26 @@ def main(argv: list[str] | None = None) -> None:
         extras = extras[1:]
 
     if ns.cmd == "export":
-        export(ns.format, ns.cover, *extras, *(["--strict-opts"] if ns.strict_opts else []))
+        export(
+            ns.format, ns.cover, *extras, *(["--strict-opts"] if ns.strict_opts else [])
+        )
     elif ns.cmd == "epub2":
         export_epub2(*extras, *(["--strict-opts"] if ns.strict_opts else []))
     elif ns.cmd == "epub2-with-cover":
         export_epub2_with_cover(*extras, *(["--strict-opts"] if ns.strict_opts else []))
     elif ns.cmd == "print-version":
         if ns.book_type == "hardcover":
-            export_print_version_hardcover(*extras, *(["--strict-opts"] if ns.strict_opts else []))
+            export_print_version_hardcover(
+                *extras, *(["--strict-opts"] if ns.strict_opts else [])
+            )
         elif ns.book_type == "paperback":
-            export_print_version_paperback(*extras, *(["--strict-opts"] if ns.strict_opts else []))
+            export_print_version_paperback(
+                *extras, *(["--strict-opts"] if ns.strict_opts else [])
+            )
         else:
-            export_print_version_epub(*extras, *(["--strict-opts"] if ns.strict_opts else []))
+            export_print_version_epub(
+                *extras, *(["--strict-opts"] if ns.strict_opts else [])
+            )
     elif ns.cmd == "safe":
         export_safe(ns.format, *extras, *(["--strict-opts"] if ns.strict_opts else []))
     elif ns.cmd == "list-allowed-opts":

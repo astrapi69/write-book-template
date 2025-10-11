@@ -2,8 +2,10 @@
 import textwrap
 from scripts.generate_audiobook import clean_markdown_for_tts
 
+
 def test_mixed_markdown_html_content_is_readable():
-    src = textwrap.dedent("""
+    src = textwrap.dedent(
+        """
     <!-- intro -->
     # Chapter 01: Arrival
 
@@ -24,7 +26,8 @@ def test_mixed_markdown_html_content_is_readable():
     ```
 
     Inline `var = 42` is ok.
-    """)
+    """
+    )
     out = clean_markdown_for_tts(src)
     # Essentials preserved
     assert "Chapter 01: Arrival" in out
@@ -36,23 +39,30 @@ def test_mixed_markdown_html_content_is_readable():
     assert "|" not in out
     assert "print(" not in out
 
+
 def test_multilingual_and_entities():
     src = "Hola&nbsp;niña &amp; niño — déjà vu &uuml;ber alles"
     out = clean_markdown_for_tts(src)
     # NBSP normalized to plain space; &amp; unescaped; ü from &uuml; handled
     assert "Hola niña & niño — déjà vu über alles" in out
 
+
 def test_reference_link_spam_removed():
-    src = textwrap.dedent("""
+    src = textwrap.dedent(
+        """
     Read about the [last spark][ls] and [universal fire][] now.
     [ls]: https://a.example
     [universal fire]: https://b.example
-    """)
+    """
+    )
     out = clean_markdown_for_tts(src)
     assert "last spark" in out and "universal fire" in out
     assert "example" not in out
     # no remaining definition lines
-    assert "[" not in "\n".join(line for line in out.splitlines() if line.strip().startswith("["))
+    assert "[" not in "\n".join(
+        line for line in out.splitlines() if line.strip().startswith("[")
+    )
+
 
 def test_heading_only_chapter_still_produces_text():
     src = "# Only a Title"

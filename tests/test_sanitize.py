@@ -70,12 +70,17 @@ def test_main_dry_run_and_excludes(tmp_path: Path, capsys: pytest.CaptureFixture
     inc.write_text("Hello\u00A0World", encoding="utf-8")
     exc.write_text("X\u200bY", encoding="utf-8")
 
-    main([
-        "--root", str(root),
-        "--include", "**/*.md",
-        "--exclude", "sub/*.md",
-        "--dry-run",
-    ])
+    main(
+        [
+            "--root",
+            str(root),
+            "--include",
+            "**/*.md",
+            "--exclude",
+            "sub/*.md",
+            "--dry-run",
+        ]
+    )
 
     out = capsys.readouterr().out
     assert "WOULD clean" in out and "keep.md" in out

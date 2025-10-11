@@ -110,9 +110,7 @@ def change_extension(
 
         suffix = p.suffix
         match = (
-            suffix.lower() == src_ext.lower()
-            if case_insensitive
-            else suffix == src_ext
+            suffix.lower() == src_ext.lower() if case_insensitive else suffix == src_ext
         )
         if not match:
             result.skipped_nonmatch += 1
@@ -131,7 +129,10 @@ def change_extension(
                 try:
                     new_path.unlink()
                 except Exception as e:
-                    print(f"❌ Failed to remove existing target '{new_path}': {e}", file=sys.stderr)
+                    print(
+                        f"❌ Failed to remove existing target '{new_path}': {e}",
+                        file=sys.stderr,
+                    )
                     result.errors += 1
                     continue
 
@@ -139,11 +140,15 @@ def change_extension(
         result.planned += 1
         result.changed_paths.append((p, new_path))
         if dry_run:
-            print(f"🔎 (dry-run) {p.relative_to(target_dir)} → {new_path.relative_to(target_dir)}")
+            print(
+                f"🔎 (dry-run) {p.relative_to(target_dir)} → {new_path.relative_to(target_dir)}"
+            )
         else:
             try:
                 p.rename(new_path)
-                print(f"🔄 {p.relative_to(target_dir)} → {new_path.relative_to(target_dir)}")
+                print(
+                    f"🔄 {p.relative_to(target_dir)} → {new_path.relative_to(target_dir)}"
+                )
                 result.renamed += 1
             except Exception as e:
                 print(f"❌ Failed to rename '{p}' → '{new_path}': {e}", file=sys.stderr)
@@ -152,8 +157,10 @@ def change_extension(
     if dry_run:
         print(f"✅ Dry-run complete: {result.planned} file(s) would be changed.")
     else:
-        print(f"✅ Rename complete: {result.renamed} file(s) changed. "
-              f"{result.skipped_conflict} conflict(s) skipped. {result.errors} error(s).")
+        print(
+            f"✅ Rename complete: {result.renamed} file(s) changed. "
+            f"{result.skipped_conflict} conflict(s) skipped. {result.errors} error(s)."
+        )
 
     return result
 
@@ -163,13 +170,29 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         description="Bulk-change file extensions without modifying content."
     )
     ap.add_argument("directory", help="Target directory to process.")
-    ap.add_argument("--from", dest="src", required=True, help="Source extension (e.g., .png)")
-    ap.add_argument("--to", dest="dst", required=True, help="Destination extension (e.g., .jpg)")
-    ap.add_argument("-r", "--recursive", action="store_true", help="Recurse into subdirectories")
-    ap.add_argument("--case-sensitive", dest="case_sensitive", action="store_true",
-                   help="Match source extension case-sensitively (default: case-insensitive)")
-    ap.add_argument("--dry-run", action="store_true", help="Show what would be changed, but do nothing")
-    ap.add_argument("--overwrite", action="store_true", help="Overwrite if destination exists")
+    ap.add_argument(
+        "--from", dest="src", required=True, help="Source extension (e.g., .png)"
+    )
+    ap.add_argument(
+        "--to", dest="dst", required=True, help="Destination extension (e.g., .jpg)"
+    )
+    ap.add_argument(
+        "-r", "--recursive", action="store_true", help="Recurse into subdirectories"
+    )
+    ap.add_argument(
+        "--case-sensitive",
+        dest="case_sensitive",
+        action="store_true",
+        help="Match source extension case-sensitively (default: case-insensitive)",
+    )
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be changed, but do nothing",
+    )
+    ap.add_argument(
+        "--overwrite", action="store_true", help="Overwrite if destination exists"
+    )
     return ap.parse_args(argv)
 
 

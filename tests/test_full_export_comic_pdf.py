@@ -1,6 +1,6 @@
 # tests/test_full_export_comic_pdf.py
 from pathlib import Path
-from unittest.mock import patch, call
+from unittest.mock import patch
 import scripts.full_export_comic as fec
 import subprocess
 
@@ -26,7 +26,7 @@ def test_export_pdf_success_invokes_pandoc(tmp_path: Path):
         ]
         # Ensure the beginning of the command matches (rest are -V mainfont/monofont)
         actual = run.call_args.args[0]
-        assert actual[:len(expected)] == expected
+        assert actual[: len(expected)] == expected
 
 
 def test_export_pdf_failure_returns_false(tmp_path: Path):

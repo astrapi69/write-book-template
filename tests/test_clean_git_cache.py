@@ -1,16 +1,16 @@
 # tests/test_clean_git_cache.py
 from pathlib import Path
 import subprocess
-import types
-import builtins
 import pytest
 
 from scripts.clean_git_cache import clean_git_cache
+
 
 class DummyCompleted:
     def __init__(self, stdout="", stderr=""):
         self.stdout = stdout
         self.stderr = stderr
+
 
 def test_clean_git_cache_calls_commands_in_order(monkeypatch, tmp_path: Path, capsys):
     calls = []
@@ -39,6 +39,7 @@ def test_clean_git_cache_calls_commands_in_order(monkeypatch, tmp_path: Path, ca
     assert "🧹 Cleaning Git object cache safely..." in out
     assert "✅ Git object cache cleaned successfully." in out
 
+
 def test_clean_git_cache_propagates_errors(monkeypatch, tmp_path: Path):
     def fake_run_fail(cmd, cwd=None, check=True, capture_output=True, text=True):
         raise subprocess.CalledProcessError(
@@ -55,6 +56,7 @@ def test_clean_git_cache_propagates_errors(monkeypatch, tmp_path: Path):
     assert exc.value.returncode == 128
     assert "not a git repository" in (exc.value.stderr or "").lower()
 
+
 def test_clean_git_cache_non_aggressive(monkeypatch, tmp_path: Path):
     recorded = {}
 
@@ -70,5 +72,11 @@ def test_clean_git_cache_non_aggressive(monkeypatch, tmp_path: Path):
 
     clean_git_cache(cwd=tmp_path, aggressive=False, prune="1.week.ago")
 
-    assert recorded["reflog"] == ["git", "reflog", "expire", "--expire=1.week.ago", "--all"]
+    assert recorded["reflog"] == [
+        "git",
+        "reflog",
+        "expire",
+        "--expire=1.week.ago",
+        "--all",
+    ]
     assert recorded["gc"] == ["git", "gc", "--prune=1.week.ago"]  # no --aggressive

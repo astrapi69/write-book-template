@@ -6,9 +6,22 @@ import argparse
 import yaml
 import toml
 import threading
+import tempfile
 from pathlib import Path
 from scripts.enums.book_type import BookType
-from scripts.validate_format import validate_epub_with_epubcheck, validate_pdf, validate_markdown, validate_docx
+from scripts.validate_format import (
+    validate_epub_with_epubcheck,
+    validate_pdf,
+    validate_markdown,
+    validate_docx,
+)
+
+# replace with your data
+DEFAULT_METADATA = """title: 'CHANGE TO YOUR TITLE'
+author: 'YOUR NAME'
+date: '2025'
+lang: 'en'
+"""
 
 # Change the current working directory to the root directory of the project
 # (Assumes the script is located one level inside the project root)
@@ -16,31 +29,39 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
 
 # Define important directory and file paths
-BOOK_DIR = "./manuscript"                       # Location of markdown files organized by sections
-OUTPUT_DIR = "./output"                         # Output directory for compiled formats
-BACKUP_DIR = "./output_backup"                  # Backup location for previous output
+BOOK_DIR = "./manuscript"  # Location of markdown files organized by sections
+OUTPUT_DIR = "./output"  # Output directory for compiled formats
+BACKUP_DIR = "./output_backup"  # Backup location for previous output
 # Set to None to derive from pyproject.toml automatically.
 # Set a string to override the output file base name manually.
 OUTPUT_FILE = ""
-LOG_FILE = "export.log"                         # Log file for script and Pandoc output/errors
+LOG_FILE = "export.log"  # Log file for script and Pandoc output/errors
 
 # Supporting script paths
 SCRIPT_DIR = "./scripts"
-ABSOLUTE_SCRIPT = os.path.join(SCRIPT_DIR, "convert_to_absolute.py")     # Script to convert relative links to absolute
-RELATIVE_SCRIPT = os.path.join(SCRIPT_DIR, "convert_to_relative.py")     # Script to revert absolute links back to relative
-IMG_SCRIPT = os.path.join(SCRIPT_DIR, "convert_img_tags.py")             # Script to modify image tag styles if needed
+ABSOLUTE_SCRIPT = os.path.join(
+    SCRIPT_DIR, "convert_to_absolute.py"
+)  # Script to convert relative links to absolute
+RELATIVE_SCRIPT = os.path.join(
+    SCRIPT_DIR, "convert_to_relative.py"
+)  # Script to revert absolute links back to relative
+IMG_SCRIPT = os.path.join(
+    SCRIPT_DIR, "convert_img_tags.py"
+)  # Script to modify image tag styles if needed
 TOC_FILE = Path(BOOK_DIR) / "front-matter" / "toc.md"
 NORMALIZE_TOC = os.path.join(SCRIPT_DIR, "normalize_toc_links.py")
 
 CONFIG_DIR = "./config"
-METADATA_FILE =  Path(CONFIG_DIR) / "metadata.yaml"     # YAML file for Pandoc metadata (title, author, etc.)
+METADATA_FILE = (
+    Path(CONFIG_DIR) / "metadata.yaml"
+)  # YAML file for Pandoc metadata (title, author, etc.)
 
 # Supported output formats and their corresponding Pandoc targets
 FORMATS = {
     "markdown": "gfm",  # GitHub-Flavored Markdown
-    "pdf": "pdf",       # PDF format
-    "epub": "epub",     # EPUB eBook format
-    "docx": "docx",     # Microsoft Word format
+    "pdf": "pdf",  # PDF format
+    "epub": "epub",  # EPUB eBook format
+    "docx": "docx",  # Microsoft Word format
 }
 
 # Default section order (customizable)
@@ -64,7 +85,7 @@ EBOOK_SECTION_ORDER = DEFAULT_SECTION_ORDER
 # Paperback section order (customizable)
 PAPERBACK_SECTION_ORDER = [
     "front-matter/imprint.md",
-    "front-matter/toc_print_edition.md", # <-- print ToC with page numbers
+    "front-matter/toc_print_edition.md",  # <-- print ToC with page numbers
     "front-matter/preface.md",
     "front-matter/foreword.md",
     "chapters",  # Entire chapters folder
@@ -78,6 +99,7 @@ PAPERBACK_SECTION_ORDER = [
 
 # Hardcover section order (customizable)
 HARDCOVER_SECTION_ORDER = PAPERBACK_SECTION_ORDER
+
 
 def pick_section_order(book_type: "BookType", fmt: str) -> list[str]:
     """
@@ -120,9 +142,11 @@ def get_project_name_from_pyproject(pyproject_path="pyproject.toml"):
         pyproject_path = Path(__file__).resolve().parent.parent / "pyproject.toml"
     try:
         data = toml.load(pyproject_path)
-        return data.get("tool", {}).get("poetry", {}).get("name") \
-            or data.get("project", {}).get("name") \
+        return (
+            data.get("tool", {}).get("poetry", {}).get("name")
+            or data.get("project", {}).get("name")
             or "book"
+        )
     except Exception as e:
         print(f"⚠️ Could not read project name from {pyproject_path}: {e}")
         return "book"
@@ -148,7 +172,9 @@ def run_script(script_path, arg=None):
         cmd = ["python3", script_path]
         if arg:
             cmd.append(arg)
-        subprocess.run(cmd, check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a"))
+        subprocess.run(
+            cmd, check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a")
+        )
         print(f"✅ Successfully executed: {script_path} {arg if arg else ''}")
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running script {script_path}: {e}")
@@ -176,13 +202,6 @@ def prepare_output_folder(verbose=False):
     if verbose:
         print("📂 Created clean output directory.")
 
-import tempfile
-#TODO replace with your data
-DEFAULT_METADATA = """title: 'CHANGE TO YOUR TITLE'
-author: 'YOUR NAME'
-date: '2025'
-lang: 'en'
-"""
 
 def get_or_create_metadata_file(preferred_path: Path | str | None = None):
     """
@@ -214,14 +233,21 @@ def ensure_metadata_file():
         with open(METADATA_FILE, "w", encoding="utf-8") as f:
             # TODO replace with your data
             f.write(
-                "title: \"CHANGE TO YOUR TITLE\"\n"
-                "author: \"YOUR NAME\"\n"
-                "date: \"2025\"\n"
-                "lang: \"en\"\n"
+                'title: "CHANGE TO YOUR TITLE"\n'
+                'author: "YOUR NAME"\n'
+                'date: "2025"\n'
+                'lang: "en"\n'
             )
 
 
-def compile_book(format, section_order, cover_path=None, force_epub2=False, lang="en", custom_ext=None):
+def compile_book(
+    format,
+    section_order,
+    cover_path=None,
+    force_epub2=False,
+    lang="en",
+    custom_ext=None,
+):
     """
     Compiles the book into a specific format using Pandoc.
 
@@ -240,7 +266,11 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False, lang
         if os.path.isdir(section_path):
             # Include all .md files in directory, sorted
             md_files.extend(
-                sorted(os.path.join(section_path, f) for f in os.listdir(section_path) if f.endswith(".md"))
+                sorted(
+                    os.path.join(section_path, f)
+                    for f in os.listdir(section_path)
+                    if f.endswith(".md")
+                )
             )
         elif os.path.isfile(section_path):
             # Include specific markdown file
@@ -252,33 +282,33 @@ def compile_book(format, section_order, cover_path=None, force_epub2=False, lang
 
     # Construct Pandoc command
     pandoc_cmd = [
-                     "pandoc",
-                     "--verbose",
-                     "--from=markdown",
-                     f"--to={FORMATS[format]}",
-                     f"--output={output_path}",
-                     f"--resource-path={os.path.abspath('./assets')}",  # To resolve images and assets
-                     f"--metadata-file={METADATA_FILE}",
-                 ] + md_files  # Append all markdown files to compile
+        "pandoc",
+        "--verbose",
+        "--from=markdown",
+        f"--to={FORMATS[format]}",
+        f"--output={output_path}",
+        f"--resource-path={os.path.abspath('./assets')}",  # To resolve images and assets
+        f"--metadata-file={METADATA_FILE}",
+    ] + md_files  # Append all markdown files to compile
 
     if format == "epub":
-        pandoc_cmd.extend([
-            "--metadata", f"lang={lang}"
-        ])
+        pandoc_cmd.extend(["--metadata", f"lang={lang}"])
         if force_epub2:
-            pandoc_cmd.extend([
-                "--metadata", "epub.version=2"
-            ])
+            pandoc_cmd.extend(["--metadata", "epub.version=2"])
         if cover_path:
             pandoc_cmd.append(f"--epub-cover-image={cover_path}")
 
     # For PDF output, specify the PDF engine and font options
     if format == "pdf":
-        pandoc_cmd.extend([
-            "--pdf-engine=lualatex",  # xelatex, lualatex, pdflatex
-            "-V", "mainfont=DejaVu Sans",
-            "-V", "monofont=DejaVu Sans Mono"
-        ])
+        pandoc_cmd.extend(
+            [
+                "--pdf-engine=lualatex",  # xelatex, lualatex, pdflatex
+                "-V",
+                "mainfont=DejaVu Sans",
+                "-V",
+                "monofont=DejaVu Sans Mono",
+            ]
+        )
 
     # For Markdown output: prevent line breaks in links and paragraphs
     if format == "markdown":
@@ -300,9 +330,19 @@ def normalize_toc_if_needed(toc_path: Path, args):
             toc_mode = "strip-to-anchors"
             toc_ext = args.extension if args.extension else "md"
             subprocess.run(
-                ["python3", NORMALIZE_TOC, "--toc", str(toc_path),
-                 "--mode", toc_mode, "--ext", toc_ext],
-                check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a")
+                [
+                    "python3",
+                    NORMALIZE_TOC,
+                    "--toc",
+                    str(toc_path),
+                    "--mode",
+                    toc_mode,
+                    "--ext",
+                    toc_ext,
+                ],
+                check=True,
+                stdout=open(LOG_FILE, "a"),
+                stderr=open(LOG_FILE, "a"),
             )
             print(f"✅ TOC normalized using mode={toc_mode}: {toc_path}")
         else:
@@ -313,43 +353,63 @@ def normalize_toc_if_needed(toc_path: Path, args):
 
 def main():
     """Main script execution logic."""
-    parser = argparse.ArgumentParser(description="Export your book into multiple formats.")
-    parser.add_argument("--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub).")
+    parser = argparse.ArgumentParser(
+        description="Export your book into multiple formats."
+    )
+    parser.add_argument(
+        "--format", type=str, help="Specify formats (comma-separated, e.g., pdf,epub)."
+    )
     parser.add_argument(
         "--order",
         type=str,
         default=None,  # was: ",".join(DEFAULT_SECTION_ORDER)
-        help="Specify document order (comma-separated). If omitted, a sane default is chosen based on --book-type."
+        help="Specify document order (comma-separated). If omitted, a sane default is chosen based on --book-type.",
     )
 
-    parser.add_argument("--cover", type=str, help="Optional path to cover image (for EPUB export).")
-    parser.add_argument("--epub2", action="store_true", help="Force EPUB 2 export (for epubli compatibility).")
-    parser.add_argument("--lang", type=str, help="Language code for metadata (e.g. en, de, fr)")
-    parser.add_argument("--extension", type=str, help="Custom file extension for markdown export (default: md)")
+    parser.add_argument(
+        "--cover", type=str, help="Optional path to cover image (for EPUB export)."
+    )
+    parser.add_argument(
+        "--epub2",
+        action="store_true",
+        help="Force EPUB 2 export (for epubli compatibility).",
+    )
+    parser.add_argument(
+        "--lang", type=str, help="Language code for metadata (e.g. en, de, fr)"
+    )
+    parser.add_argument(
+        "--extension",
+        type=str,
+        help="Custom file extension for markdown export (default: md)",
+    )
     parser.add_argument(
         "--book-type",
         type=str,
         choices=[bt.value for bt in BookType],
         default=BookType.EBOOK.value,
-        help="Specify the book type (ebook, paperback, etc.). Affects output file naming."
+        help="Specify the book type (ebook, paperback, etc.). Affects output file naming.",
     )
-    parser.add_argument("--output-file", type=str, help="Custom output file base name (overrides project name)")
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        help="Custom output file base name (overrides project name)",
+    )
     parser.add_argument(
         "--no-type-suffix",
         action="store_true",
-        help="Do not append '-{book_type}' to the output base name."
+        help="Do not append '-{book_type}' to the output base name.",
     )
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--skip-images",
         action="store_true",
-        help="Skip all image-related steps (no path rewrites, no tag transforms)."
+        help="Skip all image-related steps (no path rewrites, no tag transforms).",
     )
     group.add_argument(
         "--keep-relative-paths",
         action="store_true",
-        help="Do not rewrite image/URL paths to absolute and back; keeps relative paths (skips Steps 1 and 4)."
+        help="Do not rewrite image/URL paths to absolute and back; keeps relative paths (skips Steps 1 and 4).",
     )
 
     args = parser.parse_args()
@@ -390,7 +450,9 @@ def main():
     if cli_lang:
         if metadata_lang and cli_lang != metadata_lang:
             print("\n⚠️⚠️⚠️ LANGUAGE MISMATCH DETECTED ⚠️⚠️⚠️")
-            print(f"Metadata file says: '{metadata_lang}' but CLI argument is: '{cli_lang}'")
+            print(
+                f"Metadata file says: '{metadata_lang}' but CLI argument is: '{cli_lang}'"
+            )
             print("Using CLI argument value.\n")
         lang = cli_lang
     elif metadata_lang:
@@ -409,9 +471,19 @@ def main():
             toc_mode = "strip-to-anchors"
             toc_ext = args.extension if args.extension else "md"
             subprocess.run(
-                ["python3", NORMALIZE_TOC, "--toc", str(TOC_FILE),
-                 "--mode", toc_mode, "--ext", toc_ext],
-                check=True, stdout=open(LOG_FILE, "a"), stderr=open(LOG_FILE, "a")
+                [
+                    "python3",
+                    NORMALIZE_TOC,
+                    "--toc",
+                    str(TOC_FILE),
+                    "--mode",
+                    toc_mode,
+                    "--ext",
+                    toc_ext,
+                ],
+                check=True,
+                stdout=open(LOG_FILE, "a"),
+                stderr=open(LOG_FILE, "a"),
             )
             print(f"✅ TOC normalized using mode={toc_mode}")
         else:
@@ -422,17 +494,19 @@ def main():
     # Step 1: Convert image paths to absolute
     # Run pre-processing scripts unless user opts out or wants to keep relative paths
     if not args.skip_images and not args.keep_relative_paths:
-        run_script(ABSOLUTE_SCRIPT)                  # Convert relative paths to absolute
-        run_script(IMG_SCRIPT, "--to-absolute")      # Process image tags
+        run_script(ABSOLUTE_SCRIPT)  # Convert relative paths to absolute
+        run_script(IMG_SCRIPT, "--to-absolute")  # Process image tags
     elif args.skip_images:
         print("⏭️  Skipping Step 1 (skip-images).")
     else:
         print("⏭️  Skipping Step 1 (keep relative paths).")
 
     # Step 2: Prepare environment
-    prepare_output_folder()                              # Prepare folders and backup if needed
+    prepare_output_folder()  # Prepare folders and backup if needed
     global METADATA_FILE
-    METADATA_FILE, _is_temp_metadata = get_or_create_metadata_file(METADATA_FILE) # Make sure metadata exists
+    METADATA_FILE, _is_temp_metadata = get_or_create_metadata_file(
+        METADATA_FILE
+    )  # Make sure metadata exists
 
     # Step 3: Compile book in requested formats
     # Determine formats to export
@@ -444,21 +518,35 @@ def main():
             print(f"⚠️ Skipping unknown format: {fmt}")
             continue
 
-        effective_order = section_order if section_order is not None else pick_section_order(book_type, fmt)
+        effective_order = (
+            section_order
+            if section_order is not None
+            else pick_section_order(book_type, fmt)
+        )
 
         # Warnen, falls die Print-ToC-Datei fehlt
         if "front-matter/toc_print_edition.md" in effective_order:
             toc_print_path = Path(BOOK_DIR) / "front-matter" / "toc_print_edition.md"
             if not toc_print_path.exists():
-                print("⚠️ Print ToC file missing: manuscript/front-matter/toc_print_edition.md "
-                      "(fallback to ebook toc.md)")
+                print(
+                    "⚠️ Print ToC file missing: manuscript/front-matter/toc_print_edition.md "
+                    "(fallback to ebook toc.md)"
+                )
                 # Fallback: ersetze durch toc.md, falls vorhanden
                 idx = effective_order.index("front-matter/toc_print_edition.md")
                 effective_order = effective_order.copy()
                 effective_order[idx] = "front-matter/toc.md"
 
         # TOC normalisieren NUR wenn es toc.md ist (ebook)
-        toc_candidate = Path(BOOK_DIR) / "front-matter" / ("toc.md" if "front-matter/toc.md" in effective_order else "toc_print_edition.md")
+        toc_candidate = (
+            Path(BOOK_DIR)
+            / "front-matter"
+            / (
+                "toc.md"
+                if "front-matter/toc.md" in effective_order
+                else "toc_print_edition.md"
+            )
+        )
         normalize_toc_if_needed(toc_candidate, args)
 
         compile_book(fmt, effective_order, args.cover, args.epub2, lang, args.extension)
@@ -466,8 +554,8 @@ def main():
     # Step 4: Restore original image paths
     # Revert any image/URL changes made before compilation unless we kept relative paths
     if not args.skip_images and not args.keep_relative_paths:
-        run_script(RELATIVE_SCRIPT)                  # Convert absolute paths back to relative
-        run_script(IMG_SCRIPT, "--to-relative")      # Revert image tag changes
+        run_script(RELATIVE_SCRIPT)  # Convert absolute paths back to relative
+        run_script(IMG_SCRIPT, "--to-relative")  # Revert image tag changes
     elif args.skip_images:
         print("⏭️  Skipping Step 4 (skip-images).")
     else:
@@ -485,7 +573,7 @@ def main():
                 target=validate_epub_with_epubcheck,
                 args=(output_path,),
                 name=f"Validate-{fmt.upper()}",
-                daemon=False
+                daemon=False,
             )
             print("🧩 EPUB generated. Validation running in background...")
         elif fmt == "pdf":
@@ -493,7 +581,7 @@ def main():
                 target=validate_pdf,
                 args=(output_path,),
                 name=f"Validate-{fmt.upper()}",
-                daemon=False
+                daemon=False,
             )
             print("🧩 PDF generated. Validation running in background...")
         elif fmt == "docx":
@@ -501,7 +589,7 @@ def main():
                 target=validate_docx,
                 args=(output_path,),
                 name=f"Validate-{fmt.upper()}",
-                daemon=False
+                daemon=False,
             )
             print("🧩 DOCX generated. Validation running in background...")
         elif fmt == "markdown":
@@ -509,7 +597,7 @@ def main():
                 target=validate_markdown,
                 args=(output_path,),
                 name=f"Validate-{fmt.upper()}",
-                daemon=False
+                daemon=False,
             )
             print("🧩 Markdown generated. Validation running in background...")
         else:

@@ -1,14 +1,12 @@
 # tests/test_full_export_comic_combine.py
 from pathlib import Path
-import io
-import re
-import sys
 
 import scripts.full_export_comic as fec
 
 
 def write_html(p: Path, head: str, body: str):
-    p.write_text(f"""<!doctype html>
+    p.write_text(
+        f"""<!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
@@ -19,7 +17,9 @@ def write_html(p: Path, head: str, body: str):
 {body}
 </body>
 </html>
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
 
 
 def test_combines_html_extracts_bodies(tmp_path: Path):
@@ -47,7 +47,9 @@ def test_combines_html_extracts_bodies(tmp_path: Path):
     assert "<title>Die Nasenbohrer-Chroniken</title>" in text
     assert 'rel="stylesheet" href="config/comic.css"' in text
     # body merged in correct order with markers
-    assert text.index("<!-- BEGIN 01-einleitung.html -->") < text.index("<!-- BEGIN 02-abenteuer.html -->")
+    assert text.index("<!-- BEGIN 01-einleitung.html -->") < text.index(
+        "<!-- BEGIN 02-abenteuer.html -->"
+    )
     assert "<h1>Intro</h1>" in text and "<p>Story</p>" in text
 
 
@@ -60,7 +62,12 @@ def test_sorting_by_numeric_prefix_then_name(tmp_path: Path):
 
     out = tmp_path / "out/book.html"
     included = fec.combine_html_chapters(str(c), str(out))
-    assert [p.name for p in included] == ["01-eins.html", "2-zwei.html", "a-alpha.html", "z-omega.html"]
+    assert [p.name for p in included] == [
+        "01-eins.html",
+        "2-zwei.html",
+        "a-alpha.html",
+        "z-omega.html",
+    ]
 
 
 def test_includes_whole_file_when_no_body(tmp_path: Path):

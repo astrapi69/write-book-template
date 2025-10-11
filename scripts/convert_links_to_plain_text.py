@@ -23,7 +23,7 @@ FILE_PATHS = [
 
 # Regex patterns
 # Prefer an angle-bracketed target <...> if present; otherwise match up to the closing ')'
-MD_LINK_RE = re.compile(r'(?<!\!)\[(?P<label>.*?)\]\((?P<target><.*?>|[^)]*?)\)')
+MD_LINK_RE = re.compile(r"(?<!\!)\[(?P<label>.*?)\]\((?P<target><.*?>|[^)]*?)\)")
 FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
 
@@ -35,12 +35,14 @@ def _protect_segments(text: str) -> Tuple[str, Dict[str, str]]:
 
     def protect(pattern: re.Pattern, prefix: str, s: str) -> str:
         nonlocal idx
+
         def repl(m: re.Match) -> str:
             nonlocal idx
             token = f"{{{{{prefix}_{idx}}}}}"
             mapping[token] = m.group(0)
             idx += 1
             return token
+
         return pattern.sub(repl, s)
 
     tmp = protect(FENCE_RE, "FENCE", text)
