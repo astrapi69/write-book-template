@@ -54,30 +54,30 @@ def run_main_with_args(monkeypatch, args, tmp_path,
 def test_output_file_explicit(monkeypatch, tmp_path):
     out = run_main_with_args(monkeypatch, ["--output-file", "custom"], tmp_path,
                              stub_project_name="ignored")
-    assert "custom-ebook" in out
+    assert "custom_ebook" in out
 
 
 def test_output_file_from_pyproject(monkeypatch, tmp_path):
     # Here we bypass TOML parsing and directly control return value
     out = run_main_with_args(monkeypatch, [], tmp_path, stub_project_name="demo-book")
-    assert "demo-book-ebook" in out
+    assert "demo-book_ebook" in out
 
 
 def test_output_file_preset(monkeypatch, tmp_path):
     out = run_main_with_args(monkeypatch, [], tmp_path,
                              preset_output="presetname",
                              stub_project_name="ignored")
-    assert "presetname-ebook" in out
+    assert "presetname_ebook" in out
 
 
 def test_output_file_book_type(monkeypatch, tmp_path):
     out = run_main_with_args(monkeypatch, ["--book-type", "paperback"], tmp_path,
                              stub_project_name="demo-book")
-    assert "demo-book-paperback" in out
+    assert "demo-book_paperback" in out
 
 
 def test_output_file_broken_pyproject(monkeypatch, tmp_path):
     # Simulate parsing error fallback
     out = run_main_with_args(monkeypatch, [], tmp_path,
                              stub_project_name="book")
-    assert "book-ebook" in out
+    assert "book_ebook" in out
