@@ -6,8 +6,8 @@ import shutil
 import sys
 import unicodedata
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Set
+from pathlib import Path
 
 import ftfy
 
@@ -107,10 +107,10 @@ def main(argv: list[str] | None = None) -> None:
     stats = Stats()
     files = sorted(root.glob(args.include))
     # apply excludes
-    excluded: Set[str] = set()
+    excluded: Set[Path] = set()
     for pattern in args.exclude:
-        excluded.update(str(p) for p in root.glob(pattern))
-    files = [f for f in files if f not in excluded and f.is_file()]
+        excluded.update(root.glob(pattern))
+    files = [f for f in files if f.is_file() and f not in excluded]
 
     if not files:
         print(f"⚠️  No Markdown files for pattern {args.include} in {root}")

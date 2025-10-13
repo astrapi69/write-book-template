@@ -15,7 +15,7 @@ Features
 from __future__ import annotations
 import argparse
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Iterable, List, Tuple
 
@@ -28,7 +28,7 @@ class RenameResult:
     skipped_nonmatch: int = 0
     errors: int = 0
     planned: int = 0  # for dry-run reporting
-    changed_paths: List[Tuple[Path, Path]] = []
+    changed_paths: List[Tuple[Path, Path]] = field(default_factory=list)
 
     def to_dict(self):
         d = asdict(self)

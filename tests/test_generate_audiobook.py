@@ -9,10 +9,11 @@ from scripts.generate_audiobook import generate_audio_from_markdown, get_tts_ada
 
 
 class DummyTTS(TTSAdapter):
-    def __init__(self):
-        self.calls = []
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, Path]] = []
 
     def speak(self, text: str, output_path: Path) -> None:
+        self.calls.append((text, output_path))
         output_path.write_bytes(b"\x00")
 
 
