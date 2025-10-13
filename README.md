@@ -197,7 +197,7 @@ Here are the main sections to get you started:
 
 ## 📁 Directory Structure
 
-```
+```tree
 write-book-template/
 │── manuscript/
 │   ├── chapters/
