@@ -38,8 +38,8 @@ jobs:
           poetry run ruff check .
           poetry run black --check .
 
-      - name: Type check (mypy)
-        run: poetry run mypy .
+      - name: Type check (mypy via pre-commit)
+        run: poetry run pre-commit run mypy --all-files
 
       - name: Tests
         run: poetry run pytest -q --maxfail=1 --disable-warnings --cov=./ --cov-report=xml
