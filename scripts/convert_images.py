@@ -16,7 +16,7 @@ import argparse
 import re
 import shutil
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple, Optional, Sequence
+from typing import Dict, List, Tuple, Optional, Sequence
 
 FIGURE_TEMPLATE = """<figure{klass}>
   <img src="{src}" alt="{alt}" />

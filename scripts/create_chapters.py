@@ -5,7 +5,7 @@ import argparse
 import logging
 import re
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
 LOG = logging.getLogger("create_chapters")
 logging.basicConfig(level=logging.INFO, format="%(message)s")

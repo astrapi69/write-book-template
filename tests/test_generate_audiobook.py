@@ -1,19 +1,19 @@
 # tests/test_generate_audiobook.py
-from pathlib import Path
+
 from types import ModuleType
 import sys
+from scripts.tts.base import TTSAdapter
+from pathlib import Path
 
 from scripts.generate_audiobook import generate_audio_from_markdown, get_tts_adapter
 
 
-class DummyTTS:
+class DummyTTS(TTSAdapter):
     def __init__(self):
         self.calls = []
 
-    def speak(self, text, out_path: Path):
-        self.calls.append((text, Path(out_path)))
-        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(out_path).write_bytes(b"FAKE_MP3")
+    def speak(self, text: str, output_path: Path) -> None:
+        output_path.write_bytes(b"\x00")
 
 
 def write(p: Path, s: str):

@@ -107,9 +107,9 @@ def main(argv: list[str] | None = None) -> None:
     stats = Stats()
     files = sorted(root.glob(args.include))
     # apply excludes
-    excluded = set()
+    excluded: Set[str] = set()
     for pattern in args.exclude:
-        excluded.update(root.glob(pattern))
+        excluded.update(str(p) for p in root.glob(pattern))
     files = [f for f in files if f not in excluded and f.is_file()]
 
     if not files:

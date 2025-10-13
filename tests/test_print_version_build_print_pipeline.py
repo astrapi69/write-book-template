@@ -54,7 +54,9 @@ def _is_python_invocation(cmd: list[str]) -> bool:
     )
 
 
-def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
+def test_pipeline_order_and_success(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     scripts_dir = tmp_path / "scripts"
     make_dummy_scripts(scripts_dir)
 
@@ -90,7 +92,9 @@ def test_pipeline_order_and_success(monkeypatch, tmp_path, capsys):
     assert "Print version EPUB successfully generated" in out
 
 
-def test_pipeline_aborts_on_failure(monkeypatch, tmp_path, capsys):
+def test_pipeline_aborts_on_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     scripts_dir = tmp_path / "scripts"
     make_dummy_scripts(scripts_dir)
 

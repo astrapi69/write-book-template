@@ -3,11 +3,12 @@ from pathlib import Path
 from types import ModuleType
 import sys
 import textwrap
+from scripts.tts.base import TTSAdapter
 
 from scripts.generate_audiobook import generate_audio_from_markdown, get_tts_adapter
 
 
-class RecordingTTS:
+class RecordingTTS(TTSAdapter):
     """TTS stub that records calls and writes fake MP3s."""
 
     def __init__(self):

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from types import SimpleNamespace
-
+from typing import Any, List
 import requests
 
 import scripts.generate_images_deepai as mod
@@ -28,8 +28,8 @@ class FakeSession:
     def __init__(self, post_resp: FakeResponse, get_resp: FakeResponse):
         self._post_resp = post_resp
         self._get_resp = get_resp
-        self.post_calls = []
-        self.get_calls = []
+        self.post_calls: List[Any] = []
+        self.get_calls: List[Any] = []
 
     def post(self, url, data=None, headers=None, timeout=None):
         self.post_calls.append(

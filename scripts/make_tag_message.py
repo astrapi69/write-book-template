@@ -632,7 +632,7 @@ def fill_from_interactive(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def main():
+def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 

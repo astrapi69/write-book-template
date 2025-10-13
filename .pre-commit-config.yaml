@@ -16,7 +16,10 @@ repos:
     rev: v1.11.1
     hooks:
       - id: mypy
-        additional_dependencies: ["types-requests"]
+        additional_dependencies:
+          - types-PyYAML
+          - types-toml
+          - types-requests
         args: ["--ignore-missing-imports", "--follow-imports=silent", "--show-error-codes"]
 
   # --- Markdown & Spelling --------------------------------------------------

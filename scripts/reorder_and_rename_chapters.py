@@ -31,7 +31,7 @@ import json
 import re
 from pathlib import Path
 import sys
-from typing import Iterable, Optional, Tuple, Dict
+from typing import Iterable, Optional, Tuple, Dict, Callable
 
 try:
     import yaml  # type: ignore
@@ -42,7 +42,7 @@ except Exception:
 
 # -------- Language patterns --------
 
-LANG_PATTERNS: Dict[str, Tuple[re.Pattern, callable]] = {
+LANG_PATTERNS: Dict[str, Tuple[re.Pattern[str], Callable[[str, str], str]]] = {
     "es": (
         re.compile(
             r"^(#\s+✦\s+Cap[ií]tulo\s+)(\d+)(:.*?)(\s*\{#-chapter-\d+\}\s*)?\s*(?:\n|$)",
@@ -137,21 +137,21 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
         if isinstance(data, dict):
             return {str(k): str(v) for k, v in data.items()}
         if isinstance(data, list):
-            out: Dict[str, str] = {}
+            out3: Dict[str, str] = {}
             for row in data:
                 src = row.get("src")
                 tgt = row.get("tgt")
                 if not src or not tgt:
                     raise ValueError("YAML list items must have 'src' and 'tgt'")
-                out[str(src)] = str(tgt)
-            return out
+                out3[str(src)] = str(tgt)
+            return out3
         raise ValueError("YAML mapping must be dict or list of {src,tgt}")
 
     raise ValueError(f"Unsupported mapping file format: {ext}")
 
 
 def parse_inline_map(items: Iterable[str]) -> Dict[str, str]:
-    out: Dict[str, str] = {}
+    out4: Dict[str, str] = {}
     for it in items:
         if ":" not in it:
             raise ValueError(f"Invalid mapping '{it}'. Use 'src:tgt'.")
@@ -160,8 +160,8 @@ def parse_inline_map(items: Iterable[str]) -> Dict[str, str]:
         tgt = tgt.strip()
         if not src or not tgt:
             raise ValueError(f"Invalid mapping '{it}'. Empty src/tgt.")
-        out[src] = tgt
-    return out
+        out4[src] = tgt
+    return out4
 
 
 # -------- Header/anchor update --------
@@ -200,7 +200,7 @@ def update_header_and_anchor(
     def _repl_h1(m: re.Match) -> str:
         _prefix, _old_num, rest, _anchor = m.groups()
         rest_clean = re.sub(r"\s*\{#-chapter-\d+\}\s*$", "", rest or "").rstrip()
-        return h1_builder(new_num, rest_clean)
+        return h1_builder(str(new_num), rest_clean)
 
     new_first_line, n1 = h1_regex.subn(_repl_h1, first_line, count=1)
 

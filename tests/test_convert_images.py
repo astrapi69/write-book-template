@@ -48,7 +48,9 @@ def test_uses_title_as_caption_when_present(tmp_path: Path):
     n = convert_markdown_file(md)
     assert n == 1
     out = read(md)
-    src, alt, caption = FIG_RE.search(out).groups()
+    m = FIG_RE.search(out)
+    assert m is not None, f"no match in output:\n{out}"
+    src, alt, caption = m.groups()
     assert src == "pics/dog.jpg"
     assert alt == "Hund"
     assert caption == "Ein lieber Hund"
@@ -64,7 +66,9 @@ def test_angle_bracket_url_and_spaces_supported(tmp_path: Path, wrapper):
     n = convert_markdown_file(md)
     assert n == 1
     out = read(md)
-    src, alt, caption = FIG_RE.search(out).groups()
+    m = FIG_RE.search(out)
+    assert m is not None, f"no match in output:\n{out}"
+    src, alt, caption = m.groups()
     assert src == wrapper[1:-1]
     assert alt == "X"
     assert caption == "T"
@@ -94,7 +98,9 @@ def test_reference_style_images_are_resolved(tmp_path: Path):
     n = convert_markdown_file(md)
     assert n == 1
     out = read(md)
-    src, alt, caption = FIG_RE.search(out).groups()
+    m = FIG_RE.search(out)
+    assert m is not None, f"no match in output:\n{out}"
+    src, alt, caption = m.groups()
     assert src == "assets/logo.svg"
     assert alt == "Logo"
     assert caption == "Brand"
@@ -106,7 +112,9 @@ def test_reference_empty_id_uses_alt_as_key(tmp_path: Path):
     n = convert_markdown_file(md)
     assert n == 1
     out = read(md)
-    src, alt, caption = FIG_RE.search(out).groups()
+    m = FIG_RE.search(out)
+    assert m is not None, f"no match in output:\n{out}"
+    src, alt, caption = m.groups()
     assert src == "img/foo.png"
     assert alt == "Foo"
     assert caption == "Titel Foo"

@@ -134,7 +134,8 @@ def _has_any_option(extra: Iterable[str], names: set[str]) -> bool:
 def _split_valid_invalid_options(
     extra: List[str], allowed: set[str]
 ) -> tuple[list[str], list[str]]:
-    valid, invalid = [], []
+    valid: List[str] = []
+    invalid: List[str] = []
     i = 0
     while i < len(extra):
         tok = extra[i]

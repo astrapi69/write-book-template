@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import FrozenSet
 
 
 import scripts.generate_images_deepai as gen
@@ -26,7 +27,7 @@ def mk_project_tree(tmp_path: Path):
     return chapters, images, prompt_file, chars_file
 
 
-def fake_generate_image_factory(fail_on: set[str] = frozenset()):
+def fake_generate_image_factory(fail_on: FrozenSet[str] = frozenset()):
     """
     Returns a fake generate_image(**kwargs) that writes a file (simulating success),
     unless filename is in fail_on (then return False without writing).

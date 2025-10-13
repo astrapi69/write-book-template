@@ -7,7 +7,7 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any, Dict, Iterable, Optional, Union, Sequence
 
 import requests
 from dotenv import load_dotenv
@@ -139,7 +139,7 @@ def generate_image(
         return False
 
 
-def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate images from prompts using DeepAI text2img"
     )
@@ -197,8 +197,8 @@ def make_config(args: argparse.Namespace) -> Optional[Config]:
     )
 
 
-def main(argv: Optional[Iterable[str]] = None) -> int:
-    args = parse_args(argv)
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = parse_args(list(argv) if argv is not None else None)
     cfg = make_config(args)
     if not cfg:
         return 2  # configuration issue

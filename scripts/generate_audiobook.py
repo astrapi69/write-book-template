@@ -181,7 +181,7 @@ def get_tts_adapter(engine: str, lang: str, voice: str | None, rate: int) -> TTS
         from scripts.tts.elevenlabs_adapter import ElevenLabsAdapter
 
         api_key = os.getenv("ELEVENLABS_API_KEY")
-        return ElevenLabsAdapter(api_key=api_key, voice=voice, lang=lang)
+        return ElevenLabsAdapter(api_key=api_key or "", voice=voice or "", lang=lang)
     else:
         raise ValueError(f"Unsupported engine: {engine}")
 
