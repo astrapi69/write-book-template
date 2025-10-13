@@ -7,6 +7,7 @@ import sys
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Set
 
 import ftfy
 

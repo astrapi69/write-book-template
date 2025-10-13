@@ -43,10 +43,13 @@ def load_mapping_from_module(module_path: Path | None) -> Dict[str, str]:
     )
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Cannot import map module from {module_path}")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+
+    assert spec is not None, "ModuleSpec is None"
+    assert spec.loader is not None, "ModuleSpec.loader is None"
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[attr-defined]
     try:
-        m = getattr(mod, "EMOJI_MAP")
+        m = getattr(module, "EMOJI_MAP")
     except AttributeError:
         raise RuntimeError(f"{module_path} does not define EMOJI_MAP")
     if not isinstance(m, dict):

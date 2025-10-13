@@ -31,7 +31,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Optional fancy prompts
 try:
@@ -274,7 +274,7 @@ class LogProcessor:
     def categorize_commits(log_text: str) -> Dict[str, List[Dict[str, str]]]:
         """Categorize commits for JSON output."""
         commits = []
-        current_commit = {}
+        current_commit: Dict[str, Any] = {}
 
         for line in log_text.split("\n"):
             line = line.strip()
@@ -305,7 +305,7 @@ class LogProcessor:
             commits.append(current_commit)
 
         # Simple categorization based on subject keywords
-        categories = {
+        categories: Dict[str, Any] = {
             "content_style": [],
             "imagery_accessibility": [],
             "structure_typography": [],

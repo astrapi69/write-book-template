@@ -5,7 +5,7 @@ import argparse
 import logging
 import re
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Sequence
 
 LOG = logging.getLogger("create_chapters")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -136,7 +136,7 @@ def create_chapter_files(
     return created
 
 
-def _parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
+def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate Markdown files (chapters/scenes/parts) with a flexible name pattern."
     )
@@ -173,8 +173,8 @@ def _parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: Optional[Iterable[str]] = None) -> int:
-    args = _parse_args(argv)
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = _parse_args(list(argv) if argv is not None else None)
     try:
         create_chapter_files(
             project_dir=args.project_dir,

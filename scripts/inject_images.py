@@ -7,7 +7,7 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 
 # ---- Helpers for prompt loading ----
 
@@ -248,7 +248,7 @@ def process(
     return stats
 
 
-def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Inject generated images into chapter markdown files"
     )
@@ -276,8 +276,8 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     return p.parse_args(argv)
 
 
-def main(argv: Optional[Iterable[str]] = None) -> int:
-    args = parse_args(argv)
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = parse_args(list(argv) if argv is not None else None)
     try:
         _ = process(
             args.chapter_dir, args.image_dir, args.prompt_file, dry_run=args.dry_run

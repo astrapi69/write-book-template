@@ -2,10 +2,11 @@
 import pyttsx3
 from pathlib import Path
 from scripts.tts.base import TTSAdapter
+from typing import Optional
 
 
 class Pyttsx3Adapter(TTSAdapter):
-    def __init__(self, voice: str = None, rate: int = 200):
+    def __init__(self, voice: Optional[str] = None, rate: int = 180):
         self.engine = pyttsx3.init()
         if voice:
             self.engine.setProperty("voice", voice)

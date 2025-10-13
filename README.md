@@ -31,9 +31,9 @@ Authors can easily create, format, and export books in multiple formats like PDF
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
-```
+```bash
 
-* * *
+---
 
 ### 2️⃣ Initialize Project Structure
 
@@ -44,20 +44,19 @@ Run the following command to create the complete folder structure and all requir
 
 ```bash
 poetry run init-book-project
-```
+```bash
 
 This will:
 
-* Create all necessary folders (`manuscript/`, `config/`, `assets/`, `output/`, etc.)
+- Create all necessary folders (`manuscript/`, `config/`, `assets/`, `output/`, etc.)
 
-* Generate chapter and front/back matter files
+- Generate chapter and front/back matter files
 
-* Create `metadata.yaml` and `metadata_values.json` with placeholders
+- Create `metadata.yaml` and `metadata_values.json` with placeholders
 
-* Add a template for image generation prompts (`scripts/data/image_project_config.json`)
+- Add a template for image generation prompts (`scripts/data/image_project_config.json`)
 
-* Prepare the project for exporting and translation
-
+- Prepare the project for exporting and translation
 
 📘 **Full guide available here:**
 👉 [📦 Project Initialization – Wiki](https://github.com/astrapi69/write-book-template/wiki/Project-Initialization)
@@ -87,11 +86,12 @@ Replace placeholders in `config/metadata.yaml` using this command:
 ```bash
 poetry run update-metadata-values
 ```
+
 > This method ensures your virtual environment is used correctly and dependencies are managed by Poetry.
 
 ---
 
-#### What the script does:
+#### What the script does
 
 - Loads metadata values from `config/metadata_values.json`
 - Replaces all placeholders like `{{BOOK_TITLE}}` in `metadata.yaml` with actual content
@@ -150,6 +150,7 @@ git push
 ```
 
 ---
+
 ## ✍️ Start Writing
 
 - Add chapters in `manuscript/chapters/`
@@ -162,22 +163,26 @@ The full documentation is available in the [Wiki](https://github.com/astrapi69/w
 Here are the main sections to get you started:
 
 ### 🏁 Getting Started
+
 - [Home](https://github.com/astrapi69/write-book-template/wiki)
 - [Project Initialization](https://github.com/astrapi69/write-book-template/wiki/Project-Initialization)
 - [How to Write a Book](https://github.com/astrapi69/write-book-template/wiki/How-to-Write-a-Book)
 - [Generate Project Structure](https://github.com/astrapi69/write-book-template/wiki/Generate-Project-Structure)
 
 ### ✏️ Writing Tools
+
 - [Chapter File Generator](https://github.com/astrapi69/write-book-template/wiki/Chapter-File-Generator)
 - [Generate Images](https://github.com/astrapi69/write-book-template/wiki/Generate-Images)
 
 ### 🌐 Translation
+
 - [Translate Markdown with DeepL](https://github.com/astrapi69/write-book-template/wiki/Translate-Markdown-with-DeepL)
 - [Translate with LM Studio](https://github.com/astrapi69/write-book-template/wiki/Translate-with-LM‐Studio)
 - [Translation CLI Commands & Shortcuts](https://github.com/astrapi69/write-book-template/wiki/Translation-CLI-Commands-Shortcuts)
 - [Shortcuts for Translation](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Translation)
 
 ### 📤 Exporting Your Book
+
 - [Automatically Export Book](https://github.com/astrapi69/write-book-template/wiki/Automatically-Export-Book)
 - [Shortcuts for Export](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Export)
 - [Export HTML Chapters from Your Comic](https://github.com/astrapi69/write-book-template/wiki/Export-HTML-Chapters-from-your-comic)
@@ -185,6 +190,7 @@ Here are the main sections to get you started:
 - [Exporting HTML Books to PDF with Puppeteer (KDP Ready)](https://github.com/astrapi69/write-book-template/wiki/Exporting-HTML-Books-to-PDF-with-Puppeteer-(KDP-Ready))
 
 ### ⚡ Project Shortcuts
+
 - [Shortcuts for Initialization](https://github.com/astrapi69/write-book-template/wiki/Shortcuts-For-Initialization)
 
 ---

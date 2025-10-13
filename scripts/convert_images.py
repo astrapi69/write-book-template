@@ -16,7 +16,7 @@ import argparse
 import re
 import shutil
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Tuple, Optional, Sequence
 
 FIGURE_TEMPLATE = """<figure{klass}>
   <img src="{src}" alt="{alt}" />
@@ -212,7 +212,7 @@ def convert_markdown_dir(
     return total
 
 
-def main(argv: Iterable[str] | None = None) -> int:
+def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Convert Markdown images to <figure> blocks."
     )

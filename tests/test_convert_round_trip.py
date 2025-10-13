@@ -8,9 +8,10 @@ import pytest
 
 def _import(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, str(path))
+    assert spec is not None, "ModuleSpec is None"
+    assert spec.loader is not None, "ModuleSpec.loader is None"
     mod = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    spec.loader.exec_module(mod)
+    spec.loader.exec_module(mod)  # type: ignore[attr-defined]
     return mod
 
 

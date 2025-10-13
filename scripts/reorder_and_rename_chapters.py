@@ -31,7 +31,7 @@ import json
 import re
 from pathlib import Path
 import sys
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Iterable, Optional, Tuple, Dict
 
 try:
     import yaml  # type: ignore
@@ -81,24 +81,24 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
         if isinstance(data, dict):
             return {str(k): str(v) for k, v in data.items()}
         if isinstance(data, list):
-            out: Dict[str, str] = {}
+            out1: Dict[str, str] = {}
             for row in data:
                 src = row.get("src")
                 tgt = row.get("tgt")
                 if not src or not tgt:
                     raise ValueError("JSON list items must have 'src' and 'tgt'")
-                out[str(src)] = str(tgt)
-            return out
+                out1[str(src)] = str(tgt)
+            return out1
         raise ValueError("JSON mapping must be dict or list of {src,tgt}")
 
     if ext in (".csv",):
-        out: Dict[str, str] = {}
+        out2: Dict[str, str] = {}
         with path.open(encoding="utf-8", newline="") as fh:
             reader = csv.reader(fh)
             try:
                 first_row = next(reader)
             except StopIteration:
-                return out
+                return out2
             is_header = (
                 len(first_row) >= 2
                 and first_row[0].strip().lower() == "src"
@@ -115,18 +115,18 @@ def load_mapping_file(path: Path) -> Dict[str, str]:
                         raise ValueError(
                             "CSV with header must have columns 'src' and 'tgt'"
                         )
-                    out[str(src)] = str(tgt)
+                    out2[str(src)] = str(tgt)
             else:
                 if len(first_row) < 2:
                     raise ValueError("CSV rows must have at least 2 columns: src,tgt")
-                out[str(first_row[0])] = str(first_row[1])
+                out2[str(first_row[0])] = str(first_row[1])
                 for row in reader:
                     if len(row) < 2:
                         raise ValueError(
                             "CSV rows must have at least 2 columns: src,tgt"
                         )
-                    out[str(row[0])] = str(row[1])
-        return out
+                    out2[str(row[0])] = str(row[1])
+        return out2
 
     if ext in (".yml", ".yaml"):
         if not _HAS_YAML:

@@ -28,7 +28,7 @@ class RenameResult:
     skipped_nonmatch: int = 0
     errors: int = 0
     planned: int = 0  # for dry-run reporting
-    changed_paths: List[Tuple[Path, Path]] = None
+    changed_paths: List[Tuple[Path, Path]] = []
 
     def to_dict(self):
         d = asdict(self)

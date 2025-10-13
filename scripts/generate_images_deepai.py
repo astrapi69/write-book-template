@@ -44,7 +44,7 @@ def load_json(path: Path) -> Dict[str, Any]:
 
 
 def load_character_profiles(
-    path: Union[str, Path] = "scripts/data/character_profiles.json"
+    path: Union[str, Path] = "scripts/data/character_profiles.json",
 ) -> Dict[str, str]:
     """Load character profiles; return {} on failure (backward-compatible)."""
     path = Path(path)

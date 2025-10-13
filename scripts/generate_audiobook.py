@@ -122,7 +122,7 @@ def unescape_html_entities(text: str) -> str:
     """
     text = html.unescape(text)
     # Normalize common non-breaking/Unicode spaces to regular space
-    text = text.replace("\u00A0", " ").replace("\u202F", " ").replace("\u2007", " ")
+    text = text.replace("\u00a0", " ").replace("\u202f", " ").replace("\u2007", " ")
     # Collapse 2+ spaces -> single space (keeps newlines)
     text = re.sub(r"[ ]{2,}", " ", text)
     return text

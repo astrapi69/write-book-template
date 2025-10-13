@@ -21,5 +21,5 @@ lint: ## Checks
 test: ## Pytests + Coverage
 	@poetry run pytest -q --maxfail=1 --disable-warnings --cov=./ --cov-report=term-missing
 
-export: ## Baut alle Formate
+export: ## Baut alle Format
 	@full-export --format pdf,epub,docx || poetry run full-export --format pdf,epub,docx
