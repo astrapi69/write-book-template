@@ -173,7 +173,6 @@ def run_init_book_project(
     files = [
         "manuscript/chapters/01-chapter.md",
         "manuscript/chapters/02-chapter.md",
-        "manuscript/front-matter/imprint.md",
         "manuscript/front-matter/foreword.md",
         "manuscript/front-matter/preface.md",
         "manuscript/front-matter/toc.md",
@@ -184,6 +183,7 @@ def run_init_book_project(
         "manuscript/back-matter/bibliography.md",
         "manuscript/back-matter/epilogue.md",
         "manuscript/back-matter/glossary.md",
+        "manuscript/back-matter/imprint.md",
         "config/amazon-kdp-info.md",
         "config/book-description.html",
         "config/cover-back-page-author-introduction.md",
