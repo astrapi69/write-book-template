@@ -164,6 +164,39 @@ def validate_markdown(md_path: str) -> int:
         return 1
 
 
+def validate_html(html_path: str) -> int:
+    """
+    Basic HTML validation:
+      0 = exists and non-empty
+      1 = empty or malformed (if optional parser used)
+      2 = input not found
+    """
+    if not os.path.exists(html_path):
+        print(f"❌ HTML file not found: {html_path}")
+        return 2
+
+    try:
+        size = os.path.getsize(html_path)
+        if size == 0:
+            print(f"⚠️  HTML file is empty: {html_path}")
+            return 1
+
+        # Optional: einfache Syntaxprüfung mit eingebauten Mitteln
+        # (ohne externe Abhängigkeiten)
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read(1024)  # Nur Anfang prüfen
+        if "<html" not in content.lower():
+            print(f"⚠️  HTML file may be malformed (no <html tag found): {html_path}")
+            return 1
+
+        print(f"✅ HTML exported: {html_path} ({size} bytes)")
+        return 0
+
+    except Exception as e:
+        print(f"⚠️  Error checking HTML: {e}")
+        return 1
+
+
 # --- CLI ---------------------------------------------------------------------
 
 
@@ -174,7 +207,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("path", help="Path to the file to validate.")
     p.add_argument(
         "--type",
-        choices=["epub", "pdf", "docx", "md"],
+        choices=["epub", "pdf", "docx", "md", "html"],
         help="Force a specific validator (otherwise auto-detect by extension).",
     )
     p.add_argument("--epub-timeout", type=int, default=DEFAULT_EPUBCHECK_TIMEOUT)
@@ -195,6 +228,8 @@ def main(argv: list[str] | None = None) -> int:
         rc = validate_docx(path)
     elif kind in {"md", "markdown"}:
         rc = validate_markdown(path)
+    elif kind in {"html", "htm"}:
+        rc = validate_html(path)
     else:
         print(
             f"⚠️  Unknown type for '{path}'. Use --type to specify one of: epub, pdf, docx, md"
