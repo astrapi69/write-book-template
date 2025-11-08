@@ -35,14 +35,15 @@ codespell = "^2.4.1"
 pre-commit = "^4.3.0"
 types-requests = "^2.32.4.20250913"
 mypy = "^1.11"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.group.test.dependencies]
 hypothesis = ">=6,<7"
 pytest = "^8.2"
 pytest-mock = "^3.10.0"
-pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
+unbold-md-headers = "scripts.unbold_md_headers:main"
 init-book-project = "scripts.init_book_project:main"
 full-export-book = "scripts.full_export_book:main"
 export-shortcuts = "scripts.shortcuts_export:main"
