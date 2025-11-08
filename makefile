@@ -50,6 +50,8 @@ fix: ## Quick fix with Ruff and Black
 
 format: ## Format code using Black only
 	@poetry run black .
+	@poetry run ruff check --fix .
+	@poetry run mypy .
 
 fix-all: ## Run all auto-fixes (Ruff, Black, Codespell, Markdownlint)
 	@poetry run ruff check . --fix --unsafe-fixes

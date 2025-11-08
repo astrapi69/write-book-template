@@ -31,13 +31,17 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
+from types import ModuleType
 
-# Optional fancy prompts
+# Optional fancy prompts (typed)
+questionary: Optional[ModuleType]
 try:
-    import questionary  # type: ignore
+    import questionary as q  # type: ignore[import-not-found]
+
+    questionary = q
 except Exception:
-    questionary = None  # graceful fallback to input()
+    questionary = None
 
 # Improved default pretty format that enables reliable filtering
 DEFAULT_PRETTY_FORMAT = (
@@ -394,8 +398,8 @@ def preflight_checks(args: argparse.Namespace) -> List[str]:
 
 def ask_text(prompt: str, default: Optional[str] = None, validate=None) -> str:
     """Question helper with questionary fallback."""
-    if questionary:
-        ans = questionary.text(prompt, default=default or "").ask()
+    if questionary is not None:
+        ans = cast(Any, questionary).text(prompt, default=default or "").ask()
         if ans is None:
             raise SystemExit("Aborted.")
     else:
@@ -409,8 +413,8 @@ def ask_text(prompt: str, default: Optional[str] = None, validate=None) -> str:
 
 def ask_confirm(prompt: str, default: bool = False) -> bool:
     """Confirmation helper."""
-    if questionary:
-        return bool(questionary.confirm(prompt, default=default).ask())
+    if questionary is not None:
+        return bool(cast(Any, questionary).confirm(prompt, default=default).ask())
     else:
         raw = input(f"{prompt} [{'Y/n' if default else 'y/N'}] ").strip().lower()
         if not raw:
@@ -420,14 +424,17 @@ def ask_confirm(prompt: str, default: bool = False) -> bool:
 
 def ask_choice(prompt: str, choices: List[str], default: Optional[str] = None) -> str:
     """Choice helper."""
-    if questionary:
-        return questionary.select(prompt, choices=choices, default=default).ask()
+    if questionary is not None:
+        return (
+            cast(Any, questionary)
+            .select(prompt, choices=choices, default=default)
+            .ask()
+        )
     else:
         print(f"\n{prompt}")
         for i, choice in enumerate(choices, 1):
             marker = " (default)" if choice == default else ""
             print(f"  {i}. {choice}{marker}")
-
         while True:
             ans = input("Select: ").strip()
             if not ans and default:

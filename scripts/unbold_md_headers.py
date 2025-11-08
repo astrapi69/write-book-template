@@ -17,7 +17,7 @@ import argparse
 import re
 from pathlib import Path
 import sys
-from typing import Iterable
+from typing import Iterable, Sequence, Set
 
 # Match Markdown headers that contain **...** after the # prefix
 PATTERN = re.compile(r"^(\s*#{1,6}\s+)\*\*(.+?)\*\*(\s*.*)$")
@@ -81,9 +81,9 @@ def iter_files(
 
 def process_file(
     path: Path,
-    allowed_levels: set[int] | None,
-    dry_run: bool,
-    backup: bool,
+    allowed_levels: Set[int] | None,
+    dry_run: bool = False,
+    backup: bool = False,
     encoding: str = "utf-8",
 ) -> tuple[int, bool]:
     """Process a single file. Returns (num_changes, written?)."""
@@ -128,7 +128,7 @@ def process_file(
     return changes, True
 
 
-def parse_levels(s: str | None) -> set[int] | None:
+def parse_levels(s: str | None) -> Set[int] | None:
     """Parse comma-separated header levels (e.g., '2,3,4')."""
     if not s:
         return None
@@ -146,7 +146,7 @@ def parse_levels(s: str | None) -> set[int] | None:
     return levels or None
 
 
-def main():
+def main(argv: Sequence[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Remove **...** markers that appear directly inside Markdown headers (# ...)."
     )
@@ -216,7 +216,8 @@ def main():
     print(
         f"\nSummary: scanned={total_files}, changes={total_changes}, written={written_files}"
     )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
