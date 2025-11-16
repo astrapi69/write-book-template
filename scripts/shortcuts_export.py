@@ -276,6 +276,31 @@ def export_epub2(*extra: str):
     _run_full_export(args)
 
 
+def export_epub_with_cover(*extra: str):
+    """
+    Export EPUB3 with a default cover; passthrough validated extras.
+    """
+    args = ["--format", "epub", "--cover", "assets/covers/cover.jpg"]
+
+    strict = "--strict-opts" in extra
+    extra = [t for t in extra if t != "--strict-opts"]
+    valid, invalid = _split_valid_invalid_options(list(extra), FULL_EXPORT_ALLOWED_OPTS)
+
+    if invalid:
+        print("⚠️ Invalid options for full_export_book.py:")
+        print("   " + " ".join(invalid))
+        if strict:
+            print("🛑 Aborting due to --strict-opts.")
+            return
+
+    if valid:
+        print("🔧 Forwarding valid options to full_export_book.py:")
+        print("   " + " ".join(valid))
+
+    args.extend(valid)
+    _run_full_export(args)
+
+
 def export_epub2_with_cover(*extra: str):
     """
     Export EPUB2 with a default cover; pass through validated extras.
