@@ -31,7 +31,7 @@ Authors can easily create, format, and export books in multiple formats like PDF
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_BOOK_REPO.git
 cd YOUR_BOOK_REPO
-```bash
+```
 
 ---
 
@@ -44,7 +44,7 @@ Run the following command to create the complete folder structure and all requir
 
 ```bash
 poetry run init-book-project
-```bash
+```
 
 This will:
 
