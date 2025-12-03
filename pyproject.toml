@@ -161,14 +161,6 @@ test_only = false
 patch_md = true
 fix_inplace = false
 
-#[tool.mypy]
-#python_version = "3.11"
-#warn_redundant_casts = true
-#warn_unused_ignores = true
-#no_implicit_optional = true
-#check_untyped_defs = false  # you can set it to true later
-#ignore_missing_imports = false
-
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true

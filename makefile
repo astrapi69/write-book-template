@@ -65,18 +65,14 @@ fix: ## Run quick autofixes (Ruff + Black)
 format: ## Format all Python files using Black
 	@$(POETRY) run black .
 
-fix-all: ## Run all autofix tools (Ruff, Black, Codespell, Markdownlint)
+fix-all: ## Run all auto-fixes (Ruff, Black, Markdownlint)
 	@$(POETRY) run ruff check . --fix --unsafe-fixes
 	@$(POETRY) run black .
-	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE) --write-changes || \
-		$(POETRY) run codespell --write-changes
 	@$(call _run_markdownlint_fix)
 
-lint: ## Run all linters (Ruff, Black check, Codespell, Markdownlint)
+lint: ## Run all linters (Ruff, Black check, Markdownlint)
 	@$(POETRY) run ruff check .
 	@$(POETRY) run black --check .
-	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE) || \
-		$(POETRY) run codespell
 	@if command -v npx >/dev/null 2>&1; then \
 		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
 	else \
@@ -88,6 +84,16 @@ typecheck: ## Run MyPy type checks using pre-commit
 
 precommit: ## Run all pre-commit hooks
 	@$(POETRY) run pre-commit run -a
+
+.PHONY: codespell
+
+codespell: ## Run codespell manually (safe, optional)
+	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE)
+
+.PHONY: codespell-fix
+
+codespell-fix: ## Run codespell with write-changes (use with caution)
+	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE) --write-changes
 
 # ----------------------------------------------------------------------
 # Tests
