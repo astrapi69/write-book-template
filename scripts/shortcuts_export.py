@@ -93,7 +93,8 @@ PRINT_VERSION_ALLOWED_OPTS = {
 
 __all__ = [
     "export",
-    "all_formats_with_cover",
+    "export_all_formats",
+    "export_all_formats_with_cover",
     "export_epub2",
     "export_epub2_with_cover",
     "export_print_version_epub",
@@ -107,11 +108,13 @@ __all__ = [
     "export_epub_safe",
     "export_docx_safe",
     "export_markdown_safe",
+    "export_html_safe",
     # Compat aliases:
     "export_pdf",
     "export_epub",
     "export_docx",
     "export_markdown",
+    "export_html",
     # Utilities:
     "list_allowed_opts",
     "main",
@@ -226,14 +229,28 @@ def export_markdown(*extra: str):
     return export("markdown", None, *extra)
 
 
-def all_formats_with_cover(*extra: str):
-    """
-    Export all main formats with a default cover, passing through validated extras.
-    """
-    args = ["--format", "pdf,epub,docx,markdown", "--cover", "assets/covers/cover.jpg"]
+def export_html(*extra: str):
+    """Alias for exporting HTML via full_export_book.py."""
+    return export("html", None, *extra)
 
+
+def _export_all_formats(include_cover: bool, *extra: str):
+    """
+    Internal helper for exporting all major formats, with or without a cover.
+    Handles strict option validation and passthrough of allowed flags.
+    """
+    # Base argument: all supported formats
+    args = ["--format", "pdf,epub,docx,markdown,html"]
+
+    # Optional cover
+    if include_cover:
+        args.extend(["--cover", "assets/covers/cover.jpg"])
+
+    # Strict mode handling
     strict = "--strict-opts" in extra
     extra = [t for t in extra if t != "--strict-opts"]
+
+    # Validate against the allowed options table from full_export_book.py
     valid, invalid = _split_valid_invalid_options(list(extra), FULL_EXPORT_ALLOWED_OPTS)
 
     if invalid:
@@ -249,6 +266,20 @@ def all_formats_with_cover(*extra: str):
 
     args.extend(valid)
     _run_full_export(args)
+
+
+def export_all_formats(*extra: str):
+    """
+    Export all supported formats **without** a cover.
+    """
+    return _export_all_formats(False, *extra)
+
+
+def export_all_formats_with_cover(*extra: str):
+    """
+    Export all supported formats **with** a default cover.
+    """
+    return _export_all_formats(True, *extra)
 
 
 def export_epub2(*extra: str):
@@ -455,6 +486,10 @@ def export_docx_safe(*extra: str):
 
 def export_markdown_safe(*extra: str):
     return export_safe("markdown", *extra)
+
+
+def export_html_safe(*extra: str):
+    return export_safe("html", *extra)
 
 
 def export_print_version_paperback_safe(*extra: str):

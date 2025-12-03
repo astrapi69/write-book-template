@@ -37,9 +37,6 @@ cd YOUR_BOOK_REPO
 
 ### 2️⃣ Initialize Project Structure
 
-> ⚠️ **Note:** The shell script `scripts/create_project_structure.sh` is now **deprecated** and will be removed in the future.
-> ✅ Please use the **Python script with Poetry integration** instead.
-
 Run the following command to create the complete folder structure and all required files:
 
 ```bash
