@@ -18,6 +18,7 @@
 #####################
 output
 output_backup
+dist
 
 ######################
 # eBook build output #
