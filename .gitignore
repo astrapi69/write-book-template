@@ -48,3 +48,4 @@ logs/
 # Ignore coverage test output #
 ###############################
 /.coverage
+/coverage.xml
