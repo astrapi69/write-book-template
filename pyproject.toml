@@ -42,6 +42,7 @@ pytest = "^8.2"
 pytest-mock = "^3.10.0"
 
 [tool.poetry.scripts]
+replace-md-bullet-points = "scripts.replace_md_bullet_points:main"
 unbold-md-headers = "scripts.unbold_md_headers:main"
 init-book-project = "scripts.init_book_project:main"
 full-export-book = "scripts.full_export_book:main"
