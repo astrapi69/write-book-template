@@ -45,6 +45,10 @@ setup: ## Install Poetry, dev dependencies and pre-commit hooks
 	@$(POETRY) install
 	@$(POETRY) run pre-commit install
 
+lock-install: ## Lock and Install project dependencies
+	@$(POETRY) lock
+	@$(POETRY) install
+
 install: ## Install project dependencies
 	@$(POETRY) install
 
