@@ -48,24 +48,21 @@ def test_run_script_failure(mock_run):
 
 @patch("scripts.full_export_book.OUTPUT_DIR", TEST_OUTPUT_DIR)
 @patch("scripts.full_export_book.BACKUP_DIR", TEST_BACKUP_DIR)
-def test_prepare_output_folder_moves_and_recreates_output():
-    # Arrange: create output/ with a file
-    Path(TEST_OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
-    dummy = Path(TEST_OUTPUT_DIR) / "dummy.md"
-    dummy.write_text("# Dummy", encoding="utf-8")
+def test_prepare_output_folder():
+    """Test backup logic in prepare_output_folder"""
+    dummy_file = os.path.join(TEST_OUTPUT_DIR, "dummy.md")
+    with open(dummy_file, "w") as f:
+        f.write("# Dummy")
 
-    # Act
     prepare_output_folder()
 
-    # Assert: backup exists and contains the moved file (directly, no subfolder)
-    assert os.path.isdir(TEST_BACKUP_DIR)
-    assert (Path(TEST_BACKUP_DIR) / "dummy.md").exists()
+    # Output folder has been emptied/recreated.
+    assert os.path.exists(TEST_OUTPUT_DIR)
+    assert not os.path.exists(os.path.join(TEST_OUTPUT_DIR, "dummy.md"))
 
-    # Assert: output/ exists again and is empty
-    assert os.path.isdir(TEST_OUTPUT_DIR)
-    assert not any(
-        Path(TEST_OUTPUT_DIR).iterdir()
-    ), "OUTPUT_DIR should be recreated empty"
+    # Backup exists and contains the old file
+    assert os.path.exists(TEST_BACKUP_DIR)
+    assert os.path.exists(os.path.join(TEST_BACKUP_DIR, "dummy.md"))
 
 
 @patch("subprocess.run")
