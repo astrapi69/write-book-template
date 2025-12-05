@@ -176,3 +176,12 @@ init-bp: ## Initialize a new book project using the template
 
 # Backwards-compatible and short alias
 init-project: init-bp ## Alias: initialize a new project
+
+# ----------------------------------------------------------------------
+# Project Releases
+# ----------------------------------------------------------------------
+
+.PHONY: tag-message
+
+tag-message: ## Interactive: Generate tag message file and (optionally) create tag
+	@$(POETRY) run make-tag-message
