@@ -69,8 +69,8 @@ FORMATS = {
 # Default section order (customizable)
 DEFAULT_SECTION_ORDER = [
     "front-matter/toc.md",
-    "front-matter/preface.md",
     "front-matter/foreword.md",
+    "front-matter/preface.md",
     "chapters",  # Entire chapters folder
     "back-matter/epilogue.md",
     "back-matter/glossary.md",
@@ -87,8 +87,8 @@ EBOOK_SECTION_ORDER = DEFAULT_SECTION_ORDER
 # Paperback section order (customizable)
 PAPERBACK_SECTION_ORDER = [
     "front-matter/toc_print_edition.md",  # <-- print ToC with page numbers
-    "front-matter/preface.md",
     "front-matter/foreword.md",
+    "front-matter/preface.md",
     "chapters",  # Entire chapters folder
     "back-matter/epilogue.md",
     "back-matter/glossary.md",
