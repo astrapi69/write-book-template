@@ -117,9 +117,9 @@ export-markdown-safe = "scripts.shortcuts_export:export_markdown_safe"
 export-mds = "scripts.shortcuts_export:export_markdown_safe"
 export-html-safe = "scripts.shortcuts_export:export_html_safe"
 export-hs = "scripts.shortcuts_export:export_html_safe"
-export-pvp-safe = "scripts.shortcuts_export:export_print_version_paperback_safe"
-export-pvh-safe = "scripts.shortcuts_export:export_print_version_hardcover_safe"
+export-print-version-paperback-safe = "scripts.shortcuts_export:export_print_version_paperback_safe"
 export-pvps = "scripts.shortcuts_export:export_print_version_paperback_safe"
+export-print-version-hardcover-safe = "scripts.shortcuts_export:export_print_version_hardcover_safe"
 export-pvhs = "scripts.shortcuts_export:export_print_version_hardcover_safe"
 
 # Init Shortcuts
