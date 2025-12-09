@@ -171,7 +171,7 @@ clean-venv: ## Remove Poetry virtualenv
 
 .PHONY: init-bp init-project
 
-init-bp: ## Initialize a new book project using the template
+init-bp: lock-install ## Initialize a new book project using the template
 	@$(POETRY) run init-bp $(ARGS)
 
 # Backwards-compatible and short alias
