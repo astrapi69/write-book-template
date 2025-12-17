@@ -4,11 +4,12 @@ Builds the print version (paperback or hardcover) of a book project.
 
 Current pipeline (kept minimal to satisfy tests):
   1) full_export_book.py
-  2) git restore .   (unless --no-restore)
+  2) git restore .   (ONLY if --restore is set)
 
 CLI examples:
     print-version-build --book-type paperback
     print-version-build --dry-run --export-format epub
+    print-version-build --restore
 """
 
 from __future__ import annotations
@@ -92,12 +93,13 @@ def build_print_version(
     forwarded_args: list[str],
     dry_run: bool = False,
     exact_name: bool = False,  # reserved for future extension
-    no_restore: bool = False,
+    restore: bool = False,
 ) -> bool:
     """
     Run the minimal pipeline for building the print version.
 
-    Only invokes full_export_book.py and (optionally) performs a git restore at the end.
+    Only invokes full_export_book.py and (optionally) performs a git restore at the end
+    if `restore=True`.
     """
     toc_file = PROJECT_ROOT / "manuscript" / "front-matter" / "toc.md"
     if not toc_file.exists():
@@ -124,8 +126,8 @@ def build_print_version(
         print("Build process aborted.")
         return False
 
-    # Final cleanup step (expected by tests unless --no-restore is set)
-    if not no_restore:
+    # Final cleanup step (explicit opt-in)
+    if restore:
         git_cmd = ["git", "restore", "."]
         if dry_run:
             print("[dry-run] Would run: " + " ".join(git_cmd))
@@ -148,14 +150,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     Parse known args and collect unknown args to forward to full_export_book.py.
 
     Namespace fields:
-      - dry_run, no_restore, scripts_dir, export_format, book_type, exact_name, extra
+      - dry_run, restore, scripts_dir, export_format, book_type, exact_name, extra
     """
     p = argparse.ArgumentParser(description="Build print version of a book project.")
     p.add_argument(
         "--dry-run", action="store_true", help="Print commands without executing."
     )
     p.add_argument(
-        "--no-restore", action="store_true", help="Skip git restore at the end."
+        "--restore", action="store_true", help="Run git restore at the end (opt-in)."
     )
     p.add_argument(
         "--scripts-dir", type=str, help="Path to scripts dir (defaults to ./scripts)."
@@ -185,7 +187,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     ns = argparse.Namespace(
         dry_run=known.dry_run,
-        no_restore=known.no_restore,
+        restore=known.restore,
         scripts_dir=(
             Path(known.scripts_dir) if known.scripts_dir else DEFAULT_SCRIPTS_DIR
         ),
@@ -207,7 +209,7 @@ def main(argv: list[str] | None = None) -> None:
         args.extra,
         dry_run=args.dry_run,
         exact_name=args.exact_name,
-        no_restore=args.no_restore,
+        restore=args.restore,
     )
 
     if ok:

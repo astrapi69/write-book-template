@@ -18,7 +18,7 @@ def test_parse_args_defaults_and_flags(tmp_path):
     ns = bp.parse_args(
         [
             "--dry-run",
-            "--no-restore",
+            "--restore",
             "--scripts-dir",
             str(tmp_path),
             "--export-format",
@@ -26,6 +26,6 @@ def test_parse_args_defaults_and_flags(tmp_path):
         ]
     )
     assert ns.dry_run is True
-    assert ns.no_restore is True
+    assert ns.restore is True
     assert ns.scripts_dir == tmp_path
     assert ns.export_format == "epub"

@@ -68,8 +68,8 @@ def test_pipeline_order_and_success(
 
     monkeypatch.setattr(bp.subprocess, "run", fake_run)
 
-    # Expect git restore to run at end
-    argv = ["--scripts-dir", str(scripts_dir)]
+    # git restore is opt-in now
+    argv = ["--scripts-dir", str(scripts_dir), "--restore"]
     with pytest.raises(SystemExit) as ex:
         bp.main(argv)
     assert ex.value.code == 0
@@ -106,7 +106,7 @@ def test_pipeline_aborts_on_failure(
 
     monkeypatch.setattr(bp.subprocess, "run", fake_run)
 
-    argv = ["--scripts-dir", str(scripts_dir), "--no-restore"]
+    argv = ["--scripts-dir", str(scripts_dir)]
     with pytest.raises(SystemExit) as ex:
         bp.main(argv)
 
