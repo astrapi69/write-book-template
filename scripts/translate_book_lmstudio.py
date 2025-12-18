@@ -127,6 +127,27 @@ def translate_markdown_file(
     model: Optional[str] = None,
     skip_html_tr_rows: bool = True,
 ):
+    """
+    Translates a single Markdown file **in place** using a local or remote LLM API.
+
+    The file is split into paragraph-sized blocks (separated by blank lines)
+    to reduce the risk of exceeding model context limits. Each block is translated
+    independently. Empty blocks are preserved.
+
+    HTML table rows (<tr>...</tr>) can be optionally excluded from translation
+    to avoid breaking table structures.
+
+    On translation errors, the original block is kept and processing continues.
+
+    Parameters:
+        file_path (str): Path to the Markdown file to translate (will be overwritten)
+        source_lang (str): Source language code (e.g. "en")
+        target_lang (str): Target language code (e.g. "de")
+        api_url (str): Base URL of the translation / chat completion API
+        models_url (str): URL endpoint used to resolve available models
+        model (Optional[str]): Explicit model name to use (auto-selected if None)
+        skip_html_tr_rows (bool): If True, blocks starting with "<tr>" are copied verbatim
+    """
     print(f"Translating: {file_path} [{source_lang} → {target_lang}]")
 
     try:
@@ -182,6 +203,24 @@ def translate_markdown_files(
     model: Optional[str] = None,
     skip_html_tr_rows: bool = True,
 ):
+    """
+    Recursively translates all Markdown (.md) files within a directory tree.
+
+    Walks the given base directory and processes every Markdown file found
+    by delegating to `translate_markdown_file()`. Files are translated
+    **in place**; existing content will be overwritten.
+
+    Subdirectories are traversed depth-first via `os.walk`.
+
+    Parameters:
+        base_dir (str): Root directory containing Markdown files
+        source_lang (str): Source language code (e.g. "en")
+        target_lang (str): Target language code (e.g. "fr")
+        api_url (str): Base URL of the translation / chat completion API
+        models_url (str): URL endpoint used to resolve available models
+        model (Optional[str]): Explicit model name to use (auto-selected if None)
+        skip_html_tr_rows (bool): If True, blocks starting with "<tr>" are copied verbatim
+    """
     for root, _, files in os.walk(base_dir):
         for file in files:
             if file.endswith(".md"):
