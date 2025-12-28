@@ -99,10 +99,8 @@ def test_pipeline_runs_convert_scripts_in_correct_order(
     # We won't actually run pandoc; capture compile calls instead
     compile_calls = []
 
-    def fake_compile_book(
-        fmt, order, cover_path=None, force_epub2=False, lang="en", custom_ext=None
-    ):
-        compile_calls.append((fmt, tuple(order), lang, custom_ext))
+    def fake_compile_book(*args, **kwargs):
+        compile_calls.append((args, kwargs))
 
     monkeypatch.setattr(feb, "run_script", fake_run_script)
     monkeypatch.setattr(feb, "compile_book", fake_compile_book)
@@ -166,10 +164,8 @@ def test_language_resolution_cli_overrides_metadata(
     feb = wired_module
     seen = {}
 
-    def capture_compile(
-        fmt, order, cover_path=None, force_epub2=False, lang="en", custom_ext=None
-    ):
-        seen["lang"] = lang
+    def capture_compile(*args, **kwargs):
+        seen["lang"] = args[5] if len(args) > 5 else kwargs.get("lang")
 
     monkeypatch.setattr(feb, "compile_book", capture_compile)
     # Don’t run external scripts in this test
@@ -188,10 +184,8 @@ def test_language_resolution_uses_metadata_when_cli_missing(
     feb = wired_module
     seen = {}
 
-    def capture_compile(
-        fmt, order, cover_path=None, force_epub2=False, lang="en", custom_ext=None
-    ):
-        seen["lang"] = lang
+    def capture_compile(*args, **kwargs):
+        seen["lang"] = args[5] if len(args) > 5 else kwargs.get("lang")
 
     monkeypatch.setattr(feb, "compile_book", capture_compile)
     # Don’t run external scripts in this test
