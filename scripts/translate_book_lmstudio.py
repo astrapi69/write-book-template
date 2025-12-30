@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/shortcuts_translate_lms.py
 """
 📘 Script: translate_book_lmstudio.py
 
