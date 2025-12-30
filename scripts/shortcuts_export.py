@@ -214,26 +214,36 @@ def export(format: str, cover: str | None = None, *extra: str):
 
 def export_pdf(*extra: str):
     """Back-compat alias for tests/old scripts."""
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export("pdf", None, *extra)
 
 
 def export_epub(*extra: str):
     """Back-compat alias for tests/old scripts."""
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export("epub", None, *extra)
 
 
 def export_docx(*extra: str):
     """Back-compat alias for tests/old scripts."""
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export("docx", None, *extra)
 
 
 def export_markdown(*extra: str):
     """Back-compat alias for tests/old scripts."""
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export("markdown", None, *extra)
 
 
 def export_html(*extra: str):
     """Alias for exporting HTML via full_export_book.py."""
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export("html", None, *extra)
 
 
@@ -275,6 +285,8 @@ def export_all_formats(*extra: str):
     """
     Export all supported formats **without** a cover.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return _export_all_formats(False, *extra)
 
 
@@ -282,6 +294,8 @@ def export_all_formats_with_cover(*extra: str):
     """
     Export all supported formats **with** a default cover.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return _export_all_formats(True, *extra)
 
 
@@ -289,6 +303,8 @@ def export_epub2(*extra: str):
     """
     Export EPUB2 flavor; pass through validated extras.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--epub2"]
 
     strict = "--strict-opts" in extra
@@ -314,6 +330,8 @@ def export_epub_with_cover(*extra: str):
     """
     Export EPUB3 with a default cover; passthrough validated extras.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--format", "epub", "--cover", "assets/covers/cover.jpg"]
 
     strict = "--strict-opts" in extra
@@ -339,6 +357,8 @@ def export_epub2_with_cover(*extra: str):
     """
     Export EPUB2 with a default cover; pass through validated extras.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--epub2", "--cover", "assets/covers/cover.jpg"]
 
     strict = "--strict-opts" in extra
@@ -365,6 +385,8 @@ def export_print_version_epub(*extra: str):
     Export the print-optimized EPUB via print_version_build.py.
     Accepts both print-version and full-export flags; validates both sets.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     strict = "--strict-opts" in extra
     extra = [t for t in extra if t != "--strict-opts"]
 
@@ -391,6 +413,8 @@ def export_print_version_paperback(*extra: str):
     """
     Print-optimized EPUB for paperback book type.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--book-type", "paperback"]
 
     strict = "--strict-opts" in extra
@@ -418,6 +442,8 @@ def export_print_version_hardcover(*extra: str):
     """
     Print-optimized EPUB for hardcover book type.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--book-type", "hardcover"]
 
     strict = "--strict-opts" in extra
@@ -476,22 +502,32 @@ def export_safe(format: str, *extra: str):
 # Safe shortcut aliases (for Poetry script entries)
 # ──────────────────────────────────────────────────────────────────────────────
 def export_pdf_safe(*extra: str):
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export_safe("pdf", *extra)
 
 
 def export_epub_safe(*extra: str):
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export_safe("epub", *extra)
 
 
 def export_docx_safe(*extra: str):
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export_safe("docx", *extra)
 
 
 def export_markdown_safe(*extra: str):
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export_safe("markdown", *extra)
 
 
 def export_html_safe(*extra: str):
+    if not extra:
+        extra = tuple(sys.argv[1:])
     return export_safe("html", *extra)
 
 
@@ -501,6 +537,8 @@ def export_print_version_paperback_safe(*extra: str):
       - Forces --skip-images and --keep-relative-paths (no in-place source edits).
       - Validates passthrough; aborts if --strict-opts and invalid flags present.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--book-type", "paperback"]
 
     # Add exactly one safe flag if none provided by user
@@ -534,6 +572,8 @@ def export_print_version_hardcover_safe(*extra: str):
       - Forces --skip-images and --keep-relative-paths (no in-place source edits).
       - Validates passthrough; aborts if --strict-opts and invalid flags present.
     """
+    if not extra:
+        extra = tuple(sys.argv[1:])
     args = ["--book-type", "hardcover"]
 
     if not _has_any_option(extra, {"--skip-images", "--keep-relative-paths"}):
