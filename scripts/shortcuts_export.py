@@ -78,6 +78,9 @@ FULL_EXPORT_ALLOWED_OPTS = {
     "--extension",
     "--book-type",
     "--output-file",
+    "--no-type-suffix",
+    "--toc-depth",
+    "--use-manual-toc",
     "--skip-images",
     "--keep-relative-paths",
 }
