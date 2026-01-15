@@ -177,7 +177,7 @@ def get_metadata_language():
     with METADATA_FILE.open("r", encoding="utf-8") as f:
         try:
             metadata = yaml.safe_load(f)
-            return metadata.get("language")
+            return metadata.get("language") or metadata.get("lang")
         except yaml.YAMLError as e:
             print(f"⚠️ Failed to parse {METADATA_FILE}: {e}")
             return None
