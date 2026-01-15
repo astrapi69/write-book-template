@@ -7,10 +7,8 @@ name = "Asterios Raptis"
 email = "asteri.raptis@gmail.com"
 readme = "README.md"
 
-[tool.poetry]
-packages = [
-    { include = "scripts" }
-]
+[[tool.poetry.packages]]
+include = "scripts"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
