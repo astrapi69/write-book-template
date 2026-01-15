@@ -2,9 +2,9 @@
 name = "write-book-template"  # TODO: replace with your actual project name
 version = "0.1.0"
 description = "Template project for writing and publishing books using markdown and automation tools"  # TODO: customize
-authors = [
-    { name = "Asterios Raptis", email = "asteri.raptis@gmail.com" }
-]
+[[project.authors]]
+name = "Asterios Raptis"
+email = "asteri.raptis@gmail.com"
 readme = "README.md"
 
 [tool.poetry]
