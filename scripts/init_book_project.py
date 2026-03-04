@@ -176,7 +176,7 @@ def run_init_book_project(
         "manuscript/front-matter/foreword.md",
         "manuscript/front-matter/preface.md",
         "manuscript/front-matter/toc.md",
-        "manuscript/front-matter/toc_print_edition.md",
+        "manuscript/front-matter/toc-print.md",
         "manuscript/back-matter/about-the-author.md",
         "manuscript/back-matter/acknowledgments.md",
         "manuscript/back-matter/appendix.md",

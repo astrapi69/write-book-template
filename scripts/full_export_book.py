@@ -85,9 +85,9 @@ DEFAULT_SECTION_ORDER = [
 EBOOK_SECTION_ORDER = DEFAULT_SECTION_ORDER
 
 # Paperback/Hardcover section order
-# Uses your existing toc_print_edition.md for print editions
+# Uses your existing toc-print.md for print editions
 PAPERBACK_SECTION_ORDER = [
-    "front-matter/toc_print_edition.md",  # Your existing print TOC
+    "front-matter/toc-print.md",  # Your existing print TOC
     "front-matter/foreword.md",
     "front-matter/preface.md",
     "chapters",  # Entire chapters folder
@@ -108,7 +108,7 @@ HARDCOVER_SECTION_ORDER = PAPERBACK_SECTION_ORDER
 # that don't include the correct file references (chXXX.xhtml#anchor)
 EPUB_SKIP_TOC_FILES = [
     "front-matter/toc.md",
-    "front-matter/toc_print_edition.md",
+    "front-matter/toc-print.md",
 ]
 
 # Default TOC depth for auto-generated TOCs
@@ -266,7 +266,7 @@ def filter_section_order_for_epub(section_order: list[str]) -> list[str]:
     pass epubcheck validation.
 
     Note: This is only used for ebook EPUBs. Paperback/hardcover EPUBs
-    use the existing toc_print_edition.md file.
+    use the existing toc-print.md file.
     """
     filtered = [s for s in section_order if s not in EPUB_SKIP_TOC_FILES]
     return filtered
@@ -305,7 +305,7 @@ def compile_book(
 
     # For EPUB + ebook only: filter out manual TOC files (Pandoc generates TOC automatically)
     # Unless --use-manual-toc is set, then use your existing toc.md
-    # For EPUB + paperback/hardcover: use your existing toc_print_edition.md
+    # For EPUB + paperback/hardcover: use your existing toc-print.md
     if format == "epub" and not is_print_build and not use_manual_toc:
         effective_order = filter_section_order_for_epub(section_order)
         if len(effective_order) < len(section_order):
@@ -618,15 +618,15 @@ def main():
         )
 
         # Warning if print TOC file is missing (only relevant for non-auto-TOC builds)
-        if "front-matter/toc_print_edition.md" in effective_order:
-            toc_print_path = Path(BOOK_DIR) / "front-matter" / "toc_print_edition.md"
+        if "front-matter/toc-print.md" in effective_order:
+            toc_print_path = Path(BOOK_DIR) / "front-matter" / "toc-print.md"
             if not toc_print_path.exists():
                 print(
-                    "⚠️ Print ToC file missing: manuscript/front-matter/toc_print_edition.md "
+                    "⚠️ Print ToC file missing: manuscript/front-matter/toc-print.md "
                     "(will use auto-generated TOC instead)"
                 )
                 # Remove the missing file from order
-                idx = effective_order.index("front-matter/toc_print_edition.md")
+                idx = effective_order.index("front-matter/toc-print.md")
                 effective_order = effective_order.copy()
                 effective_order.pop(idx)
 
@@ -641,7 +641,7 @@ def main():
                 / (
                     "toc.md"
                     if "front-matter/toc.md" in effective_order
-                    else "toc_print_edition.md"
+                    else "toc-print.md"
                 )
             )
             if toc_candidate.exists():
