@@ -149,6 +149,7 @@ translate-de-en = "scripts.shortcuts_translate:translate_manuscript_from_german_
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=scripts --cov-report=term-missing"
+pythonpath = [".", "scripts"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
