@@ -22,6 +22,9 @@ ftfy = "^6.3.1"
 questionary = "^2.1.1"
 pymupdf = "^1.26.4"
 manuscript-tools = "^0.3.0"
+edge-tts = "^7.2.7"
+ebooklib = "^0.20"
+beautifulsoup4 = "^4.14.3"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.138.13"

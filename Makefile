@@ -185,3 +185,32 @@ init-project: init-bp ## Alias: initialize a new project
 
 tag-message: ## Interactive: Generate tag message file and (optionally) create tag
 	@$(POETRY) run make-tag-message
+
+# ----------------------------------------------------------------------
+# Manuscript Tools
+# ----------------------------------------------------------------------
+
+MANUSCRIPT ?= manuscript
+
+.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-metrics ms-validate ms-validate-fix
+
+ms-check: ## Manuscript: core style checks
+	@$(POETRY) run ms-check $(MANUSCRIPT)
+
+ms-check-strict: ## Manuscript: all checks (filler, passive, sentence length)
+	@$(POETRY) run ms-check $(MANUSCRIPT) --strict
+
+ms-sanitize: ## Manuscript: sanitize with backup
+	@$(POETRY) run ms-sanitize $(MANUSCRIPT) --backup
+
+ms-sanitize-dry: ## Manuscript: preview sanitization
+	@$(POETRY) run ms-sanitize $(MANUSCRIPT) --dry-run
+
+ms-metrics: ## Manuscript: word counts and readability
+	@$(POETRY) run ms-metrics $(MANUSCRIPT)
+
+ms-validate: ## Manuscript: full pipeline (sanitize + check + readability)
+	@$(POETRY) run ms-validate $(MANUSCRIPT)
+
+ms-validate-fix: ## Manuscript: full pipeline with auto-fix
+	@$(POETRY) run ms-validate $(MANUSCRIPT) --fix
