@@ -11,7 +11,7 @@ email = "asteri.raptis@gmail.com"
 include = "scripts"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
+python = ">=3.11,<4.0"
 pandas = "^2.3.2"
 python-dotenv = "^1.1.0"
 requests = "^2.32.5"
@@ -21,6 +21,7 @@ toml = "^0.10.2"
 ftfy = "^6.3.1"
 questionary = "^2.1.1"
 pymupdf = "^1.26.4"
+manuscript-tools = "^0.3.0"
 
 [tool.poetry.group.dev.dependencies]
 hypothesis = "^6.138.13"
