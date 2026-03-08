@@ -23,6 +23,9 @@ import os
 import re
 import html
 import json
+import time
+import shutil
+import subprocess
 import argparse
 from pathlib import Path
 from typing import List, Tuple
@@ -286,15 +289,52 @@ def get_tts_adapter(engine: str, lang: str, voice: str | None, rate: int) -> TTS
 
 
 def _clean_and_speak(
-    name: str, raw_text: str, output_dir: Path, tts: TTSAdapter
+    name: str,
+    raw_text: str,
+    output_dir: Path,
+    tts: TTSAdapter,
+    index: int = 0,
+    total: int = 0,
+    overwrite: bool = False,
 ) -> None:
     """Clean raw text (Markdown or HTML) and synthesize to MP3 if non-empty."""
     text = clean_markdown_for_tts(raw_text)
+    progress = f"[{index}/{total}] " if total else ""
+
     if not text or not re.search(r"\w", text):
+        print(f"  {progress}Skipping {name} (empty after cleanup)")
         return
+
     out_path = output_dir / f"{name}.mp3"
-    print(f"Generating: {out_path.name}")
-    tts.speak(text, out_path)
+
+    # Skip if file already exists and overwrite is off
+    if out_path.exists() and not overwrite:
+        file_size = out_path.stat().st_size / 1024
+        print(
+            f"  {progress}Exists:     {out_path.name} ({file_size:.0f} KB, use --overwrite to regenerate)"
+        )
+        return
+
+    char_count = len(text)
+    word_count = len(text.split())
+
+    print(
+        f"  {progress}Generating: {out_path.name} ({char_count:,} chars, ~{word_count:,} words)"
+    )
+
+    try:
+        t0 = time.time()
+        tts.speak(text, out_path)
+        elapsed = time.time() - t0
+
+        file_size = out_path.stat().st_size / 1024 if out_path.exists() else 0
+        print(f"           Done in {elapsed:.1f}s ({file_size:.0f} KB)")
+    except Exception as exc:
+        print(f"           FAILED: {exc}")
+        # Remove partial file if it was created
+        if out_path.exists():
+            out_path.unlink()
+        print("           Continuing with next chapter...")
 
 
 def collect_files_in_order(
@@ -339,6 +379,7 @@ def generate_audio_from_markdown(
     output_dir: Path,
     tts: TTSAdapter,
     section_order: List[str] | None = None,
+    overwrite: bool = False,
 ) -> None:
     """
     Convert *.md files in input_dir to MP3 files in output_dir,
@@ -353,10 +394,22 @@ def generate_audio_from_markdown(
         print(f"No *.md files found in {input_dir}")
         return
 
-    print(f"Processing {len(ordered_files)} file(s) from {input_dir}")
-    for name, md_file in ordered_files:
+    total = len(ordered_files)
+    print(f"\nSource:  {input_dir}")
+    print(f"Output:  {output_dir}")
+    print(f"Files:   {total}")
+    print()
+
+    t_total = time.time()
+    for idx, (name, md_file) in enumerate(ordered_files, start=1):
         raw_text = md_file.read_text(encoding="utf-8")
-        _clean_and_speak(name, raw_text, output_dir, tts)
+        _clean_and_speak(
+            name, raw_text, output_dir, tts, index=idx, total=total, overwrite=overwrite
+        )
+
+    elapsed_total = time.time() - t_total
+    mp3_count = len(list(output_dir.glob("*.mp3")))
+    print(f"\nFinished: {mp3_count} file(s) generated in {elapsed_total:.1f}s")
 
 
 def list_chapters_from_epub(epub_path: Path) -> None:
@@ -377,6 +430,7 @@ def generate_audio_from_epub(
     output_dir: Path,
     tts: TTSAdapter,
     skip_patterns: List[str] | None = None,
+    overwrite: bool = False,
 ) -> None:
     """
     Extract chapters from an EPUB file and convert each to an MP3.
@@ -390,9 +444,147 @@ def generate_audio_from_epub(
         print(f"No readable chapters found in {epub_path.name}")
         return
 
-    print(f"Found {len(chapters)} chapter(s) in {epub_path.name}")
-    for chapter_name, raw_html in chapters:
-        _clean_and_speak(chapter_name, raw_html, output_dir, tts)
+    total = len(chapters)
+    print(f"\nSource:  {epub_path}")
+    print(f"Output:  {output_dir}")
+    print(f"Chapters: {total}")
+    if skip_patterns:
+        print(f"Skipping: {', '.join(skip_patterns)}")
+    print()
+
+    t_total = time.time()
+    for idx, (chapter_name, raw_html) in enumerate(chapters, start=1):
+        _clean_and_speak(
+            chapter_name,
+            raw_html,
+            output_dir,
+            tts,
+            index=idx,
+            total=total,
+            overwrite=overwrite,
+        )
+
+    elapsed_total = time.time() - t_total
+    mp3_count = len(list(output_dir.glob("*.mp3")))
+    print(f"\nFinished: {mp3_count} file(s) generated in {elapsed_total:.1f}s")
+
+
+# --- Merge chapters into single audiobook file -------------------------------
+
+
+def _derive_voice_short_name(voice: str) -> str:
+    """Extract a short voice name from the full Edge TTS voice identifier.
+    'de-DE-ConradNeural' -> 'Conrad', 'en-US-JennyNeural' -> 'Jenny'
+    """
+    parts = voice.split("-")
+    if len(parts) >= 3:
+        name = parts[-1].replace("Neural", "").replace("Multilingual", "")
+        return name if name else parts[-1]
+    return voice
+
+
+def _derive_book_title(input_path: Path) -> str:
+    """Derive a book title from the project root directory name.
+    This is typically the git repo folder, e.g. 'eternity-ebook'.
+    Falls back to EPUB filename or input directory name.
+    """
+    # Use the current working directory (project root) as the canonical name
+    project_name = Path.cwd().name
+    if project_name:
+        # Adapt naming for audiobook context
+        return project_name.replace("-ebook", "-audiobook").replace(
+            "_ebook", "_audiobook"
+        )
+    # Fallback
+    if input_path.is_file():
+        return input_path.stem
+    return input_path.name
+
+
+def merge_audiobook(
+    output_dir: Path,
+    voice: str,
+    title: str | None = None,
+    input_path: Path | None = None,
+) -> Path | None:
+    """
+    Merge all numbered MP3 files in output_dir into a single audiobook file.
+
+    Uses ffmpeg concat demuxer for lossless concatenation (no re-encoding).
+    Output filename: {VoiceName}_{BookTitle}.mp3
+
+    :param output_dir: Directory containing the chapter MP3 files.
+    :param voice: Full voice name (e.g. 'de-DE-ConradNeural').
+    :param title: Optional custom title. If None, derived from input_path.
+    :param input_path: Original input path, used to derive title if not given.
+    :return: Path to the merged file, or None if merge failed.
+    """
+    # Collect chapter MP3s in sorted order (they are numbered 01_, 02_, ...)
+    chapter_files = sorted(output_dir.glob("[0-9][0-9]_*.mp3"))
+    if not chapter_files:
+        print("No chapter files found to merge.")
+        return None
+
+    # Build output filename
+    voice_name = _derive_voice_short_name(voice)
+    book_title = title or (
+        _derive_book_title(input_path) if input_path else "audiobook"
+    )
+    safe_title = re.sub(r"[^\w\s-]", "", book_title).strip().replace(" ", "_")
+    merged_name = f"{voice_name}_{safe_title}.mp3"
+    merged_path = output_dir / merged_name
+
+    # Check if ffmpeg is available
+    if not shutil.which("ffmpeg"):
+        print("Error: ffmpeg not found. Install it to merge chapters.")
+        print("  Ubuntu: sudo apt install ffmpeg")
+        return None
+
+    # Create concat file list for ffmpeg
+    filelist_path = output_dir / ".filelist.txt"
+    try:
+        with open(filelist_path, "w", encoding="utf-8") as f:
+            for mp3 in chapter_files:
+                f.write(f"file '{mp3.name}'\n")
+
+        print(f"\nMerging {len(chapter_files)} chapter(s) into {merged_name}...")
+        t0 = time.time()
+
+        # Use relative paths since cwd is set to output_dir
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                ".filelist.txt",
+                "-c",
+                "copy",
+                merged_name,
+            ],
+            capture_output=True,
+            text=True,
+            cwd=str(output_dir),
+        )
+
+        if result.returncode != 0:
+            # Show the last lines of stderr (actual error, not ffmpeg version header)
+            error_lines = result.stderr.strip().splitlines()
+            error_msg = "\n".join(error_lines[-5:]) if error_lines else "Unknown error"
+            print(f"Error: ffmpeg merge failed:\n{error_msg}")
+            return None
+
+        elapsed = time.time() - t0
+        file_size_mb = merged_path.stat().st_size / (1024 * 1024)
+        print(f"Merged:  {merged_path}")
+        print(f"Size:    {file_size_mb:.1f} MB ({elapsed:.1f}s)")
+        return merged_path
+
+    finally:
+        filelist_path.unlink(missing_ok=True)
 
 
 def main():
@@ -436,6 +628,22 @@ def main():
         help="Comma-separated keywords to skip chapters whose title or filename "
         "matches (case-insensitive). Example: --skip toc,cover,imprint",
     )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing MP3 files. Default: skip existing files.",
+    )
+    parser.add_argument(
+        "--merge",
+        action="store_true",
+        help="Merge all chapter MP3s into a single audiobook file using ffmpeg.",
+    )
+    parser.add_argument(
+        "--title",
+        type=str,
+        help="Book title for the merged audiobook filename. "
+        "Default: derived from input directory or EPUB filename.",
+    )
 
     args = parser.parse_args()
 
@@ -466,6 +674,18 @@ def main():
 
     tts = get_tts_adapter(args.engine, lang=lang, voice=voice, rate=rate)
 
+    # Print configuration summary
+    voice_name = getattr(tts, "voice", voice or "default")
+    print("=" * 60)
+    print("  Audiobook Generator")
+    print("=" * 60)
+    print(f"  Engine:   {args.engine}")
+    print(f"  Language: {lang}")
+    print(f"  Voice:    {voice_name}")
+    if args.settings:
+        print(f"  Settings: {args.settings}")
+    print("=" * 60)
+
     # Load section order (optional)
     section_order = None
     if args.section_order and args.section_order.exists():
@@ -482,12 +702,25 @@ def main():
         skip_patterns = config["skip"]
 
     if input_path.is_file() and input_path.suffix.lower() == ".epub":
-        generate_audio_from_epub(input_path, args.output, tts, skip_patterns)
+        generate_audio_from_epub(
+            input_path, args.output, tts, skip_patterns, overwrite=args.overwrite
+        )
     elif input_path.is_dir():
-        generate_audio_from_markdown(input_path, args.output, tts, section_order)
+        generate_audio_from_markdown(
+            input_path, args.output, tts, section_order, overwrite=args.overwrite
+        )
     else:
         raise ValueError(
             f"--input must be a directory with *.md files or a .epub file, got: {input_path}"
+        )
+
+    # Merge chapter files into single audiobook if requested
+    if args.merge:
+        merge_audiobook(
+            output_dir=args.output,
+            voice=voice_name,
+            title=args.title or config.get("title"),
+            input_path=input_path,
         )
 
 
