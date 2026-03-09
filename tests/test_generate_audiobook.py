@@ -34,7 +34,7 @@ def test_generate_skips_empty_after_cleanup(tmp_path: Path):
     generate_audio_from_markdown(src, out, tts)
 
     files = sorted(p.name for p in out.glob("*.mp3"))
-    assert files == ["02.mp3"]
+    assert files == ["02_02.mp3"]
     assert len(tts.calls) == 1
     assert "Hello world link" in tts.calls[0][0]
 
@@ -47,7 +47,7 @@ def test_output_directory_is_created(tmp_path: Path):
 
     tts = DummyTTS()
     generate_audio_from_markdown(src, out, tts)
-    assert (out / "chapter.mp3").exists()
+    assert (out / "01_chapter.mp3").exists()
 
 
 def test_generate_skips_meaningless_text(tmp_path: Path):

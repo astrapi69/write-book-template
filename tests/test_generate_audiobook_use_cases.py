@@ -41,7 +41,7 @@ def test_generation_orders_by_filename_and_skips_empty(tmp_path: Path):
 
     # Only 01.md should be synthesized; filenames are sorted
     files = sorted(p.name for p in out.glob("*.mp3"))
-    assert files == ["01.mp3"]
+    assert files == ["01_01.mp3"]
     assert len(tts.calls) == 1
     # Cleaned text should have no markdown noise
     assert tts.calls[0][0].startswith("Hello world link")
@@ -66,7 +66,7 @@ def test_nested_output_dir_creation_and_text_content(tmp_path: Path):
     tts = RecordingTTS()
     generate_audio_from_markdown(src, out, tts)
 
-    mp3 = out / "chapter.mp3"
+    mp3 = out / "01_chapter.mp3"
     assert mp3.exists()
     # Verify content seen by TTS is cleaned
     cleaned = tts.calls[0][0]
