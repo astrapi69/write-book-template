@@ -412,24 +412,37 @@ def ask_text(prompt: str, default: Optional[str] = None, validate=None) -> str:
 
 
 def ask_confirm(prompt: str, default: bool = False) -> bool:
-    """Confirmation helper."""
+    """Confirmation helper with robust input handling."""
     if questionary is not None:
-        return bool(cast(Any, questionary).confirm(prompt, default=default).ask())
+        result = cast(Any, questionary).confirm(prompt, default=default).ask()
+        if result is None:
+            raise SystemExit("Aborted.")
+        return bool(result)
     else:
-        raw = input(f"{prompt} [{'Y/n' if default else 'y/N'}] ").strip().lower()
-        if not raw:
-            return default
-        return raw in ("y", "yes", "j", "ja", "true", "1")
+        yes_vals = ("y", "yes", "j", "ja", "true", "1")
+        no_vals = ("n", "no", "nein", "false", "0")
+        while True:
+            raw = input(f"{prompt} [{'Y/n' if default else 'y/N'}] ").strip().lower()
+            if not raw:
+                return default
+            if raw in yes_vals:
+                return True
+            if raw in no_vals:
+                return False
+            print(f"  Bitte y/n eingeben (erkannt: {yes_vals + no_vals}).")
 
 
 def ask_choice(prompt: str, choices: List[str], default: Optional[str] = None) -> str:
-    """Choice helper."""
+    """Choice helper with robust input handling."""
     if questionary is not None:
-        return (
+        result = (
             cast(Any, questionary)
             .select(prompt, choices=choices, default=default)
             .ask()
         )
+        if result is None:
+            raise SystemExit("Aborted.")
+        return result
     else:
         print(f"\n{prompt}")
         for i, choice in enumerate(choices, 1):
@@ -443,10 +456,27 @@ def ask_choice(prompt: str, choices: List[str], default: Optional[str] = None) -
                 idx = int(ans) - 1
                 if 0 <= idx < len(choices):
                     return choices[idx]
+                print(f"  Nummer muss zwischen 1 und {len(choices)} liegen.")
             except ValueError:
                 if ans in choices:
                     return ans
-            print("Invalid selection, please try again.")
+                print(
+                    f"  Ungueltige Eingabe. Bitte Zahl (1-{len(choices)}) oder exakten Text eingeben."
+                )
+
+
+def ask_int(prompt: str, default: int, minimum: int = 0) -> int:
+    """Numeric input helper with validation."""
+    while True:
+        raw = ask_text(prompt, default=str(default))
+        try:
+            value = int(raw)
+            if value < minimum:
+                print(f"  Wert muss mindestens {minimum} sein.")
+                continue
+            return value
+        except ValueError:
+            print(f"  Ungueltige Eingabe: '{raw}' ist keine Zahl.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -621,7 +651,7 @@ def fill_from_interactive(args: argparse.Namespace) -> argparse.Namespace:
             )
 
         if ask_confirm("Limit number of commits?", default=False):
-            args.max_commits = int(ask_text("Max commits:", default="100"))
+            args.max_commits = ask_int("Max commits:", default=100, minimum=1)
 
         args.emit_json = ask_confirm("Emit JSON summary?", default=args.emit_json)
 
