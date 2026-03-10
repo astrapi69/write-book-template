@@ -253,6 +253,34 @@ def extract_chapters_from_epub(
     return chapters
 
 
+# --- Dependency checks -------------------------------------------------------
+
+_ENGINE_DEPENDENCIES = {
+    "edge": ("edge_tts", "edge-tts", "poetry add edge-tts"),
+    "google": ("gtts", "gTTS", "poetry add gTTS"),
+    "pyttsx3": ("pyttsx3", "pyttsx3", "poetry add pyttsx3"),
+    "elevenlabs": ("elevenlabs", "elevenlabs", "poetry add elevenlabs"),
+}
+
+
+def check_engine_dependencies(engine: str) -> None:
+    """
+    Verify that the required Python package for the chosen TTS engine is installed.
+    Raises SystemExit with a clear error message if the dependency is missing.
+    """
+    if engine not in _ENGINE_DEPENDENCIES:
+        return
+
+    import_name, package_name, install_cmd = _ENGINE_DEPENDENCIES[engine]
+    try:
+        __import__(import_name)
+    except ImportError:
+        print(f"\nError: Required package '{package_name}' is not installed.")
+        print(f"The '{engine}' TTS engine needs it to work.\n")
+        print(f"Install it with:\n  {install_cmd}\n")
+        raise SystemExit(1)
+
+
 # --- TTS plumbing ------------------------------------------------------------
 
 
@@ -296,14 +324,15 @@ def _clean_and_speak(
     index: int = 0,
     total: int = 0,
     overwrite: bool = False,
-) -> None:
-    """Clean raw text (Markdown or HTML) and synthesize to MP3 if non-empty."""
+) -> bool:
+    """Clean raw text (Markdown or HTML) and synthesize to MP3 if non-empty.
+    Returns True if an MP3 was successfully generated or already exists."""
     text = clean_markdown_for_tts(raw_text)
     progress = f"[{index}/{total}] " if total else ""
 
     if not text or not re.search(r"\w", text):
         print(f"  {progress}Skipping {name} (empty after cleanup)")
-        return
+        return False
 
     out_path = output_dir / f"{name}.mp3"
 
@@ -313,7 +342,7 @@ def _clean_and_speak(
         print(
             f"  {progress}Exists:     {out_path.name} ({file_size:.0f} KB, use --overwrite to regenerate)"
         )
-        return
+        return True
 
     char_count = len(text)
     word_count = len(text.split())
@@ -329,12 +358,14 @@ def _clean_and_speak(
 
         file_size = out_path.stat().st_size / 1024 if out_path.exists() else 0
         print(f"           Done in {elapsed:.1f}s ({file_size:.0f} KB)")
+        return True
     except Exception as exc:
         print(f"           FAILED: {exc}")
         # Remove partial file if it was created
         if out_path.exists():
             out_path.unlink()
         print("           Continuing with next chapter...")
+        return False
 
 
 def collect_files_in_order(
@@ -401,15 +432,23 @@ def generate_audio_from_markdown(
     print()
 
     t_total = time.time()
+    succeeded = 0
+    failed = 0
     for idx, (name, md_file) in enumerate(ordered_files, start=1):
         raw_text = md_file.read_text(encoding="utf-8")
-        _clean_and_speak(
+        ok = _clean_and_speak(
             name, raw_text, output_dir, tts, index=idx, total=total, overwrite=overwrite
         )
+        if ok:
+            succeeded += 1
+        elif clean_markdown_for_tts(raw_text).strip():
+            failed += 1
 
     elapsed_total = time.time() - t_total
     mp3_count = len(list(output_dir.glob("*.mp3")))
-    print(f"\nFinished: {mp3_count} file(s) generated in {elapsed_total:.1f}s")
+    print(f"\nFinished: {mp3_count} file(s) in {elapsed_total:.1f}s")
+    if failed:
+        print(f"Warning:  {failed} chapter(s) failed to generate")
 
 
 def list_chapters_from_epub(epub_path: Path) -> None:
@@ -453,8 +492,10 @@ def generate_audio_from_epub(
     print()
 
     t_total = time.time()
+    succeeded = 0
+    failed = 0
     for idx, (chapter_name, raw_html) in enumerate(chapters, start=1):
-        _clean_and_speak(
+        ok = _clean_and_speak(
             chapter_name,
             raw_html,
             output_dir,
@@ -463,10 +504,16 @@ def generate_audio_from_epub(
             total=total,
             overwrite=overwrite,
         )
+        if ok:
+            succeeded += 1
+        elif clean_markdown_for_tts(raw_html).strip():
+            failed += 1
 
     elapsed_total = time.time() - t_total
     mp3_count = len(list(output_dir.glob("*.mp3")))
-    print(f"\nFinished: {mp3_count} file(s) generated in {elapsed_total:.1f}s")
+    print(f"\nFinished: {mp3_count} file(s) in {elapsed_total:.1f}s")
+    if failed:
+        print(f"Warning:  {failed} chapter(s) failed to generate")
 
 
 # --- Merge chapters into single audiobook file -------------------------------
@@ -671,6 +718,19 @@ def main():
     lang = args.lang or config.get("language", "en")
     voice = args.voice or config.get("voice", None)
     rate = args.rate if args.rate is not None else config.get("rate", 200)
+
+    # Check that required packages are installed before proceeding
+    check_engine_dependencies(args.engine)
+
+    # Check EPUB dependencies if needed
+    if input_path.is_file() and input_path.suffix.lower() == ".epub":
+        try:
+            __import__("ebooklib")
+            __import__("bs4")
+        except ImportError:
+            print("\nError: EPUB support requires 'ebooklib' and 'beautifulsoup4'.\n")
+            print("Install them with:\n  poetry add ebooklib beautifulsoup4\n")
+            return
 
     tts = get_tts_adapter(args.engine, lang=lang, voice=voice, rate=rate)
 
