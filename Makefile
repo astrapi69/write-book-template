@@ -201,7 +201,7 @@ tag-message: ## Interactive: Generate tag message file and (optionally) create t
 
 MANUSCRIPT ?= manuscript
 
-.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-metrics ms-validate ms-validate-fix
+.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-quotes ms-quotes-dry ms-metrics ms-validate ms-validate-fix
 
 ms-check: ## Manuscript: core style checks
 	@$(POETRY) run ms-check $(MANUSCRIPT)
@@ -223,3 +223,9 @@ ms-validate: ## Manuscript: full pipeline (sanitize + check + readability)
 
 ms-validate-fix: ## Manuscript: full pipeline with auto-fix
 	@$(POETRY) run ms-validate $(MANUSCRIPT) --fix
+
+ms-quotes: ## Manuscript: fix German quotation marks
+	@$(POETRY) run ms-quotes $(MANUSCRIPT)
+
+ms-quotes-dry: ## Manuscript: preview quotation mark fixes
+	@$(POETRY) run ms-quotes $(MANUSCRIPT) --dry-run
