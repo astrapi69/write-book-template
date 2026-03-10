@@ -21,7 +21,7 @@ endef
 .PHONY: help setup install update hooks fix format fix-all lint typecheck precommit \
         test test-fast \
         export export-all export-all-nc \
-        ebook paperback hardcover \
+        ebook ebook-copy paperback hardcover \
         pdf docx markdown html \
         comic-html comic-pdf \
         clean clean-venv
@@ -126,6 +126,9 @@ export-all-nc: ## Export all formats WITHOUT cover
 # Frequently used export flows
 ebook: ## Export E-Book (EPUB, NOT EPUB2)
 	@$(POETRY) run export-epub-safe $(ARGS)
+
+ebook-copy: ## Export E-Book and copy EPUB to ~/Downloads (or EPUB_DEST)
+	@$(POETRY) run export-epub-safe --copy-epub-to $(or $(EPUB_DEST),~/Downloads) $(ARGS)
 
 paperback: ## Export print version (paperback)
 	@$(POETRY) run export-print-version-paperback-safe $(ARGS)

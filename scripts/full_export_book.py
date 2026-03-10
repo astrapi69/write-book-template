@@ -498,6 +498,16 @@ def main():
         help="Use your existing toc.md instead of auto-generating TOC for EPUB ebook.",
     )
 
+    parser.add_argument(
+        "--copy-epub-to",
+        type=str,
+        nargs="?",
+        const="~/Downloads",
+        default=None,
+        help="Copy the generated EPUB file to the specified directory (default: ~/Downloads). "
+        "Use without value for ~/Downloads, or provide a custom path.",
+    )
+
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--skip-images",
@@ -721,6 +731,22 @@ def main():
 
         thread.start()
         threads.append(thread)
+
+    # Step 5b: Copy EPUB to target directory if requested
+    if args.copy_epub_to and "epub" in selected_formats:
+        epub_ext = "epub"
+        epub_output = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{epub_ext}")
+        if os.path.isfile(epub_output):
+            target_dir = Path(args.copy_epub_to).expanduser().resolve()
+            try:
+                target_dir.mkdir(parents=True, exist_ok=True)
+                target_path = target_dir / f"{OUTPUT_FILE}.{epub_ext}"
+                shutil.copy2(epub_output, target_path)
+                print(f"📋 EPUB copied to: {target_path}")
+            except OSError as e:
+                print(f"❌ Could not copy EPUB to {target_dir}: {e}")
+        else:
+            print(f"⚠️ EPUB file not found at {epub_output}, skipping copy.")
 
     # Final messages
     print("\n🚀 Export completed. Background validation in progress...")
