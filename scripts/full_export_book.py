@@ -522,6 +522,11 @@ def main():
 
     args = parser.parse_args()
 
+    # Log --copy-epub-to early so user sees it was recognized
+    if args.copy_epub_to:
+        resolved_dest = Path(args.copy_epub_to).expanduser().resolve()
+        print(f"📋 EPUB copy requested -> {resolved_dest}")
+
     # Book type handling
     book_type = BookType(args.book_type)
 
@@ -733,20 +738,27 @@ def main():
         threads.append(thread)
 
     # Step 5b: Copy EPUB to target directory if requested
-    if args.copy_epub_to and "epub" in selected_formats:
-        epub_ext = "epub"
-        epub_output = os.path.join(OUTPUT_DIR, f"{OUTPUT_FILE}.{epub_ext}")
-        if os.path.isfile(epub_output):
+    if args.copy_epub_to:
+        epub_output = Path(OUTPUT_DIR) / f"{OUTPUT_FILE}.epub"
+        epub_output_abs = epub_output.resolve()
+        print(f"📋 Looking for EPUB: {epub_output_abs}")
+
+        if epub_output_abs.is_file():
             target_dir = Path(args.copy_epub_to).expanduser().resolve()
+            target_path = target_dir / epub_output.name
             try:
                 target_dir.mkdir(parents=True, exist_ok=True)
-                target_path = target_dir / f"{OUTPUT_FILE}.{epub_ext}"
-                shutil.copy2(epub_output, target_path)
-                print(f"📋 EPUB copied to: {target_path}")
+                shutil.copy2(epub_output_abs, target_path)
+                print(f"✅ EPUB copied to: {target_path}")
             except OSError as e:
-                print(f"❌ Could not copy EPUB to {target_dir}: {e}")
+                print(f"❌ Failed to copy EPUB to {target_dir}: {e}")
         else:
-            print(f"⚠️ EPUB file not found at {epub_output}, skipping copy.")
+            print(f"⚠️ EPUB not found at {epub_output_abs}, nothing to copy.")
+            if "epub" not in selected_formats:
+                print(
+                    f"   Hint: EPUB was not in the selected formats ({', '.join(selected_formats)}). "
+                    "Use --format epub or a target that includes EPUB."
+                )
 
     # Final messages
     print("\n🚀 Export completed. Background validation in progress...")

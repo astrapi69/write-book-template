@@ -83,6 +83,7 @@ FULL_EXPORT_ALLOWED_OPTS = {
     "--use-manual-toc",
     "--skip-images",
     "--keep-relative-paths",
+    "--copy-epub-to",
 }
 
 PRINT_VERSION_ALLOWED_OPTS = {
