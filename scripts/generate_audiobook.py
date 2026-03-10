@@ -548,6 +548,18 @@ def _derive_book_title(input_path: Path) -> str:
     return input_path.name
 
 
+def _preview_merged_name(
+    voice: str, title: str | None = None, input_path: Path | None = None
+) -> str:
+    """Compute what the merged audiobook filename would be."""
+    voice_name = _derive_voice_short_name(voice)
+    book_title = title or (
+        _derive_book_title(input_path) if input_path else "audiobook"
+    )
+    safe_title = re.sub(r"[^\w\s-]", "", book_title).strip().replace(" ", "_")
+    return f"{voice_name}_{safe_title}.mp3"
+
+
 def merge_audiobook(
     output_dir: Path,
     voice: str,
@@ -744,6 +756,13 @@ def main():
     print(f"  Voice:    {voice_name}")
     if args.settings:
         print(f"  Settings: {args.settings}")
+    if args.merge:
+        merged_name = _preview_merged_name(
+            voice_name,
+            title=args.title or config.get("title"),
+            input_path=input_path,
+        )
+        print(f"  Merge to: {merged_name}")
     print("=" * 60)
 
     # Load section order (optional)
@@ -760,6 +779,25 @@ def main():
         skip_patterns = [s.strip() for s in args.skip.split(",") if s.strip()]
     elif config.get("skip"):
         skip_patterns = config["skip"]
+
+    # Preview: list files that will be processed
+    if input_path.is_file() and input_path.suffix.lower() == ".epub":
+        chapters = extract_chapters_from_epub(input_path, skip_patterns)
+        file_names = [name for name, _ in chapters]
+    elif input_path.is_dir():
+        order = section_order if section_order is not None else DEFAULT_SECTION_ORDER
+        ordered_files = collect_files_in_order(input_path, order)
+        file_names = [name for name, _ in ordered_files]
+    else:
+        file_names = []
+
+    if file_names:
+        print(f"\nFiles to process ({len(file_names)}):")
+        for name in file_names:
+            mp3_path = args.output / f"{name}.mp3"
+            status = " [exists]" if mp3_path.exists() else ""
+            print(f"  {name}.mp3{status}")
+        print()
 
     if input_path.is_file() and input_path.suffix.lower() == ".epub":
         generate_audio_from_epub(
