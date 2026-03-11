@@ -148,6 +148,25 @@ def collapse_blank_lines(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text)
 
 
+def normalize_single_newlines(text: str) -> str:
+    """Convert single line breaks to spaces for natural TTS flow.
+
+    Markdown authors often wrap lines at ~80 characters, producing single
+    newlines that are not real paragraph breaks. TTS engines interpret these
+    as pauses, causing unnatural gaps mid-sentence.
+
+    Double newlines (real paragraph breaks) are preserved as single newlines,
+    which TTS engines render as a natural pause between paragraphs.
+    """
+    # Protect paragraph breaks: \n\n -> placeholder
+    text = text.replace("\n\n", "\x00PARA\x00")
+    # Single newlines -> space
+    text = text.replace("\n", " ")
+    # Restore paragraph breaks as single newline (enough for TTS pause)
+    text = text.replace("\x00PARA\x00", "\n")
+    return text
+
+
 def unescape_html_entities(text: str) -> str:
     """Convert HTML entities (&nbsp;, &amp;, etc.) into plain characters.
     Also normalize non-breaking spaces to regular spaces for TTS/testing.
@@ -186,6 +205,7 @@ def clean_markdown_for_tts(markdown_text: str) -> str:
     text = remove_markdown_tables(text)
 
     text = collapse_blank_lines(text)
+    text = normalize_single_newlines(text)
     text = unescape_html_entities(text)
 
     return text.strip()

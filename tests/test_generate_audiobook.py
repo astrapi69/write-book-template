@@ -9,6 +9,7 @@ from scripts.generate_audiobook import (
     clean_markdown_for_tts,
     generate_audio_from_markdown,
     get_tts_adapter,
+    normalize_single_newlines,
     strip_emphasis_markers,
 )
 
@@ -193,3 +194,41 @@ def test_strip_emphasis_in_full_cleanup():
     assert "*" not in result
     assert "Als Nächstes untersuchen wir" in result
     assert "nicht bezeugt wird." in result
+
+
+# --- Newline normalization tests ---------------------------------------------
+
+
+def test_single_newline_becomes_space():
+    assert (
+        normalize_single_newlines("erste Zeile\nzweite Zeile")
+        == "erste Zeile zweite Zeile"
+    )
+
+
+def test_paragraph_break_preserved():
+    result = normalize_single_newlines("Absatz eins.\n\nAbsatz zwei.")
+    assert result == "Absatz eins.\nAbsatz zwei."
+
+
+def test_mixed_newlines():
+    text = "Satz geht\nweiter hier.\n\nNeuer Absatz mit\nUmbruch."
+    result = normalize_single_newlines(text)
+    assert result == "Satz geht weiter hier.\nNeuer Absatz mit Umbruch."
+
+
+def test_single_newline_no_pause_in_full_cleanup():
+    """Soft-wrapped lines should not produce TTS pauses."""
+    text = "Das Bewusstsein steht\nder Ewigkeit gegenüber."
+    result = clean_markdown_for_tts(text)
+    assert "\n" not in result
+    assert "steht der" in result
+
+
+def test_paragraph_break_kept_in_full_cleanup():
+    """Real paragraph breaks should remain for natural TTS pauses."""
+    text = "Ende von Absatz eins.\n\nAnfang von Absatz zwei."
+    result = clean_markdown_for_tts(text)
+    assert "\n" in result
+    assert "Ende von Absatz eins." in result
+    assert "Anfang von Absatz zwei." in result
