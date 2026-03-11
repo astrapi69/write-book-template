@@ -106,8 +106,14 @@ def remove_reference_links_and_definitions(text: str) -> str:
 
 
 def strip_emphasis_markers(text: str) -> str:
-    """Remove Markdown emphasis markers (**bold**, *italic*, __strong__)."""
-    return re.sub(r"(\*\*|\*|__|_)(.*?)\1", r"\2", text)
+    """Remove Markdown emphasis markers (**bold**, *italic*, __strong__).
+    Uses re.DOTALL so markers spanning multiple lines are also caught.
+    Runs twice to handle nested emphasis like ***bold italic***.
+    """
+    pattern = r"(\*\*\*|\*\*|\*|___|__|_)(.*?)\1"
+    text = re.sub(pattern, r"\2", text, flags=re.DOTALL)
+    text = re.sub(pattern, r"\2", text, flags=re.DOTALL)
+    return text
 
 
 def strip_heading_markers(text: str) -> str:

@@ -5,7 +5,12 @@ import sys
 from scripts.tts.base import TTSAdapter
 from pathlib import Path
 
-from scripts.generate_audiobook import generate_audio_from_markdown, get_tts_adapter
+from scripts.generate_audiobook import (
+    clean_markdown_for_tts,
+    generate_audio_from_markdown,
+    get_tts_adapter,
+    strip_emphasis_markers,
+)
 
 
 class DummyTTS(TTSAdapter):
@@ -132,3 +137,59 @@ def test_get_tts_adapter_invalid_engine():
         assert False, "Expected ValueError for invalid engine"
     except ValueError:
         pass
+
+
+# --- Emphasis stripping tests ------------------------------------------------
+
+
+def test_strip_single_line_italic():
+    assert strip_emphasis_markers("*hello*") == "hello"
+
+
+def test_strip_single_line_bold():
+    assert strip_emphasis_markers("**hello**") == "hello"
+
+
+def test_strip_single_line_underscore():
+    assert strip_emphasis_markers("_hello_") == "hello"
+    assert strip_emphasis_markers("__hello__") == "hello"
+
+
+def test_strip_bold_italic_combined():
+    assert strip_emphasis_markers("***hello***") == "hello"
+
+
+def test_strip_multiline_italic():
+    text = "*Als Nächstes untersuchen wir,\nwas geschieht.*"
+    result = strip_emphasis_markers(text)
+    assert "*" not in result
+    assert "Als Nächstes untersuchen wir," in result
+    assert "was geschieht." in result
+
+
+def test_strip_multiline_bold():
+    text = "**Dieser Text geht\nüber zwei Zeilen.**"
+    result = strip_emphasis_markers(text)
+    assert "**" not in result
+    assert "Dieser Text geht" in result
+
+
+def test_strip_multiple_emphasis_on_same_line():
+    text = "*eins* normal *zwei*"
+    result = strip_emphasis_markers(text)
+    assert result == "eins normal zwei"
+
+
+def test_strip_mixed_emphasis():
+    text = "Normal **bold** und *italic* text."
+    result = strip_emphasis_markers(text)
+    assert result == "Normal bold und italic text."
+
+
+def test_strip_emphasis_in_full_cleanup():
+    """Verify emphasis stripping works through the full clean_markdown_for_tts pipeline."""
+    text = "*Als Nächstes untersuchen wir, was geschieht, wenn dieser Prozess\nnicht bezeugt wird.*"
+    result = clean_markdown_for_tts(text)
+    assert "*" not in result
+    assert "Als Nächstes untersuchen wir" in result
+    assert "nicht bezeugt wird." in result

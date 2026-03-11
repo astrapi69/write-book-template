@@ -190,3 +190,6 @@ check_untyped_defs = false
 [tool.ruff]
 fix = true
 unsafe-fixes = true
+
+[tool.codespell]
+ignore-words-list = "prozess"
