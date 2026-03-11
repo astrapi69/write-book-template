@@ -24,7 +24,7 @@ endef
         ebook ebook-copy paperback paperback-copy hardcover hardcover-copy \
         pdf docx markdown html \
         comic-html comic-pdf \
-        clean clean-venv
+        clean clean-venv clean-git-cache
 
 # ----------------------------------------------------------------------
 # Help
@@ -173,6 +173,9 @@ clean: ## Remove cache and build artifacts
 
 clean-venv: ## Remove Poetry virtualenv
 	@$(POETRY) env remove --all || true
+
+clean-git-cache: ## Remove the git cache
+	@$(POETRY) run clean-git-cache $(ARGS)
 
 # ----------------------------------------------------------------------
 # Project Initialization
