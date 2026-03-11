@@ -201,7 +201,7 @@ tag-message: ## Interactive: Generate tag message file and (optionally) create t
 
 MANUSCRIPT ?= manuscript
 
-.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-quotes ms-quotes-dry ms-metrics ms-validate ms-validate-fix
+.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-quotes ms-quotes-dry ms-format ms-format-dry ms-metrics ms-validate ms-validate-fix
 
 ms-check: ## Manuscript: core style checks
 	@$(POETRY) run ms-check $(MANUSCRIPT)
@@ -215,6 +215,18 @@ ms-sanitize: ## Manuscript: sanitize with backup
 ms-sanitize-dry: ## Manuscript: preview sanitization
 	@$(POETRY) run ms-sanitize $(MANUSCRIPT) --dry-run
 
+ms-quotes: ## Manuscript: fix German quotation marks
+	@$(POETRY) run ms-quotes $(MANUSCRIPT)
+
+ms-quotes-dry: ## Manuscript: preview quotation mark fixes
+	@$(POETRY) run ms-quotes $(MANUSCRIPT) --dry-run
+
+ms-format: ## Manuscript: fix broken bold/italic formatting
+	@$(POETRY) run ms-format $(MANUSCRIPT)
+
+ms-format-dry: ## Manuscript: preview formatting fixes
+	@$(POETRY) run ms-format $(MANUSCRIPT) --dry-run
+
 ms-metrics: ## Manuscript: word counts and readability
 	@$(POETRY) run ms-metrics $(MANUSCRIPT)
 
@@ -223,9 +235,3 @@ ms-validate: ## Manuscript: full pipeline (sanitize + check + readability)
 
 ms-validate-fix: ## Manuscript: full pipeline with auto-fix
 	@$(POETRY) run ms-validate $(MANUSCRIPT) --fix
-
-ms-quotes: ## Manuscript: fix German quotation marks
-	@$(POETRY) run ms-quotes $(MANUSCRIPT)
-
-ms-quotes-dry: ## Manuscript: preview quotation mark fixes
-	@$(POETRY) run ms-quotes $(MANUSCRIPT) --dry-run
