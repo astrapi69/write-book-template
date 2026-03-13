@@ -1,0 +1,53 @@
+{
+  "formats": {
+    "markdown": "gfm",
+    "pdf": "pdf",
+    "epub": "epub",
+    "docx": "docx",
+    "html": "html"
+  },
+  "toc_depth": 2,
+  "epub_skip_toc_files": [
+    "front-matter/toc.md",
+    "front-matter/toc-print.md"
+  ],
+  "section_order": {
+    "default": [
+      "front-matter/toc.md",
+      "front-matter/foreword.md",
+      "front-matter/preface.md",
+      "chapters",
+      "back-matter/epilogue.md",
+      "back-matter/glossary.md",
+      "back-matter/appendix.md",
+      "back-matter/acknowledgments.md",
+      "back-matter/about-the-author.md",
+      "back-matter/bibliography.md",
+      "back-matter/imprint.md"
+    ],
+    "ebook": null,
+    "paperback": [
+      "front-matter/toc-print.md",
+      "front-matter/foreword.md",
+      "front-matter/preface.md",
+      "chapters",
+      "back-matter/epilogue.md",
+      "back-matter/glossary.md",
+      "back-matter/appendix.md",
+      "back-matter/acknowledgments.md",
+      "back-matter/about-the-author.md",
+      "back-matter/bibliography.md",
+      "back-matter/imprint.md"
+    ],
+    "hardcover": null,
+    "audiobook": [
+      "front-matter/foreword.md",
+      "front-matter/preface.md",
+      "chapters",
+      "back-matter/epilogue.md",
+      "back-matter/glossary.md",
+      "back-matter/acknowledgments.md",
+      "back-matter/about-the-author.md"
+    ]
+  }
+}

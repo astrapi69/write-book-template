@@ -1,5 +1,6 @@
 # scripts/full_export_book.py
 import os
+import json
 import shutil
 import subprocess
 import argparse
@@ -56,9 +57,12 @@ CONFIG_DIR = "./config"
 METADATA_FILE = (
     Path(CONFIG_DIR) / "metadata.yaml"
 )  # YAML file for Pandoc metadata (title, author, etc.)
+EXPORT_SETTINGS_FILE = (
+    Path(CONFIG_DIR) / "export-settings.json"
+)  # JSON file for export configuration
 
 # Supported output formats and their corresponding Pandoc targets
-FORMATS = {
+_BUILTIN_FORMATS = {
     "markdown": "gfm",  # GitHub-Flavored Markdown
     "pdf": "pdf",  # PDF format
     "epub": "epub",  # EPUB eBook format
@@ -66,8 +70,8 @@ FORMATS = {
     "html": "html",  # HTML format
 }
 
-# Default section order (customizable)
-DEFAULT_SECTION_ORDER = [
+# Built-in section orders (used as fallback when export-settings.json is missing)
+_BUILTIN_DEFAULT_SECTION_ORDER = [
     "front-matter/toc.md",
     "front-matter/foreword.md",
     "front-matter/preface.md",
@@ -81,12 +85,7 @@ DEFAULT_SECTION_ORDER = [
     "back-matter/imprint.md",
 ]
 
-# Ebook section order (inherits from default)
-EBOOK_SECTION_ORDER = DEFAULT_SECTION_ORDER
-
-# Paperback/Hardcover section order
-# Uses your existing toc-print.md for print editions
-PAPERBACK_SECTION_ORDER = [
+_BUILTIN_PAPERBACK_SECTION_ORDER = [
     "front-matter/toc-print.md",  # Your existing print TOC
     "front-matter/foreword.md",
     "front-matter/preface.md",
@@ -100,22 +99,85 @@ PAPERBACK_SECTION_ORDER = [
     "back-matter/imprint.md",
 ]
 
-# Hardcover section order (same as paperback)
-HARDCOVER_SECTION_ORDER = PAPERBACK_SECTION_ORDER
-
-# TOC files that should be skipped for EPUB (Pandoc generates TOC automatically)
-# This prevents epubcheck errors caused by manual TOC links like #anchor
-# that don't include the correct file references (chXXX.xhtml#anchor)
-EPUB_SKIP_TOC_FILES = [
+_BUILTIN_EPUB_SKIP_TOC_FILES = [
     "front-matter/toc.md",
     "front-matter/toc-print.md",
 ]
 
-# Default TOC depth for auto-generated TOCs
-# - Depth 2 (# ##): Recommended for most books, keeps TOC clean and navigable
-# - Depth 3 (# ## ###): Good for technical/academic books with many subsections
-# - Depth 1: Too shallow for most use cases
-DEFAULT_TOC_DEPTH = 2
+_BUILTIN_TOC_DEPTH = 2
+
+
+# --- Config loading from export-settings.json --------------------------------
+
+
+def load_export_settings(path=None):
+    """
+    Load export configuration from a JSON file.
+
+    Returns the parsed dict, or {} if the file does not exist.
+    """
+    settings_path = Path(path) if path else EXPORT_SETTINGS_FILE
+    if not settings_path.exists():
+        return {}
+    with settings_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_section_order_from_settings(settings, book_type_value):
+    """
+    Resolve the section order for a given book type from loaded settings.
+
+    Fallback chain:
+    - ebook   -> "ebook" key, then "default" key, then built-in default
+    - paperback -> "paperback" key, then built-in paperback
+    - hardcover -> "hardcover" key, then "paperback" key, then built-in paperback
+    - audiobook -> "audiobook" key, then "default" key, then built-in default
+
+    A null value in the JSON means "inherit from parent".
+    Returns None if settings has no section_order at all (caller uses built-in).
+    """
+    orders = settings.get("section_order")
+    if not orders:
+        return None
+
+    order = orders.get(book_type_value)
+
+    # null fallback chain
+    if order is None:
+        if book_type_value in ("ebook", "audiobook"):
+            order = orders.get("default")
+        elif book_type_value == "hardcover":
+            order = orders.get("paperback")
+
+    return order
+
+
+# --- Load settings and populate module-level constants -----------------------
+
+_EXPORT_SETTINGS = load_export_settings()
+
+FORMATS = _EXPORT_SETTINGS.get("formats", _BUILTIN_FORMATS)
+DEFAULT_TOC_DEPTH = _EXPORT_SETTINGS.get("toc_depth", _BUILTIN_TOC_DEPTH)
+EPUB_SKIP_TOC_FILES = _EXPORT_SETTINGS.get(
+    "epub_skip_toc_files", _BUILTIN_EPUB_SKIP_TOC_FILES
+)
+
+# Section orders: prefer config, fall back to built-in
+DEFAULT_SECTION_ORDER = (
+    get_section_order_from_settings(_EXPORT_SETTINGS, "default")
+    or _BUILTIN_DEFAULT_SECTION_ORDER
+)
+EBOOK_SECTION_ORDER = (
+    get_section_order_from_settings(_EXPORT_SETTINGS, "ebook") or DEFAULT_SECTION_ORDER
+)
+PAPERBACK_SECTION_ORDER = (
+    get_section_order_from_settings(_EXPORT_SETTINGS, "paperback")
+    or _BUILTIN_PAPERBACK_SECTION_ORDER
+)
+HARDCOVER_SECTION_ORDER = (
+    get_section_order_from_settings(_EXPORT_SETTINGS, "hardcover")
+    or PAPERBACK_SECTION_ORDER
+)
 
 
 def pick_section_order(book_type: "BookType", fmt: str) -> list[str]:

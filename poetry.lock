@@ -970,14 +970,14 @@ htmlsoup = ["BeautifulSoup4"]
 
 [[package]]
 name = "manuscript-tools"
-version = "0.3.0"
+version = "0.6.0"
 description = "Validation, sanitization and metrics for Markdown manuscripts."
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "manuscript_tools-0.3.0-py3-none-any.whl", hash = "sha256:432978e67a8559e67c22bb9d7434475b5c9879242040f769643449afd1f2ed87"},
-    {file = "manuscript_tools-0.3.0.tar.gz", hash = "sha256:48b1e969fc72d0c9e5871c4550c4f8d2dfd89680264a7283652dd308280540c9"},
+    {file = "manuscript_tools-0.6.0-py3-none-any.whl", hash = "sha256:d93cbc74b3542835119eb49a6e51569e00f574e007df403606a7454594838422"},
+    {file = "manuscript_tools-0.6.0.tar.gz", hash = "sha256:1ff08619cba087886c0b9b97e70a9f02733f42a6b1e2b7ca2d9b186ecd9cad96"},
 ]
 
 [package.dependencies]
@@ -2375,4 +2375,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "34d9bd0720e77b967ef316276cee5cc629377f7fc54201ca7f1b4868988f77eb"
+content-hash = "66aae19fb4ec08987e1d2280ff3ac59a46f60347c20ea005a50a21fc76d4bada"

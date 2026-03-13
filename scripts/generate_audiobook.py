@@ -31,15 +31,21 @@ from pathlib import Path
 from typing import List, Tuple
 
 from scripts.tts.base import TTSAdapter
+from scripts.full_export_book import (
+    load_export_settings,
+    get_section_order_from_settings,
+)
 
 # Ensure imports work when script is run directly from "scripts/"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir("..")
 
 
-# --- Default section order (same structure as full_export_book.py) -----------
+# --- Default section order ---------------------------------------------------
+# Loaded from config/export-settings.json ("audiobook" key) if available,
+# otherwise falls back to this built-in list.
 
-DEFAULT_SECTION_ORDER = [
+_BUILTIN_AUDIOBOOK_SECTION_ORDER = [
     "front-matter/toc.md",
     "front-matter/foreword.md",
     "front-matter/preface.md",
@@ -51,6 +57,12 @@ DEFAULT_SECTION_ORDER = [
     "back-matter/bibliography.md",
     "back-matter/imprint.md",
 ]
+
+_audiobook_settings = load_export_settings()
+DEFAULT_SECTION_ORDER = (
+    get_section_order_from_settings(_audiobook_settings, "audiobook")
+    or _BUILTIN_AUDIOBOOK_SECTION_ORDER
+)
 
 
 # --- Cleaning step functions -------------------------------------------------
