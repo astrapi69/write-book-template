@@ -1,17 +1,20 @@
+[tool.poetry]
+package-mode = false
+
 [project]
-name = "write-book-template"  # TODO: replace with your actual project name
+name = "write-book-template"
 version = "0.2.0"
-description = "Template project for writing and publishing books using markdown and automation tools"  # TODO: customize
+description = "Template project for writing and publishing books using markdown and automation tools"
 readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "manuscripta>=0.1.0,<1",
+    "manuscript-tools>=0.6.0,<1",
+]
 
 [[project.authors]]
 name = "Asterios Raptis"
 email = "asteri.raptis@gmail.com"
-
-[tool.poetry.dependencies]
-python = ">=3.11,<4.0"
-manuscripta = "^0.1.0"
-manuscript-tools = "^0.6.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
