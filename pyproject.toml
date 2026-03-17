@@ -1,160 +1,17 @@
 [project]
 name = "write-book-template"  # TODO: replace with your actual project name
-version = "0.1.0"
+version = "0.2.0"
 description = "Template project for writing and publishing books using markdown and automation tools"  # TODO: customize
 readme = "README.md"
+
 [[project.authors]]
 name = "Asterios Raptis"
 email = "asteri.raptis@gmail.com"
 
-[[tool.poetry.packages]]
-include = "scripts"
-
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-pandas = "^2.3.2"
-python-dotenv = "^1.1.0"
-requests = "^2.32.5"
-pillow = "^11.2.1"
-pyyaml = "^6.0.2"
-toml = "^0.10.2"
-ftfy = "^6.3.1"
-questionary = "^2.1.1"
-pymupdf = "^1.26.4"
+manuscripta = "^0.1.0"
 manuscript-tools = "^0.6.0"
-edge-tts = "^7.2.7"
-ebooklib = "^0.20"
-beautifulsoup4 = "^4.14.3"
-
-[tool.poetry.group.dev.dependencies]
-hypothesis = "^6.138.13"
-types-pyyaml = "^6.0.12.20250915"
-types-toml = "^0.10.8.20240310"
-ruff = "^0.14.0"
-black = "^25.9.0"
-codespell = "^2.4.1"
-pre-commit = "^4.3.0"
-types-requests = "^2.32.4.20250913"
-mypy = "^1.11"
-pytest-cov = "^4.1.0"
-
-[tool.poetry.group.test.dependencies]
-hypothesis = ">=6,<7"
-pytest = "^8.2"
-pytest-mock = "^3.10.0"
-
-[tool.poetry.scripts]
-fix-german-quotes = "scripts.fix_german_quotes:main"
-replace-md-bullet-points = "scripts.replace_md_bullet_points:main"
-unbold-md-headers = "scripts.unbold_md_headers:main"
-init-book-project = "scripts.init_book_project:main"
-full-export-book = "scripts.full_export_book:main"
-export-shortcuts = "scripts.shortcuts_export:main"
-update-metadata-values = "scripts.update_metadata_values:main"
-convert-paths-to-absolute = "scripts.convert_to_absolute:main"
-convert-paths-to-relative = "scripts.convert_to_relative:main"
-print-version-build = "scripts.print_version_build:main"
-generate-audiobook = "scripts.generate_audiobook:main"
-reorder-chapters = "scripts.reorder_and_rename_chapters:main"
-make-tag-message = "scripts.make_tag_message:main"
-bulk-change-ext = "scripts.bulk_change_extension:main"
-convert-images = "scripts.convert_images:main"
-generate-images-deepai = "scripts.generate_images_deepai:main"
-sanitize = "scripts.sanitize:main"
-pandoc-batch = "scripts.pandoc_batch:main"
-clean-git-cache = "scripts.clean_git_cache:main"
-full-export = "scripts.full_export_book:main"
-replace-emojis = "scripts.replace_emojis:main"
-translate-book-deepl = "scripts.translate_book_deepl:main"
-translate-book-lmstudio = "scripts.translate_book_lmstudio:main"
-create-chapters = "scripts.create_chapters:main"
-generate-images = "scripts.generate_images:main"
-inject-images = "scripts.inject_images:main"
-shortcuts-export = "scripts.shortcuts_export:main"
-shortcuts-init = "scripts.shortcuts_init:main"
-shortcuts-translate = "scripts.shortcuts_translate:main"
-export-comic = "scripts.full_export_comic:main"
-shortcuts-export-comic = "scripts.shortcuts_export_comic:main"
-
-# 🏁 Export Comic Shortcuts
-export-comic-html = "scripts.shortcuts_export_comic:export_comic_html"
-export-comic-pdf = "scripts.shortcuts_export_comic:export_comic_pdf"
-# 🏁 Export Shortcuts for epub
-export-epub = "scripts.shortcuts_export:export_epub"
-export-epub2 = "scripts.shortcuts_export:export_epub2"
-export-e = "scripts.shortcuts_export:export_epub"
-export-e2 = "scripts.shortcuts_export:export_epub2"
-export-epub-with-cover = "scripts.shortcuts_export:export_epub_with_cover"
-export-epub2-with-cover = "scripts.shortcuts_export:export_epub2_with_cover"
-export-ewc = "scripts.shortcuts_export:export_epub_with_cover"
-export-e2wc = "scripts.shortcuts_export:export_epub2_with_cover"
-export-print-version-epub = "scripts.shortcuts_export:export_print_version_epub"
-export-pve = "scripts.shortcuts_export:export_print_version_epub"
-export-print-version-paperback = "scripts.shortcuts_export:export_print_version_paperback"
-export-pvp = "scripts.shortcuts_export:export_print_version_paperback"
-export-print-version-hardcover = "scripts.shortcuts_export:export_print_version_hardcover"
-export-pvh = "scripts.shortcuts_export:export_print_version_hardcover"
-# 🏁 Export Shortcuts for markdown
-export-markdown = "scripts.shortcuts_export:export_markdown"
-export-md = "scripts.shortcuts_export:export_markdown"
-# 🏁 Export Shortcuts for PDF
-export-pdf = "scripts.shortcuts_export:export_pdf"
-export-p = "scripts.shortcuts_export:export_pdf"
-# 🏁 Export Shortcuts for docx
-export-docx = "scripts.shortcuts_export:export_docx"
-export-d = "scripts.shortcuts_export:export_docx"
-# 🏁 Export Shortcuts for html
-export-html = "scripts.shortcuts_export:export_html"
-export-h = "scripts.shortcuts_export:export_html"
-# 🏁 Export Shortcuts for all formats
-export-all-with-cover = "scripts.shortcuts_export:export_all_formats_with_cover"
-export-all = "scripts.shortcuts_export:export_all_formats"
-# Safe shortcuts (skip Step 1 & 4)
-export-pdf-safe = "scripts.shortcuts_export:export_pdf_safe"
-export-ps = "scripts.shortcuts_export:export_pdf_safe"
-export-epub-safe = "scripts.shortcuts_export:export_epub_safe"
-export-es = "scripts.shortcuts_export:export_epub_safe"
-export-docx-safe = "scripts.shortcuts_export:export_docx_safe"
-export-ds = "scripts.shortcuts_export:export_docx_safe"
-export-markdown-safe = "scripts.shortcuts_export:export_markdown_safe"
-export-mds = "scripts.shortcuts_export:export_markdown_safe"
-export-html-safe = "scripts.shortcuts_export:export_html_safe"
-export-hs = "scripts.shortcuts_export:export_html_safe"
-export-print-version-paperback-safe = "scripts.shortcuts_export:export_print_version_paperback_safe"
-export-pvps = "scripts.shortcuts_export:export_print_version_paperback_safe"
-export-print-version-hardcover-safe = "scripts.shortcuts_export:export_print_version_hardcover_safe"
-export-pvhs = "scripts.shortcuts_export:export_print_version_hardcover_safe"
-
-# Init Shortcuts
-update-mdv = "scripts.shortcuts_init:run_update_metadata_values"
-init-bp = "scripts.shortcuts_init:run_init_book_project"
-
-# Translate with LMStudio
-translate-book = "scripts.translate_book_lmstudio:main"
-# Short Translation Aliases
-translate-book-en-es = "scripts.shortcuts_translate_lms:translate_manuscript_from_english_to_spanish"
-translate-book-en-de = "scripts.shortcuts_translate_lms:translate_manuscript_from_english_to_german"
-translate-book-en-fr = "scripts.shortcuts_translate_lms:translate_manuscript_from_english_to_french"
-translate-book-de-en = "scripts.shortcuts_translate_lms:translate_manuscript_from_german_to_english"
-
-# Translation Shortcuts with deepL
-# Generic CLI Translation Shortcut
-translate = "scripts.shortcuts_translate:translate"
-# Verbose Translation Shortcuts
-translate_manuscript_to_german = "scripts.shortcuts_translate:translate_manuscript_to_german"
-translate_manuscript_from_german_to_english = "scripts.shortcuts_translate:translate_manuscript_from_german_to_english"
-translate_manuscript_from_english_to_spanish = "scripts.shortcuts_translate:translate_manuscript_from_english_to_spanish"
-translate_manuscript_from_german_to_spanish = "scripts.shortcuts_translate:translate_manuscript_from_german_to_spanish"
-# Short Translation Aliases
-translate-de-es = "scripts.shortcuts_translate:translate_manuscript_from_german_to_spanish"
-translate-en-es = "scripts.shortcuts_translate:translate_manuscript_from_english_to_spanish"
-translate-en-de = "scripts.shortcuts_translate:translate_manuscript_to_german"
-translate-de-en = "scripts.shortcuts_translate:translate_manuscript_from_german_to_english"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "--cov=scripts --cov-report=term-missing"
-pythonpath = [".", "scripts"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -173,23 +30,6 @@ standalone = true
 test_only = false
 patch_md = true
 fix_inplace = false
-
-[tool.mypy]
-python_version = "3.11"
-ignore_missing_imports = true
-no_implicit_optional = false
-check_untyped_defs = false
-warn_unused_ignores = false
-allow_redefinition = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-check_untyped_defs = false
-
-[tool.ruff]
-fix = true
-unsafe-fixes = true
 
 [tool.codespell]
 ignore-words-list = "prozess"

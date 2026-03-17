@@ -3,32 +3,26 @@
 SHELL := /bin/bash
 
 # Tool configuration
-PY ?= python3
 POETRY ?= poetry
 MDL_CLI_VER ?= 0.39.0
 CODESPELL_IGNORE ?= .codespellignore
+MANUSCRIPT ?= manuscript
 
 # Helper for markdownlint autofix
 define _run_markdownlint_fix
 	@if command -v npx >/dev/null 2>&1; then \
 		npx --yes markdownlint-cli@$(MDL_CLI_VER) --fix "**/*.md"; \
 	else \
-		echo "markdownlint: npx not found – please install npm (e.g. 'sudo apt install npm')" >&2; \
+		echo "markdownlint: npx not found - please install npm (e.g. 'sudo apt install npm')" >&2; \
 		exit 1; \
 	fi
 endef
 
-.PHONY: help setup install update hooks fix format fix-all lint typecheck precommit \
-        test test-fast \
-        export export-all export-all-nc \
-        ebook ebook-copy paperback paperback-copy hardcover hardcover-copy \
-        pdf docx markdown html \
-        comic-html comic-pdf \
-        clean clean-venv clean-git-cache
-
 # ----------------------------------------------------------------------
 # Help
 # ----------------------------------------------------------------------
+
+.PHONY: help
 
 help: ## Show all available make targets
 	@echo "Available targets:"
@@ -39,81 +33,41 @@ help: ## Show all available make targets
 # Environment Setup
 # ----------------------------------------------------------------------
 
-setup: ## Install Poetry, dev dependencies and pre-commit hooks
-	@$(PY) -m pip install --user pipx || true
-	@pipx install pre-commit || true
-	@$(POETRY) install
-	@$(POETRY) run pre-commit install
+.PHONY: setup lock-install install update
 
-lock-install: ## Lock and Install project dependencies
+setup: lock-install ## Install dependencies and initialize project
+	@$(POETRY) run init-bp $(ARGS)
+
+lock-install: ## Lock and install project dependencies
 	@$(POETRY) lock
 	@$(POETRY) install
 
 install: ## Install project dependencies
 	@$(POETRY) install
 
-update: ## Update dependencies
+update: ## Update dependencies (including manuscripta)
 	@$(POETRY) update
 
-hooks: ## Install or refresh pre-commit hooks
-	@$(POETRY) run pre-commit install
-
 # ----------------------------------------------------------------------
-# Code Quality: Fix / Format / Lint
+# Project Initialization
 # ----------------------------------------------------------------------
 
-fix: ## Run quick autofixes (Ruff + Black)
-	@$(POETRY) run ruff check . --fix --unsafe-fixes
-	@$(POETRY) run black .
+.PHONY: init-bp init-project
 
-format: ## Format all Python files using Black
-	@$(POETRY) run black .
+init-bp: ## Initialize a new book project using the template
+	@$(POETRY) run init-bp $(ARGS)
 
-fix-all: ## Run all auto-fixes (Ruff, Black, Markdownlint)
-	@$(POETRY) run ruff check . --fix --unsafe-fixes
-	@$(POETRY) run black .
-	@$(call _run_markdownlint_fix)
-
-lint: ## Run all linters (Ruff, Black check, Markdownlint)
-	@$(POETRY) run ruff check .
-	@$(POETRY) run black --check .
-	@if command -v npx >/dev/null 2>&1; then \
-		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
-	else \
-		echo "markdownlint: npx not found – please install npm" >&2; \
-	fi
-
-typecheck: ## Run MyPy type checks using pre-commit
-	@$(POETRY) run pre-commit run mypy --all-files
-
-precommit: ## Run all pre-commit hooks
-	@$(POETRY) run pre-commit run -a
-
-.PHONY: codespell
-
-codespell: ## Run codespell manually (safe, optional)
-	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE)
-
-.PHONY: codespell-fix
-
-codespell-fix: ## Run codespell with write-changes (use with caution)
-	@$(POETRY) run codespell --ignore-words=$(CODESPELL_IGNORE) --write-changes
+init-project: init-bp ## Alias: initialize a new project
 
 # ----------------------------------------------------------------------
-# Tests
+# Book Export
 # ----------------------------------------------------------------------
 
-test: ## Run pytest with coverage
-	@$(POETRY) run pytest -q --maxfail=1 --disable-warnings --cov=./ --cov-report=xml
+.PHONY: export export-all export-all-nc \
+        ebook ebook-copy paperback paperback-copy hardcover hardcover-copy \
+        pdf docx markdown html \
+        comic-html comic-pdf audiobook
 
-test-fast: ## Run pytest without coverage (faster)
-	@$(POETRY) run pytest -q --maxfail=1 --disable-warnings
-
-# ----------------------------------------------------------------------
-# Book Export Commands (backwards-compatible)
-# ----------------------------------------------------------------------
-
-# Legacy target "export" remains and now uses the new all-formats-with-cover shortcut
 export: ## Export all formats WITH default cover
 	@$(POETRY) run export-all-with-cover $(ARGS)
 
@@ -124,7 +78,7 @@ export-all-nc: ## Export all formats WITHOUT cover
 	@$(POETRY) run export-all $(ARGS)
 
 # Frequently used export flows
-ebook: ## Export E-Book (EPUB, NOT EPUB2)
+ebook: ## Export E-Book (EPUB)
 	@$(POETRY) run export-epub-safe $(ARGS)
 
 ebook-copy: ## Export E-Book and copy EPUB to ~/Downloads (or EPUB_DEST)
@@ -162,49 +116,35 @@ comic-html: ## Export comic as HTML
 comic-pdf: ## Export comic as PDF
 	@$(POETRY) run export-comic-pdf $(ARGS)
 
-# ----------------------------------------------------------------------
-# Cleanup
-# ----------------------------------------------------------------------
-
-clean: ## Remove cache and build artifacts
-	@find . -type d -name "__pycache__" -prune -exec rm -rf {} + || true
-	@find . -type d -name ".pytest_cache" -prune -exec rm -rf {} + || true
-	@rm -rf .mypy_cache .ruff_cache .coverage dist build coverage.xml || true
-
-clean-venv: ## Remove Poetry virtualenv
-	@$(POETRY) env remove --all || true
-
-clean-git-cache: ## Remove the git cache
-	@$(POETRY) run clean-git-cache $(ARGS)
+# Audiobook
+audiobook: ## Generate audiobook from manuscript
+	@$(POETRY) run manuscripta-audiobook $(ARGS)
 
 # ----------------------------------------------------------------------
-# Project Initialization
+# Translation
 # ----------------------------------------------------------------------
 
-.PHONY: init-bp init-project
+.PHONY: translate-de-en translate-en-de translate-en-es translate-de-es
 
-init-bp: lock-install ## Initialize a new book project using the template
-	@$(POETRY) run init-bp $(ARGS)
+translate-de-en: ## Translate manuscript German -> English (DeepL)
+	@$(POETRY) run translate-de-en $(ARGS)
 
-# Backwards-compatible and short alias
-init-project: init-bp ## Alias: initialize a new project
+translate-en-de: ## Translate manuscript English -> German (DeepL)
+	@$(POETRY) run translate-en-de $(ARGS)
 
-# ----------------------------------------------------------------------
-# Project Releases
-# ----------------------------------------------------------------------
+translate-en-es: ## Translate manuscript English -> Spanish (DeepL)
+	@$(POETRY) run translate-en-es $(ARGS)
 
-.PHONY: tag-message
-
-tag-message: ## Interactive: Generate tag message file and (optionally) create tag
-	@$(POETRY) run make-tag-message
+translate-de-es: ## Translate manuscript German -> Spanish (DeepL)
+	@$(POETRY) run translate-de-es $(ARGS)
 
 # ----------------------------------------------------------------------
-# Manuscript Tools
+# Manuscript Tools (provided by manuscript-tools)
 # ----------------------------------------------------------------------
 
-MANUSCRIPT ?= manuscript
-
-.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry ms-quotes ms-quotes-dry ms-format ms-format-dry ms-metrics ms-validate ms-validate-fix
+.PHONY: ms-check ms-check-strict ms-sanitize ms-sanitize-dry \
+        ms-quotes ms-quotes-dry ms-format ms-format-dry \
+        ms-metrics ms-validate ms-validate-fix
 
 ms-check: ## Manuscript: core style checks
 	@$(POETRY) run ms-check $(MANUSCRIPT)
@@ -238,3 +178,51 @@ ms-validate: ## Manuscript: full pipeline (sanitize + check + readability)
 
 ms-validate-fix: ## Manuscript: full pipeline with auto-fix
 	@$(POETRY) run ms-validate $(MANUSCRIPT) --fix
+
+# ----------------------------------------------------------------------
+# Markdown Quality
+# ----------------------------------------------------------------------
+
+.PHONY: mdlint mdlint-fix codespell codespell-fix
+
+mdlint: ## Run markdownlint on all Markdown files
+	@if command -v npx >/dev/null 2>&1; then \
+		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
+	else \
+		echo "markdownlint: npx not found - please install npm" >&2; \
+	fi
+
+mdlint-fix: ## Run markdownlint with auto-fix
+	@$(call _run_markdownlint_fix)
+
+codespell: ## Run codespell on manuscript
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE)
+
+codespell-fix: ## Run codespell with auto-fix
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes
+
+# ----------------------------------------------------------------------
+# Project Releases
+# ----------------------------------------------------------------------
+
+.PHONY: tag-message
+
+tag-message: ## Interactive: Generate tag message file and (optionally) create tag
+	@$(POETRY) run make-tag-message
+
+# ----------------------------------------------------------------------
+# Cleanup
+# ----------------------------------------------------------------------
+
+.PHONY: clean clean-venv clean-git-cache
+
+clean: ## Remove output and cache artifacts
+	@rm -rf output output_backup export.log || true
+	@find . -type d -name "__pycache__" -prune -exec rm -rf {} + || true
+	@rm -rf .mypy_cache .ruff_cache .coverage coverage.xml || true
+
+clean-venv: ## Remove Poetry virtualenv
+	@$(POETRY) env remove --all || true
+
+clean-git-cache: ## Remove the git cache
+	@$(POETRY) run clean-git-cache $(ARGS)
