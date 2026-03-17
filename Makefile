@@ -226,3 +226,27 @@ clean-venv: ## Remove Poetry virtualenv
 
 clean-git-cache: ## Remove the git cache
 	@$(POETRY) run clean-git-cache $(ARGS)
+
+# ----------------------------------------------------------------------
+# Quality & Hooks
+# ----------------------------------------------------------------------
+
+.PHONY: hooks fix lint precommit
+
+hooks: ## Install or refresh pre-commit hooks
+	@$(POETRY) run pre-commit install
+
+fix: ## Run all auto-fixes (markdownlint + codespell)
+	@$(call _run_markdownlint_fix)
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes || true
+
+lint: ## Run all linters (markdownlint + codespell)
+	@if command -v npx >/dev/null 2>&1; then \
+		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
+	else \
+		echo "markdownlint: npx not found - please install npm" >&2; \
+	fi
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE)
+
+precommit: ## Run all pre-commit hooks
+	@$(POETRY) run pre-commit run -a
