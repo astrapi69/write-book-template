@@ -1,6 +1,5 @@
 # scripts/full_export_book.py
 import os
-import json
 import shutil
 import subprocess
 import argparse
@@ -58,8 +57,8 @@ METADATA_FILE = (
     Path(CONFIG_DIR) / "metadata.yaml"
 )  # YAML file for Pandoc metadata (title, author, etc.)
 EXPORT_SETTINGS_FILE = (
-    Path(CONFIG_DIR) / "export-settings.json"
-)  # JSON file for export configuration
+    Path(CONFIG_DIR) / "export-settings.yaml"
+)  # YAML file for export configuration
 
 # Supported output formats and their corresponding Pandoc targets
 _BUILTIN_FORMATS = {
@@ -70,7 +69,7 @@ _BUILTIN_FORMATS = {
     "html": "html",  # HTML format
 }
 
-# Built-in section orders (used as fallback when export-settings.json is missing)
+# Built-in section orders (used as fallback when export-settings.yaml is missing)
 _BUILTIN_DEFAULT_SECTION_ORDER = [
     "front-matter/toc.md",
     "front-matter/foreword.md",
@@ -104,15 +103,19 @@ _BUILTIN_EPUB_SKIP_TOC_FILES = [
     "front-matter/toc-print.md",
 ]
 
+# Default TOC depth for auto-generated TOCs
+# - Depth 2 (# ##): Recommended for most books, keeps TOC clean and navigable
+# - Depth 3 (# ## ###): Good for technical/academic books with many subsections
+# - Depth 1: Too shallow for most use cases
 _BUILTIN_TOC_DEPTH = 2
 
 
-# --- Config loading from export-settings.json --------------------------------
+# --- Config loading from export-settings.yaml --------------------------------
 
 
 def load_export_settings(path=None):
     """
-    Load export configuration from a JSON file.
+    Load export configuration from a YAML file.
 
     Returns the parsed dict, or {} if the file does not exist.
     """
@@ -120,7 +123,7 @@ def load_export_settings(path=None):
     if not settings_path.exists():
         return {}
     with settings_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+        return yaml.safe_load(f)
 
 
 def get_section_order_from_settings(settings, book_type_value):
@@ -133,7 +136,7 @@ def get_section_order_from_settings(settings, book_type_value):
     - hardcover -> "hardcover" key, then "paperback" key, then built-in paperback
     - audiobook -> "audiobook" key, then "default" key, then built-in default
 
-    A null value in the JSON means "inherit from parent".
+    A null value in the YAML means "inherit from parent".
     Returns None if settings has no section_order at all (caller uses built-in).
     """
     orders = settings.get("section_order")

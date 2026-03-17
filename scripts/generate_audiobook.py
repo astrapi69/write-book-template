@@ -22,7 +22,7 @@ Supported TTS engines:
 import os
 import re
 import html
-import json
+import yaml
 import time
 import shutil
 import subprocess
@@ -42,7 +42,7 @@ os.chdir("..")
 
 
 # --- Default section order ---------------------------------------------------
-# Loaded from config/export-settings.json ("audiobook" key) if available,
+# Loaded from config/export-settings.yaml ("audiobook" key) if available,
 # otherwise falls back to this built-in list.
 
 _BUILTIN_AUDIOBOOK_SECTION_ORDER = [
@@ -706,12 +706,12 @@ def main():
     parser.add_argument("--voice", type=str, help="Voice ID or name")
     parser.add_argument("--rate", type=int, help="Speech rate (pyttsx3 only)")
     parser.add_argument(
-        "--settings", type=Path, help="Path to JSON voice-settings file"
+        "--settings", type=Path, help="Path to YAML voice-settings file"
     )
     parser.add_argument(
         "--section-order",
         type=Path,
-        help="Path to JSON file defining section order (list of relative paths). "
+        help="Path to YAML file defining section order (list of relative paths). "
         "If not provided, uses DEFAULT_SECTION_ORDER.",
     )
     parser.add_argument(
@@ -758,11 +758,11 @@ def main():
     if not args.output:
         parser.error("--output is required when generating audio")
 
-    # Load settings from JSON (optional)
+    # Load settings from YAML (optional)
     config = {}
     if args.settings and args.settings.exists():
         with args.settings.open("r", encoding="utf-8") as f:
-            config = json.load(f)
+            config = yaml.safe_load(f)
 
     # Apply CLI args (override config file if set)
     lang = args.lang or config.get("language", "en")
@@ -807,7 +807,7 @@ def main():
     section_order = None
     if args.section_order and args.section_order.exists():
         with args.section_order.open("r", encoding="utf-8") as f:
-            section_order = json.load(f)
+            section_order = yaml.safe_load(f)
     elif config.get("section_order"):
         section_order = config["section_order"]
 
