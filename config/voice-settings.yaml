@@ -1,0 +1,17 @@
+# TTS configuration for audiobook generation
+# Section order is defined centrally in export-settings.yaml (section_order.audiobook)
+
+# Language code for TTS engine
+language: en
+
+# Azure TTS voice identifier
+# See: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support
+voice: en-US-JennyNeural
+
+# Sections to skip during TTS processing
+# Matched against filenames without path and extension (case-insensitive)
+skip:
+  - toc
+  - toc-print
+  - bibliography
+  - imprint
