@@ -1,0 +1,55 @@
+# init-settings.yaml
+# Defines which directories and files are created by init-bp.
+#
+# To customize, edit the lists below.
+# To add to defaults without replacing: use include_directories,
+# include_files, and exclude instead of directories/files.
+#
+# Examples:
+#   include_directories:
+#     - manuscript/exercises
+#     - assets/audio
+#
+#   include_files:
+#     - manuscript/chapters/03-chapter.md
+#
+#   exclude:
+#     - manuscript/back-matter/appendix.md
+#     - config/amazon-kdp-info.md
+
+directories:
+  - manuscript/chapters
+  - manuscript/front-matter
+  - manuscript/back-matter
+  - assets/covers
+  - assets/author
+  - assets/figures/diagrams
+  - assets/figures/infographics
+  - config
+  - config/data
+  - output
+
+files:
+  - manuscript/chapters/01-chapter.md
+  - manuscript/chapters/02-chapter.md
+  - manuscript/front-matter/foreword.md
+  - manuscript/front-matter/preface.md
+  - manuscript/front-matter/toc.md
+  - manuscript/front-matter/toc-print.md
+  - manuscript/back-matter/about-the-author.md
+  - manuscript/back-matter/acknowledgments.md
+  - manuscript/back-matter/appendix.md
+  - manuscript/back-matter/bibliography.md
+  - manuscript/back-matter/epilogue.md
+  - manuscript/back-matter/glossary.md
+  - manuscript/back-matter/imprint.md
+  - config/amazon-kdp-info.md
+  - config/book-description.html
+  - config/cover-back-page-author-introduction.md
+  - config/cover-back-page-author-introduction.txt
+  - config/cover-back-page-description.md
+  - config/cover-back-page-description.txt
+  - config/keywords.md
+  - config/styles.css
+  - README.md
+  - LICENSE
