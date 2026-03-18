@@ -8,7 +8,7 @@ description = "Template project for writing and publishing books using markdown 
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
-    "manuscripta>=0.1.0,<1",
+    "manuscripta>=0.1.1,<1",
     "manuscript-tools>=0.6.0,<1",
 ]
 
