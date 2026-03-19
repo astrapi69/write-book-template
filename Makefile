@@ -54,7 +54,7 @@ update: ## Update dependencies (including manuscripta)
 
 .PHONY: init-bp init-project
 
-init-bp: ## Initialize a new book project using the template
+init-bp: lock-install ## Initialize a new book project using the template
 	@$(POETRY) run init-bp $(ARGS)
 
 init-project: init-bp ## Alias: initialize a new project
