@@ -23,8 +23,8 @@ directories:
   - manuscript/back-matter
   - assets/covers
   - assets/author
-  - assets/figures/diagrams
-  - assets/figures/infographics
+  - assets/logo
+  - assets/figures/
   - config
   - config/data
   - output
@@ -43,13 +43,8 @@ files:
   - manuscript/back-matter/epilogue.md
   - manuscript/back-matter/glossary.md
   - manuscript/back-matter/imprint.md
-  - config/amazon-kdp-info.md
   - config/book-description.html
   - config/cover-back-page-author-introduction.md
-  - config/cover-back-page-author-introduction.txt
   - config/cover-back-page-description.md
-  - config/cover-back-page-description.txt
   - config/keywords.md
   - config/styles.css
-  - README.md
-  - LICENSE
