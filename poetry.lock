@@ -741,14 +741,14 @@ ftfy = ">=6.1,<7.0"
 
 [[package]]
 name = "manuscripta"
-version = "0.1.0"
+version = "0.5.0"
 description = "Book production pipeline for authors and self-publishers. Multi-format export (PDF, EPUB, DOCX, HTML, Markdown), audiobook generation, translation, and manuscript tooling."
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "manuscripta-0.1.0-py3-none-any.whl", hash = "sha256:6dc4287068576ea34b2ed7dc4d7c22df16b87343f4e629fcd462be8cc100eae3"},
-    {file = "manuscripta-0.1.0.tar.gz", hash = "sha256:c8aa9177f82ff115ded5620a2c330f81650c4bee61d0a201df8dceaafd2bc3d8"},
+    {file = "manuscripta-0.5.0-py3-none-any.whl", hash = "sha256:8bdad832498c1d809040805d811668ef0908250c5f104b94e3f5567af9966a1c"},
+    {file = "manuscripta-0.5.0.tar.gz", hash = "sha256:1c136c91f06a3e95d43b260bf8abf3ecaf65d5ad01d61cea2d65f4c57df362db"},
 ]
 
 [package.dependencies]
@@ -1806,4 +1806,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "e78f2b1c738c8224f3e69198a3d85fa5198a86c5e81e5fcbda3403c1322da5a9"
+content-hash = "92a3b450d427ee33b243729c992e54c47db19c2e596d332ee1854b89d58c90ed"
