@@ -1,5 +1,9 @@
 # TTS configuration for audiobook generation
+# All settings can be overridden via CLI flags (CLI takes priority).
 # Section order is defined centrally in export-settings.yaml (section_order.audiobook)
+
+# TTS engine: edge (recommended), google, pyttsx3, elevenlabs
+engine: edge
 
 # Language code for TTS engine
 language: en
@@ -11,6 +15,29 @@ skip:
   - toc-print
   - bibliography
   - imprint
+
+# Input: directory with *.md files OR path to a single .epub file
+# input: manuscript
+
+# Output: directory for generated .mp3 files
+# output: output/audiobook/en
+
+# Overwrite existing MP3 files (default: false, skips existing)
+# overwrite: false
+
+# Merge all chapter MP3s into a single audiobook file (requires ffmpeg)
+# merge: false
+
+# Exact filename for the merged audiobook (e.g. 'my-book.mp3')
+# Overrides the auto-generated {Voice}_{Title}.mp3 naming
+# merge_filename: my-book.mp3
+
+# Custom book title used in the auto-generated merge filename
+# Only relevant when merge_filename is not set
+# title: My Book Title
+
+# Speech rate (pyttsx3 only)
+# rate: 200
 
 # Azure TTS voice identifier
 # See: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support
@@ -37,8 +64,8 @@ voice: en-US-JennyNeural
 # Hellenic speakers:
 # voice: el-GR-AthinaNeural
 
-# Italic speakers:
+# Italian speakers:
 # voice: it-IT-ElsaNeural
 
-# Italic speakers:
+# Portuguese speakers:
 # voice: pt-BR-FranciscaNeural
