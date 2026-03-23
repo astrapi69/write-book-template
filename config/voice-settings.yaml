@@ -4,10 +4,6 @@
 # Language code for TTS engine
 language: en
 
-# Azure TTS voice identifier
-# See: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support
-voice: en-US-JennyNeural
-
 # Sections to skip during TTS processing
 # Matched against filenames without path and extension (case-insensitive)
 skip:
@@ -15,3 +11,34 @@ skip:
   - toc-print
   - bibliography
   - imprint
+
+# Azure TTS voice identifier
+# See: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support
+# English speakers:
+voice: en-US-JennyNeural
+# voice: en-US-GuyNeural
+# voice: en-GB-SoniaNeural
+# voice: en-GB-RyanNeural
+
+# German speakers:
+# voice: de-DE-KatjaNeural
+# voice: de-DE-ConradNeural
+# voice: de-AT-IngridNeural
+# voice: de-AT-JonasNeural
+# voice: de-CH-LeniNeural
+# voice: de-CH-JanNeural
+
+# Spanish speakers:
+# voice: es-ES-ElviraNeural
+
+# French speakers:
+# voice: fr-FR-DeniseNeural
+
+# Hellenic speakers:
+# voice: el-GR-AthinaNeural
+
+# Italic speakers:
+# voice: it-IT-ElsaNeural
+
+# Italic speakers:
+# voice: pt-BR-FranciscaNeural
