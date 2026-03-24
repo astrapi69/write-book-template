@@ -1,5 +1,6 @@
-# Export configuration for full_export_book.py
-# Controls Pandoc output formats, TOC behavior, and section ordering per book type.
+# Export configuration for full_export_book
+# Controls Pandoc output formats, TOC behavior, section ordering, and export defaults.
+# All export_defaults can be overridden via CLI flags (CLI takes priority).
 
 # Supported output formats and their Pandoc targets
 formats:
@@ -65,3 +66,22 @@ section_order:
     - back-matter/appendix.md
     - back-matter/acknowledgments.md
     - back-matter/about-the-author.md
+
+# Export defaults
+# All values here can be overridden via CLI flags.
+# Priority: CLI > export_defaults > built-in defaults
+# Uncomment and set values as needed.
+export_defaults:
+# output_file: my-book          # Base name for output files (default: from pyproject.toml name)
+# lang: en                      # Language code (default: from metadata.yaml)
+# book_type: ebook              # ebook, paperback, hardcover (default: ebook)
+# format: pdf,epub              # Comma-separated formats to export
+# cover: assets/covers/cover.jpg  # Path to cover image for EPUB
+# epub2: false                  # Force EPUB 2 format
+# extension: md                 # Custom file extension for markdown export
+# toc_depth: 2                  # TOC depth (1-3)
+# no_type_suffix: false         # Don't append _ebook/_paperback to filename
+# use_manual_toc: false         # Use toc.md instead of auto-generated TOC
+# skip_images: false            # Skip image path rewrites
+# keep_relative_paths: false    # Keep relative paths (skip Steps 1 and 4)
+# copy_epub_to: ~/Downloads     # Copy generated EPUB to this directory
