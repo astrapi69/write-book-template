@@ -91,19 +91,19 @@ export-all-nc: ## Export all formats WITHOUT cover
 
 # Frequently used export flows
 ebook: ## Export E-Book (EPUB)
-	@$(POETRY) run export-epub-safe $(ARGS)
+	@$(POETRY) run export-epub $(ARGS)
 
 ebook-copy: ## Export E-Book and copy EPUB to ~/Downloads (or EPUB_DEST)
 	@$(POETRY) run export-epub-safe --copy-epub-to $(or $(EPUB_DEST),~/Downloads) $(ARGS)
 
 paperback: ## Export print version (paperback)
-	@$(POETRY) run export-print-version-paperback-safe $(ARGS)
+	@$(POETRY) run export-print-version-paperback $(ARGS)
 
 paperback-copy: ## Export paperback and copy EPUB to ~/Downloads (or EPUB_DEST)
 	@$(POETRY) run export-print-version-paperback-safe --copy-epub-to $(or $(EPUB_DEST),~/Downloads) $(ARGS)
 
 hardcover: ## Export print version (hardcover)
-	@$(POETRY) run export-print-version-hardcover-safe $(ARGS)
+	@$(POETRY) run export-print-version-hardcover $(ARGS)
 
 hardcover-copy: ## Export hardcover and copy EPUB to ~/Downloads (or EPUB_DEST)
 	@$(POETRY) run export-print-version-hardcover-safe --copy-epub-to $(or $(EPUB_DEST),~/Downloads) $(ARGS)
@@ -263,28 +263,6 @@ ms-validate-fix: ## Manuscript: full pipeline with auto-fix
 	@$(POETRY) run ms-validate $(MANUSCRIPT) --fix
 
 # ----------------------------------------------------------------------
-# Markdown Quality
-# ----------------------------------------------------------------------
-
-.PHONY: mdlint mdlint-fix codespell codespell-fix
-
-mdlint: ## Run markdownlint on all Markdown files
-	@if command -v npx >/dev/null 2>&1; then \
-		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
-	else \
-		echo "markdownlint: npx not found - please install npm" >&2; \
-	fi
-
-mdlint-fix: ## Run markdownlint with auto-fix
-	@$(call _run_markdownlint_fix)
-
-codespell: ## Run codespell on manuscript
-	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE)
-
-codespell-fix: ## Run codespell with auto-fix
-	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes
-
-# ----------------------------------------------------------------------
 # Project Releases
 # ----------------------------------------------------------------------
 
@@ -309,6 +287,28 @@ clean-venv: ## Remove Poetry virtualenv
 
 clean-git-cache: ## Remove the git cache
 	@$(POETRY) run clean-git-cache $(ARGS)
+
+# ----------------------------------------------------------------------
+# Markdown Quality
+# ----------------------------------------------------------------------
+
+.PHONY: mdlint mdlint-fix codespell codespell-fix
+
+mdlint: ## Run markdownlint on all Markdown files
+	@if command -v npx >/dev/null 2>&1; then \
+		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
+	else \
+		echo "markdownlint: npx not found - please install npm" >&2; \
+	fi
+
+mdlint-fix: ## Run markdownlint with auto-fix
+	@$(call _run_markdownlint_fix)
+
+codespell: ## Run codespell on manuscript
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE)
+
+codespell-fix: ## Run codespell with auto-fix
+	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes
 
 # ----------------------------------------------------------------------
 # Quality & Hooks
