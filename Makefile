@@ -63,13 +63,17 @@ init-project: init-bp ## Alias: initialize a new project
 # Chapter Creation
 # ----------------------------------------------------------------------
 
-.PHONY: create-chapters create-next-chapter
+.PHONY: create-chapters create-next-chapter cc cnc
 
 create-chapters: ## Create multiple new chapter files
 	@$(POETRY) run create-chapters $(ARGS)
 
 create-next-chapter: ## Create the next chapter file
 	@$(POETRY) run create-chapters --total 1
+
+cc: create-chapters ## Alias: create-chapters
+
+cnc: create-next-chapter ## Alias: create-next-chapter
 
 # ----------------------------------------------------------------------
 # Book Export
@@ -289,7 +293,7 @@ clean-git-cache: ## Remove the git cache
 	@$(POETRY) run clean-git-cache $(ARGS)
 
 # ----------------------------------------------------------------------
-# Markdown Quality
+# Markdown Quality (individual tools)
 # ----------------------------------------------------------------------
 
 .PHONY: mdlint mdlint-fix codespell codespell-fix
@@ -311,7 +315,7 @@ codespell-fix: ## Run codespell with auto-fix
 	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes
 
 # ----------------------------------------------------------------------
-# Quality & Hooks
+# Quality & Hooks (combined)
 # ----------------------------------------------------------------------
 
 .PHONY: hooks fix lint precommit
@@ -319,17 +323,9 @@ codespell-fix: ## Run codespell with auto-fix
 hooks: ## Install or refresh pre-commit hooks
 	@$(POETRY) run pre-commit install
 
-fix: ## Run all auto-fixes (markdownlint + codespell)
-	@$(call _run_markdownlint_fix)
-	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE) --write-changes || true
+fix: mdlint-fix codespell-fix ## Run all auto-fixes (markdownlint + codespell)
 
-lint: ## Run all linters (markdownlint + codespell)
-	@if command -v npx >/dev/null 2>&1; then \
-		npx --yes markdownlint-cli@$(MDL_CLI_VER) "**/*.md"; \
-	else \
-		echo "markdownlint: npx not found - please install npm" >&2; \
-	fi
-	@$(POETRY) run codespell $(MANUSCRIPT) --ignore-words=$(CODESPELL_IGNORE)
+lint: mdlint codespell ## Run all linters (markdownlint + codespell)
 
 precommit: ## Run all pre-commit hooks
 	@$(POETRY) run pre-commit run -a
