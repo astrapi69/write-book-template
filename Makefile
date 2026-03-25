@@ -58,6 +58,17 @@ init-bp: lock-install ## Initialize a new book project using the template
 	@$(POETRY) run init-bp $(ARGS)
 
 init-project: init-bp ## Alias: initialize a new project
+# ----------------------------------------------------------------------
+# Chapter Creation
+# ----------------------------------------------------------------------
+
+.PHONY: create-chapters create-next-chapter
+
+create-chapters: ## Create multiple new chapter files
+	@$(POETRY) run create-chapters $(ARGS)
+
+create-next-chapter: ## Create the next chapter file
+	@$(POETRY) run create-chapters --total 1
 
 # ----------------------------------------------------------------------
 # Book Export
