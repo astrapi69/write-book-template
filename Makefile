@@ -329,3 +329,12 @@ lint: mdlint codespell ## Run all linters (markdownlint + codespell)
 
 precommit: ## Run all pre-commit hooks
 	@$(POETRY) run pre-commit run -a
+
+# ----------------------------------------------------------------------
+# Project Releases
+# ----------------------------------------------------------------------
+
+.PHONY: tag-message
+
+tag-message: ## Interactive: Generate tag message file and (optionally) create tag
+	@$(POETRY) run make-tag-message
