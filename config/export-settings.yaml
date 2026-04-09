@@ -74,7 +74,7 @@ section_order:
 export_defaults:
 # output_file: my-book          # Base name for output files (default: from pyproject.toml name)
 # lang: en                      # Language code (default: from metadata.yaml)
-# book_type: ebook              # ebook, paperback, hardcover (default: ebook)
+# book_type: ebook              # ebook, paperback, hardcover, audiobook (default: ebook)
 # format: pdf,epub              # Comma-separated formats to export
 # cover: assets/covers/cover.jpg  # Path to cover image for EPUB
 # epub2: false                  # Force EPUB 2 format
