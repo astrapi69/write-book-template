@@ -27,12 +27,16 @@ repos:
     rev: v0.41.0
     hooks:
       - id: markdownlint
+        exclude: ^(manuscript|config|assets)/
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
       - id: codespell
         args: ["--ignore-words=.codespellignore"]
+        # codespell flags names and foreign words in the book; skip the manuscript and the
+        # cover/config content (the Lektorat prompt and reports are German).
+        exclude: ^(manuscript|config|assets)/
 
   # --- Security / Secrets ---------------------------------------------------
   - repo: https://github.com/zricethezav/gitleaks
