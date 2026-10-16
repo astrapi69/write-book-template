@@ -36,3 +36,9 @@ fix_inplace = false
 
 [tool.codespell]
 ignore-words-list = "prozess"
+
+[dependency-groups]
+dev = [
+    "pre-commit (>=4.7.0,<5.0.0)",
+    "codespell (>=2.4.3,<3.0.0)"
+]

@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 # Tool configuration
 POETRY ?= poetry
-MDL_CLI_VER ?= 0.39.0
+MDL_CLI_VER ?= 0.49.1
 CODESPELL_IGNORE ?= .codespellignore
 MANUSCRIPT ?= manuscript
 
